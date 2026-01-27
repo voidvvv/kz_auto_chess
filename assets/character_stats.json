@@ -1,0 +1,30 @@
+{
+  "characters": [
+    {"cardId": 1, "health": 100, "mana": 40, "attack": 10, "defense": 5, "magicPower": 10, "magicResist": 5, "agility": 10},
+    {"cardId": 2, "health": 100, "mana": 40, "attack": 10, "defense": 5, "magicPower": 10, "magicResist": 5, "agility": 10},
+    {"cardId": 3, "health": 100, "mana": 40, "attack": 10, "defense": 5, "magicPower": 10, "magicResist": 5, "agility": 10},
+    {"cardId": 4, "health": 100, "mana": 40, "attack": 10, "defense": 5, "magicPower": 10, "magicResist": 5, "agility": 10},
+    {"cardId": 5, "health": 100, "mana": 40, "attack": 10, "defense": 5, "magicPower": 10, "magicResist": 5, "agility": 10},
+    {"cardId": 6, "health": 120, "mana": 50, "attack": 12, "defense": 6, "magicPower": 12, "magicResist": 6, "agility": 12},
+    {"cardId": 7, "health": 120, "mana": 50, "attack": 12, "defense": 6, "magicPower": 12, "magicResist": 6, "agility": 12},
+    {"cardId": 8, "health": 120, "mana": 50, "attack": 12, "defense": 6, "magicPower": 12, "magicResist": 6, "agility": 12},
+    {"cardId": 9, "health": 120, "mana": 50, "attack": 12, "defense": 6, "magicPower": 12, "magicResist": 6, "agility": 12},
+    {"cardId": 10, "health": 120, "mana": 50, "attack": 12, "defense": 6, "magicPower": 12, "magicResist": 6, "agility": 12},
+    {"cardId": 11, "health": 140, "mana": 60, "attack": 14, "defense": 7, "magicPower": 14, "magicResist": 7, "agility": 14},
+    {"cardId": 12, "health": 140, "mana": 60, "attack": 14, "defense": 7, "magicPower": 14, "magicResist": 7, "agility": 14},
+    {"cardId": 13, "health": 140, "mana": 60, "attack": 14, "defense": 7, "magicPower": 14, "magicResist": 7, "agility": 14},
+    {"cardId": 14, "health": 140, "mana": 60, "attack": 14, "defense": 7, "magicPower": 14, "magicResist": 7, "agility": 14},
+    {"cardId": 15, "health": 140, "mana": 60, "attack": 14, "defense": 7, "magicPower": 14, "magicResist": 7, "agility": 14},
+    {"cardId": 16, "health": 160, "mana": 70, "attack": 16, "defense": 8, "magicPower": 16, "magicResist": 8, "agility": 16},
+    {"cardId": 17, "health": 160, "mana": 70, "attack": 16, "defense": 8, "magicPower": 16, "magicResist": 8, "agility": 16},
+    {"cardId": 18, "health": 160, "mana": 70, "attack": 16, "defense": 8, "magicPower": 16, "magicResist": 8, "agility": 16},
+    {"cardId": 19, "health": 160, "mana": 70, "attack": 16, "defense": 8, "magicPower": 16, "magicResist": 8, "agility": 16},
+    {"cardId": 20, "health": 160, "mana": 70, "attack": 16, "defense": 8, "magicPower": 16, "magicResist": 8, "agility": 16},
+    {"cardId": 21, "health": 180, "mana": 80, "attack": 18, "defense": 9, "magicPower": 18, "magicResist": 9, "agility": 18},
+    {"cardId": 22, "health": 180, "mana": 80, "attack": 18, "defense": 9, "magicPower": 18, "magicResist": 9, "agility": 18},
+    {"cardId": 23, "health": 180, "mana": 80, "attack": 18, "defense": 9, "magicPower": 18, "magicResist": 9, "agility": 18},
+    {"cardId": 24, "health": 180, "mana": 80, "attack": 18, "defense": 9, "magicPower": 18, "magicResist": 9, "agility": 18},
+    {"cardId": 25, "health": 180, "mana": 80, "attack": 18, "defense": 9, "magicPower": 18, "magicResist": 9, "agility": 18}
+  ]
+}
+
