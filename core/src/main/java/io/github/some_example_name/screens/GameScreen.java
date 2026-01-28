@@ -14,7 +14,10 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.badlogic.gdx.ai.btree.BehaviorTree;
 import io.github.some_example_name.KzAutoChess;
+import io.github.some_example_name.battle.BattleUnitBlackboard;
+import io.github.some_example_name.battle.UnitBehaviorTreeFactory;
 import io.github.some_example_name.model.*;
 import io.github.some_example_name.render.BattleFieldRender;
 import io.github.some_example_name.ui.CardRenderer;
@@ -22,6 +25,7 @@ import io.github.some_example_name.utils.CharacterRenderer;
 import io.github.some_example_name.utils.FontUtils;
 import io.github.some_example_name.utils.CameraController;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -49,6 +53,9 @@ public class GameScreen implements Screen {
     // 游戏状态
     private int gold = 10;
     private int playerLevel = 1;
+    private GamePhase phase = GamePhase.PLACEMENT;
+    private float battleTime;
+    private final List<BehaviorTree<BattleUnitBlackboard>> unitTrees = new ArrayList<>();
 
     // 拖拽状态
     private Card draggingCard;
@@ -70,6 +77,8 @@ public class GameScreen implements Screen {
     private float battlefieldY = 280;
     private float battlefieldWidth;
     private float battlefieldHeight;
+
+    private TextButton startBattleButton;
 
     public GameScreen(KzAutoChess game, int level) {
         this.game = game;
@@ -195,7 +204,6 @@ public class GameScreen implements Screen {
         float screenHeight = game.getViewManagement().getUIViewport().getWorldHeight();
         backButton.setPosition(50, screenHeight - 60);
         backButton.setSize(100, 40);
-        // 确保按钮文字可见
         backButton.getLabel().setColor(Color.WHITE);
         backButton.addListener(new com.badlogic.gdx.scenes.scene2d.utils.ClickListener() {
             @Override
@@ -204,6 +212,82 @@ public class GameScreen implements Screen {
             }
         });
         stage.addActor(backButton);
+
+        // 开始战斗按钮（仅放置阶段可点）
+        startBattleButton = new TextButton("开始战斗", buttonStyle);
+        startBattleButton.setPosition(shopAreaX + shopAreaWidth - 260, shopAreaY + shopAreaHeight + 20);
+        startBattleButton.setSize(120, 40);
+        startBattleButton.getLabel().setColor(Color.WHITE);
+        startBattleButton.addListener(new com.badlogic.gdx.scenes.scene2d.utils.ClickListener() {
+            @Override
+            public void clicked(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y) {
+                if (phase != GamePhase.PLACEMENT) return;
+                startBattle();
+            }
+        });
+        stage.addActor(startBattleButton);
+    }
+
+    private void startBattle() {
+        phase = GamePhase.BATTLE;
+        battleTime = 0;
+        unitTrees.clear();
+        List<Integer> enemyIds = LevelEnemyConfig.getEnemyCardIdsForLevel(level);
+        LevelEnemyConfig.spawnEnemiesInBattlefield(battlefield, enemyIds, cardPool);
+        for (BattleCharacter c : battlefield.getCharacters()) {
+            if (c.isDead()) continue;
+            c.setNextAttackTime(0);
+            c.setTarget(null);
+            unitTrees.add(UnitBehaviorTreeFactory.create(c, battlefield));
+        }
+        if (startBattleButton != null) {
+            startBattleButton.setVisible(false);
+        }
+    }
+
+    private void endBattle() {
+        phase = GamePhase.PLACEMENT;
+        unitTrees.clear();
+        List<BattleCharacter> toRemove = new ArrayList<>();
+        for (BattleCharacter c : battlefield.getCharacters()) {
+            if (c.isDead()) toRemove.add(c);
+        }
+        for (BattleCharacter c : toRemove) {
+            battlefield.removeCharacter(c);
+        }
+        for (BattleCharacter c : battlefield.getCharacters()) {
+            if (c.getStats() != null) {
+                c.setCurrentHp(c.getStats().getHealth());
+            }
+            c.setTarget(null);
+        }
+        gold += 5;
+        playerLevel = Math.min(5, playerLevel + 1);
+        cardShop.setPlayerLevel(playerLevel);
+        if (startBattleButton != null) {
+            startBattleButton.setVisible(true);
+        }
+    }
+
+    private void updateBattle(float delta) {
+        battleTime += delta;
+        for (BehaviorTree<BattleUnitBlackboard> tree : unitTrees) {
+            BattleUnitBlackboard bb = tree.getObject();
+            if (bb.getSelf().isDead()) continue;
+            bb.setCurrentTime(battleTime);
+            tree.step();
+        }
+        List<BattleCharacter> toRemove = new ArrayList<>();
+        for (BattleCharacter c : battlefield.getCharacters()) {
+            if (c.isDead()) toRemove.add(c);
+        }
+        for (BattleCharacter c : toRemove) {
+            battlefield.removeCharacter(c);
+        }
+        unitTrees.removeIf(t -> t.getObject().getSelf().isDead());
+        if (battlefield.getPlayerCharacters().isEmpty() || battlefield.getEnemyCharacters().isEmpty()) {
+            endBattle();
+        }
     }
 
     private void setupInput() {
@@ -238,13 +322,13 @@ public class GameScreen implements Screen {
 
 
 
-        // 更新舞台
         stage.act(delta);
-
-        // 更新相机控制器
         cameraController.update(delta);
 
-        // 处理输入
+        if (phase == GamePhase.BATTLE) {
+            updateBattle(delta);
+        }
+
         handleInput();
 
         // 绘制游戏世界内容（战场和角色）- 使用游戏世界viewport
@@ -292,7 +376,9 @@ public class GameScreen implements Screen {
     }
 
     private void handleMouseClick(float uiX, float uiY, float worldX, float worldY) {
-        // 如果正在拖拽角色，尝试放置（使用世界坐标）
+        if (phase == GamePhase.BATTLE) {
+            return;
+        }
         if (draggingCharacter != null) {
             if (battlefield.contains(worldX, worldY)) {
                 // 放置在战场上

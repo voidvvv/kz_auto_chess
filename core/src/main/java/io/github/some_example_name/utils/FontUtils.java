@@ -13,14 +13,14 @@ public class FontUtils {
     private static BitmapFont defaultFont;
     private static BitmapFont largeFont;
     private static BitmapFont smallFont;
-    
+
     private static final String[] FONT_PATHS = {
         "C:/Windows/Fonts/msyh.ttc",  // 微软雅黑（优先）
         "C:/Windows/Fonts/simhei.ttf", // 备用字体：黑体
         "C:/Windows/Fonts/simsun.ttc", // 备用字体：宋体
         "C:/Windows/Fonts/simkai.ttf"  // 备用字体：楷体
     };
-    
+
     // 生成包含常用中文字符的字符串
     private static String generateChineseCharacters() {
         StringBuilder sb = new StringBuilder();
@@ -33,7 +33,7 @@ public class FontUtils {
         sb.append("战士法师射手刺客坦克");
         sb.append("新手精英高级传奇神话");
         sb.append("基础强化单位");
-        sb.append("费用");
+        sb.append("费用场");
         // 常用汉字（覆盖常用字范围，但不过多）
         // 添加一些常用汉字以确保覆盖
         for (int i = 0x4E00; i <= 0x4EFF; i++) { // 常用汉字范围
@@ -45,14 +45,14 @@ public class FontUtils {
         }
         return sb.toString();
     }
-    
+
     /**
      * 初始化字体
      */
     public static void init() {
         FreeTypeFontGenerator generator = null;
         String usedFontPath = null;
-        
+
         // 尝试加载字体文件
         for (String fontPath : FONT_PATHS) {
             try {
@@ -73,7 +73,7 @@ public class FontUtils {
                 Gdx.app.debug("FontUtils", "Failed to check font file " + fontPath + ": " + e.getMessage());
             }
         }
-        
+
         if (generator == null) {
             // 如果所有字体文件都加载失败，使用项目自带的字体
             Gdx.app.log("FontUtils", "No system font found, trying default bitmap font");
@@ -92,7 +92,7 @@ public class FontUtils {
                 Gdx.app.error("FontUtils", "Failed to load default font: " + e.getMessage());
                 e.printStackTrace();
             }
-            
+
             // 最后的备用方案：使用libGDX默认字体
             defaultFont = new BitmapFont();
             largeFont = new BitmapFont();
@@ -100,11 +100,11 @@ public class FontUtils {
             Gdx.app.log("FontUtils", "Using libGDX default font (may not support Chinese)");
             return;
         }
-        
+
         try {
             String chineseChars = generateChineseCharacters();
             Gdx.app.log("FontUtils", "Generated character set length: " + chineseChars.length());
-            
+
             // 默认字体 24px
             FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
             parameter.size = 24;
@@ -114,21 +114,21 @@ public class FontUtils {
             parameter.gamma = 1.8f;
             defaultFont = generator.generateFont(parameter);
             Gdx.app.log("FontUtils", "Generated default font (24px)");
-            
+
             // 大字体 36px
             parameter.size = 36;
             largeFont = generator.generateFont(parameter);
             Gdx.app.log("FontUtils", "Generated large font (36px)");
-            
+
             // 小字体 18px
             parameter.size = 18;
             smallFont = generator.generateFont(parameter);
             Gdx.app.log("FontUtils", "Generated small font (18px)");
-            
+
             // 测试字体是否能正确显示中文
             GlyphLayout testLayout = new GlyphLayout(defaultFont, "测试");
             Gdx.app.log("FontUtils", "Test Chinese text width: " + testLayout.width);
-            
+
             Gdx.app.log("FontUtils", "All fonts generated successfully from: " + usedFontPath);
         } catch (Exception e) {
             Gdx.app.error("FontUtils", "Failed to generate fonts: " + e.getMessage());
@@ -159,28 +159,28 @@ public class FontUtils {
             }
         }
     }
-    
+
     public static BitmapFont getDefaultFont() {
         if (defaultFont == null) {
             init();
         }
         return defaultFont;
     }
-    
+
     public static BitmapFont getLargeFont() {
         if (largeFont == null) {
             init();
         }
         return largeFont;
     }
-    
+
     public static BitmapFont getSmallFont() {
         if (smallFont == null) {
             init();
         }
         return smallFont;
     }
-    
+
     public static void dispose() {
         if (defaultFont != null) {
             defaultFont.dispose();

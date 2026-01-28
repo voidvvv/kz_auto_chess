@@ -134,5 +134,13 @@ public class CardPool {
     public List<Card> getAllCards() {
         return new ArrayList<>(allCards);
     }
+
+    /** 根据卡牌 id 获取卡牌，用于关卡敌人配置等 */
+    public Card getCardById(int id) {
+        for (Card c : allCards) {
+            if (c.getId() == id) return c;
+        }
+        return null;
+    }
 }
 

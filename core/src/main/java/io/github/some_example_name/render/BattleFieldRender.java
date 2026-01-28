@@ -25,31 +25,45 @@ public class BattleFieldRender {
     }
 
     private void drawBattlefield(Battlefield battlefield) {
-        // 绘制战场背景
+        float x = battlefield.getX();
+        float y = battlefield.getY();
+        float w = battlefield.getWidth();
+        float h = battlefield.getHeight();
+        float splitY = battlefield.getPlayerZoneTop();
+
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        shapeRenderer.setColor(0.1f, 0.15f, 0.2f, 1);
-        shapeRenderer.rect(battlefield.getX(), battlefield.getY(), battlefield.getWidth(), battlefield.getHeight());
+        shapeRenderer.setColor(0.12f, 0.18f, 0.25f, 1);
+        shapeRenderer.rect(x, y, w, splitY - y);
+        shapeRenderer.setColor(0.18f, 0.12f, 0.2f, 1);
+        shapeRenderer.rect(x, splitY, w, y + h - splitY);
         shapeRenderer.end();
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         shapeRenderer.setColor(Color.WHITE);
-        shapeRenderer.rect(battlefield.getX(), battlefield.getY(), battlefield.getWidth(), battlefield.getHeight());
+        shapeRenderer.rect(x, y, w, h);
+        shapeRenderer.setColor(0.6f, 0.6f, 0.8f, 1);
+        shapeRenderer.line(x, splitY, x + w, splitY);
         shapeRenderer.end();
 
-        // 绘制标题
         game.getBatch().begin();
         BitmapFont font = FontUtils.getSmallFont();
         font.setColor(Color.WHITE);
         font.getData().setScale(1.0f);
         GlyphLayout titleLayout = new GlyphLayout(font, "战场");
-        // Y坐标：从战场区域的顶部向下偏移（世界坐标系统Y轴向上）
-        float titleY = battlefield.getY() +  battlefield.getHeight() - 10;
+        float titleY = battlefield.getY() + battlefield.getHeight() - 10;
         font.draw(game.getBatch(), titleLayout, battlefield.getX() + 10, titleY);
+        font.setColor(0.7f, 0.8f, 1f, 1);
+        GlyphLayout playerLayout = new GlyphLayout(font, "己方");
+        font.draw(game.getBatch(), playerLayout, x + 10, splitY - 25);
+        font.setColor(0.9f, 0.6f, 0.6f, 1);
+        GlyphLayout enemyLayout = new GlyphLayout(font, "敌方");
+        font.draw(game.getBatch(), enemyLayout, x + 10, splitY + 15);
         game.getBatch().end();
 
-        // 绘制战场上的角色
         for (BattleCharacter character : battlefield.getCharacters()) {
-            CharacterRenderer.render(shapeRenderer, character);
+            if (!character.isDead()) {
+                CharacterRenderer.render(shapeRenderer, character);
+            }
         }
     }
 }
