@@ -8,6 +8,7 @@ public class BattleCharacter {
     private Card card;
     private CharacterStats stats;
     private float x, y;
+    private float initX, initY;
     private float size = 40;
     private boolean enemy;
 
@@ -29,6 +30,8 @@ public class BattleCharacter {
         this.stats = stats;
         this.x = x;
         this.y = y;
+        this.initX = x;
+        this.initY = y;
         this.enemy = isEnemy;
         this.currentHp = stats != null ? stats.getHealth() : 100;
         this.nextAttackTime = 0;
@@ -58,6 +61,12 @@ public class BattleCharacter {
     public void setPosition(float x, float y) {
         this.x = x;
         this.y = y;
+    }
+    public void setInitPosition (float x, float y) {
+        this.x = x;
+        this.y = y;
+        this.initX = x;
+        this.initY = y;
     }
     public float getSize() { return size; }
     public boolean isEnemy() { return enemy; }

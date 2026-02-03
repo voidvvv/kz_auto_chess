@@ -95,7 +95,7 @@ public class Battlefield {
         for (BattleCharacter other : characters) {
             if (other != character && other.contains(newX, newY)) return false;
         }
-        character.setPosition(newX, newY);
+        character.setInitPosition(newX, newY);
         return true;
     }
 
