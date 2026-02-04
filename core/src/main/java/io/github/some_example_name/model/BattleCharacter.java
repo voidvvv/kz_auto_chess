@@ -1,5 +1,7 @@
 package io.github.some_example_name.model;
 
+import io.github.some_example_name.utils.CharacterCamp;
+
 /**
  * 战场角色类
  * 表示战场上的一个角色单位，支持生命、攻击、目标与行为树所需状态
@@ -10,10 +12,10 @@ public class BattleCharacter {
     private float x, y;
     private float initX, initY;
     private float size = 40;
-    private boolean enemy;
+    private CharacterCamp camp;
 
     /** 当前生命，战斗时扣减 */
-    private int currentHp;
+    private float currentHp;
     /** 当前目标（可为 null） */
     private BattleCharacter target;
     /** 攻击间隔（秒），下次可攻击时间点 */
@@ -21,9 +23,6 @@ public class BattleCharacter {
     /** 攻击距离（世界单位），根据类型或配置设定 */
     private float attackRange = 80f;
 
-    public BattleCharacter(Card card, CharacterStats stats, float x, float y) {
-        this(card, stats, x, y, false);
-    }
 
     public BattleCharacter(Card card, CharacterStats stats, float x, float y, boolean isEnemy) {
         this.card = card;
@@ -32,12 +31,20 @@ public class BattleCharacter {
         this.y = y;
         this.initX = x;
         this.initY = y;
-        this.enemy = isEnemy;
-        this.currentHp = stats != null ? stats.getHealth() : 100;
+        this.currentHp = stats != null ? stats.getHealth() : 100f;
         this.nextAttackTime = 0;
         if (stats != null && card != null) {
             inferAttackRange();
         }
+        if (isEnemy) {
+            this.camp = CharacterCamp.BLACK;
+        } else {
+            this.camp = CharacterCamp.WHITE;
+        }
+    }
+
+    public CharacterCamp getCamp() {
+        return camp;
     }
 
     private void inferAttackRange() {
@@ -69,10 +76,10 @@ public class BattleCharacter {
         this.initY = y;
     }
     public float getSize() { return size; }
-    public boolean isEnemy() { return enemy; }
+    public boolean isEnemy() { return this.camp == CharacterCamp.BLACK; }
 
-    public int getCurrentHp() { return currentHp; }
-    public void setCurrentHp(int currentHp) { this.currentHp = currentHp; }
+    public float getCurrentHp() { return currentHp; }
+    public void setCurrentHp(float currentHp) { this.currentHp = currentHp; }
     public boolean isDead() { return currentHp <= 0; }
 
     public BattleCharacter getTarget() { return target; }

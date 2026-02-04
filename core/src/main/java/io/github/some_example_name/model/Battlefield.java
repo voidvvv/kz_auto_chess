@@ -1,5 +1,9 @@
 package io.github.some_example_name.model;
 
+import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
+import io.github.some_example_name.utils.CharacterCamp;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -169,5 +173,29 @@ public class Battlefield {
     public float getY() { return y; }
     public float getWidth() { return width; }
     public float getHeight() { return height; }
+
+    /**
+     * 为指定坐标，获取指定范围内
+     * @param x x坐标
+     * @param y y坐标
+     * @param radio 半径
+     * @param camp 指定阵营
+     * @return
+     */
+    public BattleCharacter getSingleBattleCharacter (float x, float y, float radio, CharacterCamp camp) {
+        for (BattleCharacter bc : characters) {
+            if (bc.getCamp() == camp && this.inCircle(bc, x, y, radio)) {
+                return bc;
+            }
+        }
+        return null;
+    }
+
+    private boolean inCircle(BattleCharacter bc, float x, float y, float radio) {
+        float bcx = bc.getX();
+        float bcy = bc.getY();
+
+        return Vector2.len(bcx - x, bcy - y) <= radio;
+    }
 }
 

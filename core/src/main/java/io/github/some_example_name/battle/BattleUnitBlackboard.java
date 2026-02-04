@@ -24,4 +24,5 @@ public class BattleUnitBlackboard {
     public void setTarget(BattleCharacter target) { this.target = target; }
     public float getCurrentTime() { return currentTime; }
     public void setCurrentTime(float t) { this.currentTime = t; }
+
 }

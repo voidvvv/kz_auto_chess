@@ -30,21 +30,21 @@ public class AttackTargetTask extends LeafTask<BattleUnitBlackboard> {
             return Task.Status.RUNNING;
         }
 
-        int damage = computeDamage(self, target);
-        int newHp = Math.max(0, target.getCurrentHp() - damage);
+        float damage = computeDamage(self, target);
+        float newHp = Math.max(0f, target.getCurrentHp() - damage);
         target.setCurrentHp(newHp);
         self.setNextAttackTime(now + ATTACK_COOLDOWN);
 
         return Task.Status.SUCCEEDED;
     }
 
-    private int computeDamage(BattleCharacter attacker, BattleCharacter defender) {
+    private float computeDamage(BattleCharacter attacker, BattleCharacter defender) {
         CharacterStats as = attacker.getStats();
         CharacterStats ds = defender.getStats();
         if (as == null || ds == null) return 10;
-        int raw = as.getAttack();
-        int def = ds.getDefense();
-        int d = Math.max(1, raw - def / 2);
+        float raw = as.getAttack();
+        float def = ds.getDefense();
+        float d = Math.max(1, raw - def / 2);
         return d;
     }
 
