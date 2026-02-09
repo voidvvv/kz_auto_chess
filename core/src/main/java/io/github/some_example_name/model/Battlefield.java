@@ -1,8 +1,7 @@
 package io.github.some_example_name.model;
 
-import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Vector2;
-import io.github.some_example_name.utils.CharacterCamp;
+import io.github.some_example_name.model.battle.DamageEventHolder;
+import io.github.some_example_name.model.battle.DamageEventListenerHolder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +14,8 @@ public class Battlefield {
     private float x, y, width, height;
     private List<BattleCharacter> characters;
 
+    private DamageEventHolder damageEventHolder;
+    private DamageEventListenerHolder damageEventListenerHolder;
     /** 玩家区域占战场高度的比例（靠己方一侧） */
     public static final float PLAYER_ZONE_RATIO = 0.5f;
 
@@ -24,6 +25,8 @@ public class Battlefield {
         this.width = width;
         this.height = height;
         this.characters = new ArrayList<>();
+        this.damageEventHolder = new DamageEventHolder();
+        this.damageEventListenerHolder = new DamageEventListenerHolder();
     }
 
     /** 玩家可放置区域：Y 从底边到中线 */
@@ -169,33 +172,17 @@ public class Battlefield {
         return forUnit.isEnemy() ? getPlayerCharacters() : getEnemyCharacters();
     }
 
+    public DamageEventHolder getDamageEventHolder() {
+        return damageEventHolder;
+    }
+
+    public DamageEventListenerHolder getDamageEventListenerHolder() {
+        return damageEventListenerHolder;
+    }
+
     public float getX() { return x; }
     public float getY() { return y; }
     public float getWidth() { return width; }
     public float getHeight() { return height; }
-
-    /**
-     * 为指定坐标，获取指定范围内
-     * @param x x坐标
-     * @param y y坐标
-     * @param radio 半径
-     * @param camp 指定阵营
-     * @return
-     */
-    public BattleCharacter getSingleBattleCharacter (float x, float y, float radio, CharacterCamp camp) {
-        for (BattleCharacter bc : characters) {
-            if (bc.getCamp() == camp && this.inCircle(bc, x, y, radio)) {
-                return bc;
-            }
-        }
-        return null;
-    }
-
-    private boolean inCircle(BattleCharacter bc, float x, float y, float radio) {
-        float bcx = bc.getX();
-        float bcy = bc.getY();
-
-        return Vector2.len(bcx - x, bcy - y) <= radio;
-    }
 }
 
