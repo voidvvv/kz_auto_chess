@@ -8,6 +8,7 @@ import io.github.some_example_name.utils.CharacterCamp;
  */
 public class BattleCharacter {
     private Card card;
+    private String name;
     private CharacterStats stats;
     private float x, y;
     private float initX, initY;
@@ -27,6 +28,7 @@ public class BattleCharacter {
     public BattleCharacter(Card card, CharacterStats stats, float x, float y, boolean isEnemy) {
         this.card = card;
         this.stats = stats;
+        this.name = card.getName();
         this.x = x;
         this.y = y;
         this.initX = x;
@@ -89,6 +91,10 @@ public class BattleCharacter {
     public void setNextAttackTime(float t) { this.nextAttackTime = t; }
     public float getAttackRange() { return attackRange; }
     public void setAttackRange(float r) { this.attackRange = r; }
+
+    public String getName() {
+        return name;
+    }
 
     /**
      * 检查点是否在角色范围内

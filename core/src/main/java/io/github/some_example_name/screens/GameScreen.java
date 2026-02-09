@@ -18,10 +18,12 @@ import com.badlogic.gdx.ai.btree.BehaviorTree;
 import io.github.some_example_name.KzAutoChess;
 import io.github.some_example_name.battle.BattleUnitBlackboard;
 import io.github.some_example_name.battle.UnitBehaviorTreeFactory;
+import io.github.some_example_name.event.DamageRenderListener;
 import io.github.some_example_name.model.*;
 import io.github.some_example_name.render.BattleFieldRender;
 import io.github.some_example_name.ui.CardRenderer;
 import io.github.some_example_name.updater.BattleUpdater;
+import io.github.some_example_name.updater.DamageRenderUpdater;
 import io.github.some_example_name.utils.CharacterRenderer;
 import io.github.some_example_name.utils.FontUtils;
 import io.github.some_example_name.utils.CameraController;
@@ -85,6 +87,8 @@ public class GameScreen implements Screen {
     private BattleUpdater battleUpdater;
 
     private ModelHolder<DamageShowModel> damageShowModelModelHolder;
+
+    DamageRenderUpdater damageRenderUpdater;
 
     public GameScreen(KzAutoChess game, int level) {
         this.game = game;
@@ -296,6 +300,8 @@ public class GameScreen implements Screen {
             endBattle();
         }
         battleUpdater.update(delta);
+
+        damageRenderUpdater.update(delta);
     }
 
     private void setupInput() {
@@ -323,6 +329,10 @@ public class GameScreen implements Screen {
         setupInput();
         battleUpdater = new BattleUpdater(battlefield.getDamageEventHolder(), battlefield.getDamageEventListenerHolder());
         this.damageShowModelModelHolder.clear();
+        DamageRenderListener damageRenderListener = new DamageRenderListener(this.damageShowModelModelHolder);
+        battlefield.getDamageEventListenerHolder().clear();
+        battlefield.getDamageEventListenerHolder().addModel(damageRenderListener);
+        damageRenderUpdater = new DamageRenderUpdater(  this.damageShowModelModelHolder);
     }
 
     @Override

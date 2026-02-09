@@ -49,8 +49,8 @@ public class AttackTargetTask extends LeafTask<BattleUnitBlackboard> {
         CharacterStats as = attacker.getStats();
         CharacterStats ds = defender.getStats();
         if (as == null || ds == null) return 10;
-        int raw = as.getAttack();
-        int def = ds.getDefense();
+        float raw = as.getAttack();
+        float def = ds.getDefense();
         float d = Math.max(1, raw - def / 2);
         return d;
     }
