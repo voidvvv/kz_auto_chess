@@ -21,6 +21,7 @@ import io.github.some_example_name.battle.UnitBehaviorTreeFactory;
 import io.github.some_example_name.model.*;
 import io.github.some_example_name.render.BattleFieldRender;
 import io.github.some_example_name.ui.CardRenderer;
+import io.github.some_example_name.updater.BattleUpdater;
 import io.github.some_example_name.utils.CharacterRenderer;
 import io.github.some_example_name.utils.FontUtils;
 import io.github.some_example_name.utils.CameraController;
@@ -80,6 +81,11 @@ public class GameScreen implements Screen {
 
     private TextButton startBattleButton;
 
+    // 战斗更新器
+    private BattleUpdater battleUpdater;
+
+    private ModelHolder<DamageShowModel> damageShowModelModelHolder;
+
     public GameScreen(KzAutoChess game, int level) {
         this.game = game;
         this.level = level;
@@ -120,6 +126,7 @@ public class GameScreen implements Screen {
 
 
         battleFieldRender = new BattleFieldRender(shapeRenderer,game);
+        damageShowModelModelHolder = new ModelHolder<>();
     }
 
     private void initUI() {
@@ -288,6 +295,7 @@ public class GameScreen implements Screen {
         if (battlefield.getPlayerCharacters().isEmpty() || battlefield.getEnemyCharacters().isEmpty()) {
             endBattle();
         }
+        battleUpdater.update(delta);
     }
 
     private void setupInput() {
@@ -313,6 +321,8 @@ public class GameScreen implements Screen {
     @Override
     public void show() {
         setupInput();
+        battleUpdater = new BattleUpdater(battlefield.getDamageEventHolder(), battlefield.getDamageEventListenerHolder());
+        this.damageShowModelModelHolder.clear();
     }
 
     @Override
@@ -544,7 +554,7 @@ public class GameScreen implements Screen {
         BitmapFont font = FontUtils.getSmallFont();
         font.setColor(Color.CYAN);
         font.getData().setScale(1.0f);
-        String deckTitle = "我的卡组 (" + playerDeck.getTotalCardCount() + "张)";
+        String deckTitle = "我的卡组 (" + playerDeck.getTotalCardCount() + " 张)";
         GlyphLayout titleLayout = new GlyphLayout(font, deckTitle);
         font.draw(game.getBatch(), titleLayout, deckAreaX + 10, deckAreaY + deckAreaHeight - 10);
         game.getBatch().end();

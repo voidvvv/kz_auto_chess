@@ -1,5 +1,8 @@
 package io.github.some_example_name.model;
 
+import io.github.some_example_name.model.battle.DamageEventHolder;
+import io.github.some_example_name.model.battle.DamageEventListenerHolder;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,6 +14,8 @@ public class Battlefield {
     private float x, y, width, height;
     private List<BattleCharacter> characters;
 
+    private DamageEventHolder damageEventHolder;
+    private DamageEventListenerHolder damageEventListenerHolder;
     /** 玩家区域占战场高度的比例（靠己方一侧） */
     public static final float PLAYER_ZONE_RATIO = 0.5f;
 
@@ -20,6 +25,8 @@ public class Battlefield {
         this.width = width;
         this.height = height;
         this.characters = new ArrayList<>();
+        this.damageEventHolder = new DamageEventHolder();
+        this.damageEventListenerHolder = new DamageEventListenerHolder();
     }
 
     /** 玩家可放置区域：Y 从底边到中线 */
@@ -163,6 +170,14 @@ public class Battlefield {
     public List<BattleCharacter> getOpponents(BattleCharacter forUnit) {
         if (forUnit == null) return new ArrayList<>();
         return forUnit.isEnemy() ? getPlayerCharacters() : getEnemyCharacters();
+    }
+
+    public DamageEventHolder getDamageEventHolder() {
+        return damageEventHolder;
+    }
+
+    public DamageEventListenerHolder getDamageEventListenerHolder() {
+        return damageEventListenerHolder;
     }
 
     public float getX() { return x; }

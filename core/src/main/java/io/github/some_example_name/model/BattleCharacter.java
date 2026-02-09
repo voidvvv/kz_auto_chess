@@ -13,7 +13,7 @@ public class BattleCharacter {
     private boolean enemy;
 
     /** 当前生命，战斗时扣减 */
-    private int currentHp;
+    private float currentHp;
     /** 当前目标（可为 null） */
     private BattleCharacter target;
     /** 攻击间隔（秒），下次可攻击时间点 */
@@ -71,8 +71,8 @@ public class BattleCharacter {
     public float getSize() { return size; }
     public boolean isEnemy() { return enemy; }
 
-    public int getCurrentHp() { return currentHp; }
-    public void setCurrentHp(int currentHp) { this.currentHp = currentHp; }
+    public float getCurrentHp() { return currentHp; }
+    public void setCurrentHp(float currentHp) { this.currentHp = currentHp; }
     public boolean isDead() { return currentHp <= 0; }
 
     public BattleCharacter getTarget() { return target; }

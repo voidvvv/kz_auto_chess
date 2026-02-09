@@ -18,7 +18,8 @@ public class FontUtils {
         "C:/Windows/Fonts/msyh.ttc",  // 微软雅黑（优先）
         "C:/Windows/Fonts/simhei.ttf", // 备用字体：黑体
         "C:/Windows/Fonts/simsun.ttc", // 备用字体：宋体
-        "C:/Windows/Fonts/simkai.ttf"  // 备用字体：楷体
+        "C:/Windows/Fonts/simkai.ttf",  // 备用字体：楷体
+        "/System/Library/Fonts/Hiragino Sans GB.ttc" // mac 字体
     };
 
     // 生成包含常用中文字符的字符串
@@ -30,10 +31,10 @@ public class FontUtils {
         sb.append("，。！？；：、\"\"''（）【】《》·…—～·");
         // 游戏界面常用字（确保这些字一定包含）
         sb.append("自走棋开始游戏选择关卡金币等级商店刷新购买返回");
-        sb.append("战士法师射手刺客坦克");
+        sb.append("战士法师射手刺客坦克张");
         sb.append("新手精英高级传奇神话");
         sb.append("基础强化单位");
-        sb.append("费用场");
+        sb.append("费用场战斗战场我的卡组()暂无卡牌\n在商店购买卡牌");
         // 常用汉字（覆盖常用字范围，但不过多）
         // 添加一些常用汉字以确保覆盖
         for (int i = 0x4E00; i <= 0x4EFF; i++) { // 常用汉字范围
