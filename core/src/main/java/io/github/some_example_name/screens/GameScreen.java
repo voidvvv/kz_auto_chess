@@ -21,6 +21,7 @@ import io.github.some_example_name.battle.UnitBehaviorTreeFactory;
 import io.github.some_example_name.event.DamageRenderListener;
 import io.github.some_example_name.model.*;
 import io.github.some_example_name.render.BattleFieldRender;
+import io.github.some_example_name.render.DamageLineRender;
 import io.github.some_example_name.ui.CardRenderer;
 import io.github.some_example_name.updater.BattleUpdater;
 import io.github.some_example_name.updater.DamageRenderUpdater;
@@ -89,6 +90,8 @@ public class GameScreen implements Screen {
     private ModelHolder<DamageShowModel> damageShowModelModelHolder;
 
     DamageRenderUpdater damageRenderUpdater;
+
+    private DamageLineRender damageLineRender;
 
     public GameScreen(KzAutoChess game, int level) {
         this.game = game;
@@ -299,7 +302,7 @@ public class GameScreen implements Screen {
         if (battlefield.getPlayerCharacters().isEmpty() || battlefield.getEnemyCharacters().isEmpty()) {
             endBattle();
         }
-        battleUpdater.update(delta);
+        battleUpdater.update(delta); // 通过damage event listener监听伤害事件
 
         damageRenderUpdater.update(delta);
     }
@@ -333,6 +336,7 @@ public class GameScreen implements Screen {
         battlefield.getDamageEventListenerHolder().clear();
         battlefield.getDamageEventListenerHolder().addModel(damageRenderListener);
         damageRenderUpdater = new DamageRenderUpdater(  this.damageShowModelModelHolder);
+        damageLineRender = new DamageLineRender(this.damageShowModelModelHolder);
     }
 
     @Override
@@ -470,6 +474,8 @@ public class GameScreen implements Screen {
 
         // 绘制战场
         drawBattlefield();
+        shapeRenderer.end();
+        damageLineRender.render(shapeRenderer, game.getBatch());
     }
 
     /**
