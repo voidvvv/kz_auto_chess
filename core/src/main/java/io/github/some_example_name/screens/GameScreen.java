@@ -18,7 +18,8 @@ import com.badlogic.gdx.ai.btree.BehaviorTree;
 import io.github.some_example_name.KzAutoChess;
 import io.github.some_example_name.battle.BattleUnitBlackboard;
 import io.github.some_example_name.battle.UnitBehaviorTreeFactory;
-import io.github.some_example_name.event.DamageRenderListener;
+import io.github.some_example_name.listener.damage.DamageRenderListener;
+import io.github.some_example_name.listener.damage.DamageSettlementListener;
 import io.github.some_example_name.model.*;
 import io.github.some_example_name.render.BattleFieldRender;
 import io.github.some_example_name.render.DamageLineRender;
@@ -335,6 +336,7 @@ public class GameScreen implements Screen {
         DamageRenderListener damageRenderListener = new DamageRenderListener(this.damageShowModelModelHolder);
         battlefield.getDamageEventListenerHolder().clear();
         battlefield.getDamageEventListenerHolder().addModel(damageRenderListener);
+        battlefield.getDamageEventListenerHolder().addModel(new DamageSettlementListener());
         damageRenderUpdater = new DamageRenderUpdater(  this.damageShowModelModelHolder);
         damageLineRender = new DamageLineRender(this.damageShowModelModelHolder);
     }

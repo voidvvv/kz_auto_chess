@@ -1,7 +1,8 @@
-package io.github.some_example_name.event;
+package io.github.some_example_name.listener.damage;
 
 import io.github.some_example_name.model.DamageShowModel;
 import io.github.some_example_name.model.ModelHolder;
+import io.github.some_example_name.model.event.DamageEvent;
 
 public class DamageRenderListener implements DamageEventListener{
     ModelHolder<DamageShowModel> damageShowModelModelHolder;

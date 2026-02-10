@@ -1,4 +1,4 @@
-package io.github.some_example_name.event;
+package io.github.some_example_name.model.event;
 
 import io.github.some_example_name.model.BattleCharacter;
 import io.github.some_example_name.model.battle.Damage;

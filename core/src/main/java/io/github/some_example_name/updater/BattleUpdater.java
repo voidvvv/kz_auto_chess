@@ -1,8 +1,8 @@
 package io.github.some_example_name.updater;
 
-import io.github.some_example_name.event.DamageEvent;
+import io.github.some_example_name.model.event.DamageEvent;
 import io.github.some_example_name.model.battle.DamageEventHolder;
-import io.github.some_example_name.event.DamageEventListener;
+import io.github.some_example_name.listener.damage.DamageEventListener;
 import io.github.some_example_name.model.battle.DamageEventListenerHolder;
 
 import java.util.List;

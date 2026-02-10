@@ -5,7 +5,7 @@ import com.badlogic.gdx.ai.btree.Task;
 import io.github.some_example_name.model.BattleCharacter;
 import io.github.some_example_name.model.CharacterStats;
 import io.github.some_example_name.model.battle.Damage;
-import io.github.some_example_name.event.DamageEvent;
+import io.github.some_example_name.model.event.DamageEvent;
 
 /**
  * 行为树叶子任务：若黑板目标有效且在攻击范围内，则造成一次伤害并进入冷却
@@ -39,20 +39,14 @@ public class AttackTargetTask extends LeafTask<BattleUnitBlackboard> {
         bb.getBattlefield().getDamageEventHolder().addModel(de);
 
         self.setNextAttackTime(now + ATTACK_COOLDOWN);
-        float newHp = Math.max(0f, target.getCurrentHp() - damage);
-        target.setCurrentHp(newHp);
 
         return Task.Status.SUCCEEDED;
     }
 
     private float computeDamage(BattleCharacter attacker, BattleCharacter defender) {
         CharacterStats as = attacker.getStats();
-        CharacterStats ds = defender.getStats();
-        if (as == null || ds == null) return 10;
-        float raw = as.getAttack();
-        float def = ds.getDefense();
-        float d = Math.max(1, raw - def / 2);
-        return d;
+
+        return as.getAttack();
     }
 
     @Override
