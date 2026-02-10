@@ -16,7 +16,6 @@ public class DamageEvent {
     public void setFrom(BattleCharacter from) {
         this.from = from;
     }
-
     public BattleCharacter getTo() {
         return to;
     }

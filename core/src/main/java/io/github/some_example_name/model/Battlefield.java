@@ -1,5 +1,6 @@
 package io.github.some_example_name.model;
 
+import io.github.some_example_name.listener.damage.DamageSettlementListener;
 import io.github.some_example_name.model.battle.DamageEventHolder;
 import io.github.some_example_name.model.battle.DamageEventListenerHolder;
 
@@ -178,6 +179,13 @@ public class Battlefield {
 
     public DamageEventListenerHolder getDamageEventListenerHolder() {
         return damageEventListenerHolder;
+    }
+
+    public void reset () {
+        this.characters.clear();
+        this.damageEventHolder.clear();
+        this.getDamageEventListenerHolder().clear();
+        this.getDamageEventListenerHolder().addModel(new DamageSettlementListener());
     }
 
     public float getX() { return x; }

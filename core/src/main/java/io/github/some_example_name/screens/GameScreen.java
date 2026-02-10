@@ -332,11 +332,11 @@ public class GameScreen implements Screen {
     public void show() {
         setupInput();
         battleUpdater = new BattleUpdater(battlefield.getDamageEventHolder(), battlefield.getDamageEventListenerHolder());
+
         this.damageShowModelModelHolder.clear();
         DamageRenderListener damageRenderListener = new DamageRenderListener(this.damageShowModelModelHolder);
-        battlefield.getDamageEventListenerHolder().clear();
+        battlefield.reset();
         battlefield.getDamageEventListenerHolder().addModel(damageRenderListener);
-        battlefield.getDamageEventListenerHolder().addModel(new DamageSettlementListener());
         damageRenderUpdater = new DamageRenderUpdater(  this.damageShowModelModelHolder);
         damageLineRender = new DamageLineRender(this.damageShowModelModelHolder);
     }
