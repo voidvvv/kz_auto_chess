@@ -24,6 +24,7 @@ import io.github.some_example_name.model.*;
 import io.github.some_example_name.render.BattleFieldRender;
 import io.github.some_example_name.render.DamageLineRender;
 import io.github.some_example_name.ui.CardRenderer;
+import io.github.some_example_name.updater.BattleCharacterUpdater;
 import io.github.some_example_name.updater.BattleUpdater;
 import io.github.some_example_name.updater.DamageRenderUpdater;
 import io.github.some_example_name.utils.CharacterRenderer;
@@ -87,6 +88,7 @@ public class GameScreen implements Screen {
 
     // 战斗更新器
     private BattleUpdater battleUpdater;
+    private BattleCharacterUpdater battleCharacterUpdater;
 
     private ModelHolder<DamageShowModel> damageShowModelModelHolder;
 
@@ -271,10 +273,7 @@ public class GameScreen implements Screen {
             battlefield.removeCharacter(c);
         }
         for (BattleCharacter c : battlefield.getCharacters()) {
-            if (c.getStats() != null) {
-                c.setCurrentHp(c.getStats().getHealth());
-            }
-            c.setTarget(null);
+            c.reset();
         }
         gold += 5;
         playerLevel = Math.min(5, playerLevel + 1);
@@ -292,6 +291,7 @@ public class GameScreen implements Screen {
             bb.setCurrentTime(battleTime);
             tree.step();
         }
+
         List<BattleCharacter> toRemove = new ArrayList<>();
         for (BattleCharacter c : battlefield.getCharacters()) {
             if (c.isDead()) toRemove.add(c);
@@ -303,9 +303,19 @@ public class GameScreen implements Screen {
         if (battlefield.getPlayerCharacters().isEmpty() || battlefield.getEnemyCharacters().isEmpty()) {
             endBattle();
         }
+
         battleUpdater.update(delta); // 通过damage event listener监听伤害事件
 
         damageRenderUpdater.update(delta);
+
+        postUpdateBattle(delta);
+    }
+
+    private void postUpdateBattle(float delta) {
+        for (BattleCharacter c : battlefield.getCharacters()) {
+            if (c.isDead()) continue;
+            battleCharacterUpdater.update(c, delta);
+        }
     }
 
     private void setupInput() {
@@ -331,6 +341,8 @@ public class GameScreen implements Screen {
     @Override
     public void show() {
         setupInput();
+        battleCharacterUpdater = new BattleCharacterUpdater();
+
         battleUpdater = new BattleUpdater(battlefield.getDamageEventHolder(), battlefield.getDamageEventListenerHolder());
 
         this.damageShowModelModelHolder.clear();
@@ -346,6 +358,7 @@ public class GameScreen implements Screen {
         Gdx.gl.glClearColor(0.05f, 0.1f, 0.15f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+        handleInput();
 
 
         stage.act(delta);
@@ -355,7 +368,6 @@ public class GameScreen implements Screen {
             updateBattle(delta);
         }
 
-        handleInput();
 
         // 绘制游戏世界内容（战场和角色）- 使用游戏世界viewport
         drawWorldContent();

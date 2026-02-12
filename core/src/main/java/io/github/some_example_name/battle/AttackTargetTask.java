@@ -15,17 +15,27 @@ public class AttackTargetTask extends LeafTask<BattleUnitBlackboard> {
     private static final float ATTACK_COOLDOWN = 1f;
 
     @Override
+    public void start() {
+        BattleUnitBlackboard bb = getObject();
+        BattleCharacter self = bb.getSelf();
+        BattleCharacter target = bb.getTarget();
+
+        self.moveComponent.dir.set(0f, 0f);
+    }
+
+    @Override
     public Task.Status execute() {
         BattleUnitBlackboard bb = getObject();
         BattleCharacter self = bb.getSelf();
         BattleCharacter target = bb.getTarget();
 
         if (target == null || target.isDead()) {
-            return Task.Status.FAILED;
+            return Task.Status.SUCCEEDED;
         }
         if (self.distanceTo(target) > self.getAttackRange()) {
             return Task.Status.FAILED;
         }
+
 
         float now = bb.getCurrentTime();
         if (now < self.getNextAttackTime()) {

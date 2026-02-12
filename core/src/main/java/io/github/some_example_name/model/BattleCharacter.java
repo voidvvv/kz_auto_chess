@@ -7,6 +7,7 @@ import io.github.some_example_name.utils.CharacterCamp;
  * 表示战场上的一个角色单位，支持生命、攻击、目标与行为树所需状态
  */
 public class BattleCharacter {
+    public float time = 0f;
     private Card card;
     private String name;
     private CharacterStats stats;
@@ -24,24 +25,34 @@ public class BattleCharacter {
     /** 攻击距离（世界单位），根据类型或配置设定 */
     private float attackRange = 80f;
 
+    public final MoveComponent moveComponent = new MoveComponent();
+
 
     public BattleCharacter(Card card, CharacterStats stats, float x, float y, boolean isEnemy) {
         this.card = card;
         this.stats = stats;
         this.name = card.getName();
-        this.x = x;
-        this.y = y;
         this.initX = x;
         this.initY = y;
-        this.currentHp = stats != null ? stats.getHealth() : 100f;
-        this.nextAttackTime = 0;
-        if (stats != null && card != null) {
-            inferAttackRange();
-        }
         if (isEnemy) {
             this.camp = CharacterCamp.BLACK;
         } else {
             this.camp = CharacterCamp.WHITE;
+        }
+        this.reset();
+
+    }
+
+    public void reset() {
+        this.x = initX;
+        this.y = initY;
+        this.currentHp = stats != null ? stats.getHealth() : 100f;
+        this.nextAttackTime = 0;
+        moveComponent.speed = 10f;
+        moveComponent.canWalk = true;
+        setTarget(null);
+        if (stats != null && card != null) {
+            inferAttackRange();
         }
     }
 
@@ -103,6 +114,14 @@ public class BattleCharacter {
         float halfSize = size / 2;
         return px >= x - halfSize && px <= x + halfSize &&
                py >= y - halfSize && py <= y + halfSize;
+    }
+
+    public void setX(float x) {
+        this.x = x;
+    }
+
+    public void setY(float y) {
+        this.y = y;
     }
 
     /**
