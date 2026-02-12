@@ -20,4 +20,8 @@ public class ModelHolder <T>{
     public void clear () {
         this.list.clear();
     }
+
+    public void removeModels (List<T> list) {
+        this.list.removeAll(list);
+    }
 }

@@ -13,6 +13,11 @@ public class DamageRenderListener implements DamageEventListener{
 
     @Override
     public void onDamageEvent(DamageEvent de) {
+
+    }
+
+    @Override
+    public void postDamageEvent(DamageEvent de) {
         DamageShowModel model = new DamageShowModel();
         model.damage = de.getDamage();
         model.pos.set( de.getTo().getX(),  de.getTo().getY(), 0f);
@@ -21,4 +26,5 @@ public class DamageRenderListener implements DamageEventListener{
         model.to = de.getTo();
         this.damageShowModelModelHolder.addModel(model);
     }
+
 }
