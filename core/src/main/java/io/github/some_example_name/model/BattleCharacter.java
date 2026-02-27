@@ -8,6 +8,9 @@ import io.github.some_example_name.utils.CharacterCamp;
  */
 public class BattleCharacter {
     public float time = 0f;
+    public float currentTime = 0f;
+    public float lastStateTime = 0f;
+
     private Card card;
     private String name;
     private CharacterStats stats;
