@@ -6,10 +6,17 @@ import io.github.some_example_name.model.BattleCharacter;
 import io.github.some_example_name.sm.state.BaseState;
 
 public class MoveState implements BaseState<BattleCharacter> {
+    public static final MoveState INSTANCZE = new MoveState();
+    private MoveState(){}
     @Override
     public void update(BattleCharacter entity, float delta) {
         entity.time+= delta;
         entity.currentTime+= delta;
+    }
+
+    @Override
+    public boolean isState(BaseState<BattleCharacter> other) {
+        return other == this;
     }
 
     @Override

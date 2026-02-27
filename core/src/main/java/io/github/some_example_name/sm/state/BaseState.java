@@ -9,4 +9,6 @@ public interface BaseState<T> extends State<T> {
     }
 
     void update(T entity, float delta);
+
+    boolean isState(BaseState<T> other);
 }

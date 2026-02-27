@@ -1,5 +1,7 @@
 package io.github.some_example_name.model;
 
+import io.github.some_example_name.sm.machine.BaseStateMachine;
+import io.github.some_example_name.sm.machine.StateMachine;
 import io.github.some_example_name.utils.CharacterCamp;
 
 /**
@@ -29,6 +31,7 @@ public class BattleCharacter {
     private float attackRange = 80f;
 
     public final MoveComponent moveComponent = new MoveComponent();
+    public StateMachine<BattleCharacter> stateMachine;
 
 
     public BattleCharacter(Card card, CharacterStats stats, float x, float y, boolean isEnemy) {
@@ -43,7 +46,8 @@ public class BattleCharacter {
             this.camp = CharacterCamp.WHITE;
         }
         this.reset();
-
+        stateMachine = new BaseStateMachine<>();
+        stateMachine.setOwn(this);
     }
 
     public void reset() {

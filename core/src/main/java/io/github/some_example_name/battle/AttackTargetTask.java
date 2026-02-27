@@ -2,6 +2,7 @@ package io.github.some_example_name.battle;
 
 import com.badlogic.gdx.ai.btree.LeafTask;
 import com.badlogic.gdx.ai.btree.Task;
+import com.badlogic.gdx.ai.msg.MessageManager;
 import io.github.some_example_name.model.BattleCharacter;
 import io.github.some_example_name.model.CharacterStats;
 import io.github.some_example_name.model.battle.Damage;
@@ -16,11 +17,6 @@ public class AttackTargetTask extends LeafTask<BattleUnitBlackboard> {
 
     @Override
     public void start() {
-        BattleUnitBlackboard bb = getObject();
-        BattleCharacter self = bb.getSelf();
-        BattleCharacter target = bb.getTarget();
-
-        self.moveComponent.dir.set(0f, 0f);
     }
 
     @Override
@@ -35,7 +31,7 @@ public class AttackTargetTask extends LeafTask<BattleUnitBlackboard> {
         if (self.distanceTo(target) > self.getAttackRange()) {
             return Task.Status.FAILED;
         }
-
+//        MessageManager.getInstance().dispatchMessage();
 
         float now = bb.getCurrentTime();
         if (now < self.getNextAttackTime()) {

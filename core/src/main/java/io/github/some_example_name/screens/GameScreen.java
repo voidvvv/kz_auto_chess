@@ -307,6 +307,9 @@ public class GameScreen implements Screen {
 
         damageRenderUpdater.update(delta);
 
+        for (BattleCharacter c : battlefield.getCharacters()) {
+            c.stateMachine.update(delta);
+        }
         postUpdateBattle(delta);
     }
 

@@ -13,6 +13,11 @@ public class NormalState implements BaseState<BattleCharacter> {
     }
 
     @Override
+    public boolean isState(BaseState<BattleCharacter> other) {
+        return other == this;
+    }
+
+    @Override
     public void update(BattleCharacter entity, float delta) {
         entity.time+= delta;
         entity.currentTime+= delta;

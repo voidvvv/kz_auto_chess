@@ -9,7 +9,7 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Stack;
 
-public class BaseStateMachine<T> implements Telegraph {
+public class BaseStateMachine<T> implements Telegraph, StateMachine<T> {
     private T own;
     private final int stackSize = 20;
     private final Deque<BaseState<T>> stateStack = new ArrayDeque<>();
@@ -50,5 +50,15 @@ public class BaseStateMachine<T> implements Telegraph {
     @Override
     public boolean handleMessage(Telegram msg) {
         return false;
+    }
+
+    @Override
+    public BaseState<T> getCurrent() {
+        return this.current;
+    }
+
+    @Override
+    public void setOwn(T own) {
+        this.own = own;
     }
 }
