@@ -6,6 +6,8 @@ import io.github.some_example_name.screens.StartScreen;
 import io.github.some_example_name.utils.FontUtils;
 import io.github.some_example_name.utils.ViewManagement;
 
+import java.io.IOException;
+
 /**
  * 自走棋游戏主类
  */

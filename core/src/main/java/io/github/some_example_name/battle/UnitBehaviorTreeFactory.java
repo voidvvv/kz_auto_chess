@@ -20,7 +20,7 @@ public final class UnitBehaviorTreeFactory {
         root.addChild(new FindEnemyTask());
         root.addChild(new MoveToEnemyTask());
         root.addChild(new AttackTargetTask());
-//        root.cancel();
+//        root.cancel();`
         return new BehaviorTree<>(root, bb);
     }
 }
