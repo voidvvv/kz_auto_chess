@@ -2,11 +2,9 @@ package io.github.some_example_name.sm.state.common;
 
 import com.badlogic.gdx.ai.msg.MessageManager;
 import com.badlogic.gdx.ai.msg.Telegram;
-import io.github.some_example_name.model.BattleUnitBlackboard;
+import io.github.some_example_name.battle.BattleUnitBlackboard;
 import io.github.some_example_name.msg.MessageConstants;
 import io.github.some_example_name.sm.state.BaseState;
-
-import java.awt.event.MouseAdapter;
 
 public class AttackState implements BaseState<BattleUnitBlackboard> {
     @Override

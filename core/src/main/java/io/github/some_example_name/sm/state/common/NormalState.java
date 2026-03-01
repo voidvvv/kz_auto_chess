@@ -1,7 +1,7 @@
 package io.github.some_example_name.sm.state.common;
 
 import com.badlogic.gdx.ai.msg.Telegram;
-import io.github.some_example_name.model.BattleUnitBlackboard;
+import io.github.some_example_name.battle.BattleUnitBlackboard;
 import io.github.some_example_name.sm.state.BaseState;
 
 public class NormalState implements BaseState<BattleUnitBlackboard> {

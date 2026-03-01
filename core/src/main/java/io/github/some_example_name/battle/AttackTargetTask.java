@@ -4,7 +4,6 @@ import com.badlogic.gdx.ai.btree.LeafTask;
 import com.badlogic.gdx.ai.btree.Task;
 import com.badlogic.gdx.ai.msg.MessageManager;
 import io.github.some_example_name.model.BattleCharacter;
-import io.github.some_example_name.model.BattleUnitBlackboard;
 import io.github.some_example_name.model.CharacterStats;
 import io.github.some_example_name.msg.MessageConstants;
 
