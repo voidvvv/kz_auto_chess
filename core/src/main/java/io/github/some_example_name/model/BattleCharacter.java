@@ -35,7 +35,7 @@ public class BattleCharacter implements Telegraph {
     private float attackRange = 80f;
 
     public final MoveComponent moveComponent = new MoveComponent();
-    public StateMachine<BattleCharacter> stateMachine;
+
 
     public DefaultKZConsumer consumer;
 
@@ -56,8 +56,6 @@ public class BattleCharacter implements Telegraph {
             this.camp = CharacterCamp.WHITE;
         }
         this.reset();
-        stateMachine = new BaseStateMachine<>();
-        stateMachine.setOwn(this);
         consumer = new DefaultKZConsumer();
     }
 

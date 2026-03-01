@@ -46,6 +46,7 @@ public class GameScreen implements Screen {
     private CardShop cardShop;
     private PlayerDeck playerDeck;
     private Battlefield battlefield;
+    private List<BattleUnitBlackboard> bbList = new ArrayList<>();
     private BattleFieldRender battleFieldRender;
 
     // UI组件
@@ -254,7 +255,9 @@ public class GameScreen implements Screen {
             if (c.isDead()) continue;
             c.setNextAttackTime(0);
             c.setTarget(null);
-            unitTrees.add(UnitBehaviorTreeFactory.create(c, battlefield));
+            BattleUnitBlackboard battleUnitBlackboard = new BattleUnitBlackboard(c, battlefield);
+            bbList.add(battleUnitBlackboard);
+            unitTrees.add(UnitBehaviorTreeFactory.create(battleUnitBlackboard));
         }
         if (startBattleButton != null) {
             startBattleButton.setVisible(false);
@@ -307,8 +310,8 @@ public class GameScreen implements Screen {
 
         damageRenderUpdater.update(delta);
 
-        for (BattleCharacter c : battlefield.getCharacters()) {
-            c.stateMachine.update(delta);
+        for (var bb : bbList) {
+            bb.stateMachine.update(delta);
         }
         postUpdateBattle(delta);
     }
@@ -353,6 +356,7 @@ public class GameScreen implements Screen {
         battlefield.getDamageEventListenerHolder().addModel(damageRenderListener);
         damageRenderUpdater = new DamageRenderUpdater(  this.damageShowModelModelHolder);
         damageLineRender = new DamageLineRender(this.damageShowModelModelHolder);
+        bbList.clear();
     }
 
     @Override
