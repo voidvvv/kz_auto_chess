@@ -1,5 +1,9 @@
 package io.github.some_example_name.model;
 
+import com.badlogic.gdx.ai.msg.Telegram;
+import com.badlogic.gdx.ai.msg.Telegraph;
+import io.github.some_example_name.msg.DefaultKZConsumer;
+import io.github.some_example_name.msg.KZConsumer;
 import io.github.some_example_name.sm.machine.BaseStateMachine;
 import io.github.some_example_name.sm.machine.StateMachine;
 import io.github.some_example_name.utils.CharacterCamp;
@@ -8,7 +12,7 @@ import io.github.some_example_name.utils.CharacterCamp;
  * 战场角色类
  * 表示战场上的一个角色单位，支持生命、攻击、目标与行为树所需状态
  */
-public class BattleCharacter {
+public class BattleCharacter implements Telegraph {
     public float time = 0f;
     public float currentTime = 0f;
     public float lastStateTime = 0f;
@@ -33,6 +37,12 @@ public class BattleCharacter {
     public final MoveComponent moveComponent = new MoveComponent();
     public StateMachine<BattleCharacter> stateMachine;
 
+    public DefaultKZConsumer consumer;
+
+    // 普通攻击
+    public float maxAttackProgress = 0.15f;
+    public float currentAttackProgress = 0f;
+
 
     public BattleCharacter(Card card, CharacterStats stats, float x, float y, boolean isEnemy) {
         this.card = card;
@@ -48,6 +58,7 @@ public class BattleCharacter {
         this.reset();
         stateMachine = new BaseStateMachine<>();
         stateMachine.setOwn(this);
+        consumer = new DefaultKZConsumer();
     }
 
     public void reset() {
@@ -139,6 +150,11 @@ public class BattleCharacter {
         float dx = other.getX() - x;
         float dy = other.getY() - y;
         return (float) Math.sqrt(dx * dx + dy * dy);
+    }
+
+    @Override
+    public boolean handleMessage(Telegram telegram) {
+        return this.consumer.handleMessage(telegram);
     }
 }
 

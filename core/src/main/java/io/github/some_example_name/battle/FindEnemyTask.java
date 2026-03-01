@@ -3,6 +3,7 @@ package io.github.some_example_name.battle;
 import com.badlogic.gdx.ai.btree.LeafTask;
 import com.badlogic.gdx.ai.btree.Task;
 import io.github.some_example_name.model.BattleCharacter;
+import io.github.some_example_name.model.BattleUnitBlackboard;
 import io.github.some_example_name.model.Battlefield;
 import io.github.some_example_name.model.Card;
 

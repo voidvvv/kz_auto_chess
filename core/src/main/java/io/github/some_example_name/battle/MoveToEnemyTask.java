@@ -4,6 +4,7 @@ import com.badlogic.gdx.ai.btree.LeafTask;
 import com.badlogic.gdx.ai.btree.Task;
 import com.badlogic.gdx.math.Vector2;
 import io.github.some_example_name.model.BattleCharacter;
+import io.github.some_example_name.model.BattleUnitBlackboard;
 import io.github.some_example_name.sm.state.common.States;
 
 public class MoveToEnemyTask extends LeafTask<BattleUnitBlackboard> {

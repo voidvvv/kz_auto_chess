@@ -1,4 +1,4 @@
-package io.github.some_example_name.battle;
+package io.github.some_example_name.model;
 
 import io.github.some_example_name.model.BattleCharacter;
 import io.github.some_example_name.model.Battlefield;

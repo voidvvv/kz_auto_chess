@@ -34,13 +34,16 @@ public class BaseStateMachine<T> implements Telegraph, StateMachine<T> {
 
     private void switchToNextState() {
         if (next != null) {
-            stateStack.push(current);
+            if (current != null ) {
+                stateStack.push(current);
+                BaseState<T> last = current;
+                last.exit(own);
+            }
             while (stateStack.size() >= stackSize) {
                 stateStack.poll();
             }
-            BaseState<T> last = current;
+
             current = next;
-            last.exit(own);
             current.enter(own);
             next = null;
         }

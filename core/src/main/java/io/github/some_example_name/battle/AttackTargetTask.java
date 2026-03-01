@@ -4,9 +4,9 @@ import com.badlogic.gdx.ai.btree.LeafTask;
 import com.badlogic.gdx.ai.btree.Task;
 import com.badlogic.gdx.ai.msg.MessageManager;
 import io.github.some_example_name.model.BattleCharacter;
+import io.github.some_example_name.model.BattleUnitBlackboard;
 import io.github.some_example_name.model.CharacterStats;
-import io.github.some_example_name.model.battle.Damage;
-import io.github.some_example_name.model.event.DamageEvent;
+import io.github.some_example_name.msg.MessageConstants;
 
 /**
  * 行为树叶子任务：若黑板目标有效且在攻击范围内，则造成一次伤害并进入冷却
@@ -31,20 +31,20 @@ public class AttackTargetTask extends LeafTask<BattleUnitBlackboard> {
         if (self.distanceTo(target) > self.getAttackRange()) {
             return Task.Status.FAILED;
         }
-//        MessageManager.getInstance().dispatchMessage();
-
-        float now = bb.getCurrentTime();
-        if (now < self.getNextAttackTime()) {
-            return Task.Status.RUNNING;
-        }
-        DamageEvent de = new DamageEvent();
-        de.setFrom(self);
-        de.setTo(target);
-        float damage = computeDamage(self, target);
-        de.setDamage(new Damage((float)damage, Damage.DamageType.PhySic));
-        bb.getBattlefield().getDamageEventHolder().addModel(de);
-
-        self.setNextAttackTime(now + ATTACK_COOLDOWN);
+        MessageManager.getInstance().dispatchMessage(BattleTelegraph.INSTANCE, self.consumer, MessageConstants.attack, bb);
+//
+//        float now = bb.getCurrentTime();
+//        if (now < self.getNextAttackTime()) {
+//            return Task.Status.RUNNING;
+//        }
+//        DamageEvent de = new DamageEvent();
+//        de.setFrom(self);
+//        de.setTo(target);
+//        float damage = computeDamage(self, target);
+//        de.setDamage(new Damage((float)damage, Damage.DamageType.PhySic));
+//        bb.getBattlefield().getDamageEventHolder().addModel(de);
+//
+//        self.setNextAttackTime(now + ATTACK_COOLDOWN);
 
         return Task.Status.SUCCEEDED;
     }

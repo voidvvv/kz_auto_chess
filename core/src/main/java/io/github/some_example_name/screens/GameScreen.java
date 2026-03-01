@@ -16,7 +16,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.ai.btree.BehaviorTree;
 import io.github.some_example_name.KzAutoChess;
-import io.github.some_example_name.battle.BattleUnitBlackboard;
+import io.github.some_example_name.model.BattleUnitBlackboard;
 import io.github.some_example_name.battle.UnitBehaviorTreeFactory;
 import io.github.some_example_name.listener.damage.DamageRenderListener;
 import io.github.some_example_name.model.*;
