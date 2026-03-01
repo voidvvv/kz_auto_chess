@@ -30,7 +30,7 @@ public class AttackTargetTask extends LeafTask<BattleUnitBlackboard> {
         if (self.distanceTo(target) > self.getAttackRange()) {
             return Task.Status.FAILED;
         }
-        MessageManager.getInstance().dispatchMessage(BattleTelegraph.INSTANCE, self.consumer, MessageConstants.attack, bb);
+        MessageManager.getInstance().dispatchMessage(BattleTelegraph.INSTANCE, bb, MessageConstants.attack, bb);
 //
 //        float now = bb.getCurrentTime();
 //        if (now < self.getNextAttackTime()) {

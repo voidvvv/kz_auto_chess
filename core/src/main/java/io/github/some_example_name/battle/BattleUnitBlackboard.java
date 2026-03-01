@@ -1,5 +1,7 @@
 package io.github.some_example_name.battle;
 
+import com.badlogic.gdx.ai.msg.Telegram;
+import com.badlogic.gdx.ai.msg.Telegraph;
 import io.github.some_example_name.model.BattleCharacter;
 import io.github.some_example_name.model.Battlefield;
 import io.github.some_example_name.sm.machine.BaseStateMachine;
@@ -8,7 +10,7 @@ import io.github.some_example_name.sm.machine.StateMachine;
 /**
  * 行为树黑板：持有当前单位与战场引用，供寻敌、攻击等任务使用
  */
-public class BattleUnitBlackboard {
+public class BattleUnitBlackboard implements Telegraph {
     private final BattleCharacter self;
     private final Battlefield battlefield;
     private BattleCharacter target;
@@ -31,4 +33,8 @@ public class BattleUnitBlackboard {
     public float getCurrentTime() { return currentTime; }
     public void setCurrentTime(float t) { this.currentTime = t; }
 
+    @Override
+    public boolean handleMessage(Telegram telegram) {
+        return false;
+    }
 }

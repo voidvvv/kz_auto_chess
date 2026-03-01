@@ -12,7 +12,7 @@ import io.github.some_example_name.utils.CharacterCamp;
  * 战场角色类
  * 表示战场上的一个角色单位，支持生命、攻击、目标与行为树所需状态
  */
-public class BattleCharacter implements Telegraph {
+public class BattleCharacter {
     public float time = 0f;
     public float currentTime = 0f;
     public float lastStateTime = 0f;
@@ -37,7 +37,6 @@ public class BattleCharacter implements Telegraph {
     public final MoveComponent moveComponent = new MoveComponent();
 
 
-    public DefaultKZConsumer consumer;
 
     // 普通攻击
     public float maxAttackProgress = 0.15f;
@@ -56,7 +55,6 @@ public class BattleCharacter implements Telegraph {
             this.camp = CharacterCamp.WHITE;
         }
         this.reset();
-        consumer = new DefaultKZConsumer();
     }
 
     public void reset() {
@@ -150,9 +148,5 @@ public class BattleCharacter implements Telegraph {
         return (float) Math.sqrt(dx * dx + dy * dy);
     }
 
-    @Override
-    public boolean handleMessage(Telegram telegram) {
-        return this.consumer.handleMessage(telegram);
-    }
 }
 

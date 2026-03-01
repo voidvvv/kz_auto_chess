@@ -27,7 +27,7 @@ public class AttackState implements BaseState<BattleUnitBlackboard> {
 
         if (entity.getSelf().currentAttackProgress>= maxAttackProgress) {
             // attack
-            MessageManager.getInstance().dispatchMessage(entity.stateMachine, entity.getSelf().consumer, MessageConstants.doAttack, "");
+            MessageManager.getInstance().dispatchMessage(entity.stateMachine, entity, MessageConstants.doAttack, "");
         }
     }
 
