@@ -6,6 +6,7 @@ import com.badlogic.gdx.ai.msg.MessageManager;
 import io.github.some_example_name.model.BattleCharacter;
 import io.github.some_example_name.model.CharacterStats;
 import io.github.some_example_name.msg.MessageConstants;
+import io.github.some_example_name.sm.state.common.AttackState;
 
 /**
  * 行为树叶子任务：若黑板目标有效且在攻击范围内，则造成一次伤害并进入冷却
@@ -30,22 +31,28 @@ public class AttackTargetTask extends LeafTask<BattleUnitBlackboard> {
         if (self.distanceTo(target) > self.getAttackRange()) {
             return Task.Status.FAILED;
         }
-        MessageManager.getInstance().dispatchMessage(BattleTelegraph.INSTANCE, bb, MessageConstants.attack, bb);
+        if (shouldCancel() ) {
+            return Status.CANCELLED;
+        }
+        if (!bb.stateMachine.getCurrent().isState(AttackState.INSTANCE)) {
+            MessageManager.getInstance().dispatchMessage(BattleTelegraph.INSTANCE, bb, MessageConstants.attack, bb);
+
+        }
 //
 //        float now = bb.getCurrentTime();
 //        if (now < self.getNextAttackTime()) {
 //            return Task.Status.RUNNING;
 //        }
-//        DamageEvent de = new DamageEvent();
-//        de.setFrom(self);
-//        de.setTo(target);
-//        float damage = computeDamage(self, target);
-//        de.setDamage(new Damage((float)damage, Damage.DamageType.PhySic));
-//        bb.getBattlefield().getDamageEventHolder().addModel(de);
 //
 //        self.setNextAttackTime(now + ATTACK_COOLDOWN);
 
-        return Task.Status.SUCCEEDED;
+        return Status.RUNNING;
+    }
+
+    private boolean shouldCancel() {
+        BattleUnitBlackboard bb = getObject();
+        BattleCharacter self = bb.getSelf();
+        return self.isDead();
     }
 
     private float computeDamage(BattleCharacter attacker, BattleCharacter defender) {

@@ -5,7 +5,7 @@ import io.github.some_example_name.battle.BattleUnitBlackboard;
 import io.github.some_example_name.sm.state.BaseState;
 
 public class MoveState implements BaseState<BattleUnitBlackboard> {
-    public static final MoveState INSTANCZE = new MoveState();
+    public static final MoveState INSTANCE = new MoveState();
     private MoveState(){}
     @Override
     public void update(BattleUnitBlackboard entity, float delta) {
@@ -17,7 +17,10 @@ public class MoveState implements BaseState<BattleUnitBlackboard> {
     public boolean isState(BaseState<BattleUnitBlackboard> other) {
         return other == this;
     }
-
+    @Override
+    public String name() {
+        return "move";
+    }
     @Override
     public void enter(BattleUnitBlackboard entity) {
         entity.getSelf().moveComponent.canWalk = true;

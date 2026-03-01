@@ -5,6 +5,9 @@ import io.github.some_example_name.sm.state.BaseState;
 
 public class States {
     public static BaseState<BattleUnitBlackboard> NORMAL_STATE = NormalState.instance;
-    public static BaseState<BattleUnitBlackboard> BASE_MOVE_STATE = MoveState.INSTANCZE;
+    public static BaseState<BattleUnitBlackboard> BASE_MOVE_STATE = MoveState.INSTANCE;
+
+    // AttackState
+    public static BaseState<BattleUnitBlackboard> ATTACK_STATE = AttackState.INSTANCE;
 
 }

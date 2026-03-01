@@ -16,7 +16,10 @@ public class NormalState implements BaseState<BattleUnitBlackboard> {
     public boolean isState(BaseState<BattleUnitBlackboard> other) {
         return other == this;
     }
-
+    @Override
+    public String name() {
+        return "normal";
+    }
     @Override
     public void update(BattleUnitBlackboard entity, float delta) {
         entity.getSelf().time+= delta;

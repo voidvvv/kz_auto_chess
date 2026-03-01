@@ -22,6 +22,7 @@ import io.github.some_example_name.listener.damage.DamageRenderListener;
 import io.github.some_example_name.model.*;
 import io.github.some_example_name.render.BattleFieldRender;
 import io.github.some_example_name.render.DamageLineRender;
+import io.github.some_example_name.sm.machine.StateMachine;
 import io.github.some_example_name.ui.CardRenderer;
 import io.github.some_example_name.updater.BattleCharacterUpdater;
 import io.github.some_example_name.updater.BattleUpdater;
@@ -283,6 +284,7 @@ public class GameScreen implements Screen {
         if (startBattleButton != null) {
             startBattleButton.setVisible(true);
         }
+        this.bbList.clear();
     }
 
     private void updateBattle(float delta) {
@@ -496,6 +498,22 @@ public class GameScreen implements Screen {
         drawBattlefield();
         shapeRenderer.end();
         damageLineRender.render(shapeRenderer, game.getBatch());
+
+        // 渲染每个角色的状态
+        renderBattleCharacterState();
+    }
+
+    private void renderBattleCharacterState() {
+        BitmapFont smallFont = FontUtils.getSmallFont();
+        game.getBatch().begin();
+        for (var c : bbList) {
+            int currentTime =(int) c.getSelf().currentTime;
+            StateMachine<BattleUnitBlackboard> stateMachine = c.stateMachine;
+            String stateName = stateMachine.getCurrent() == null? "null" :  stateMachine.getCurrent().name();
+            String des = String.format("[%s]:%s",stateName, currentTime + "");
+            smallFont.draw(game.getBatch(),des, c.getSelf().getX(), c.getSelf().getY());
+        }
+        game.getBatch().end();
     }
 
     /**

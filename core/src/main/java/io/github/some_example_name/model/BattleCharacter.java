@@ -1,11 +1,5 @@
 package io.github.some_example_name.model;
 
-import com.badlogic.gdx.ai.msg.Telegram;
-import com.badlogic.gdx.ai.msg.Telegraph;
-import io.github.some_example_name.msg.DefaultKZConsumer;
-import io.github.some_example_name.msg.KZConsumer;
-import io.github.some_example_name.sm.machine.BaseStateMachine;
-import io.github.some_example_name.sm.machine.StateMachine;
 import io.github.some_example_name.utils.CharacterCamp;
 
 /**
@@ -39,7 +33,8 @@ public class BattleCharacter {
 
 
     // 普通攻击
-    public float maxAttackProgress = 0.15f;
+    public float progressCouldDamage = 0.15f;
+    public float maxAttackActProgress = 0.25f;
     public float currentAttackProgress = 0f;
 
 
