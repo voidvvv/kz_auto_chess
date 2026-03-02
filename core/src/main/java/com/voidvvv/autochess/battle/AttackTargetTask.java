@@ -32,7 +32,7 @@ public class AttackTargetTask extends LeafTask<BattleUnitBlackboard> {
             return Task.Status.FAILED;
         }
         if (shouldCancel() ) {
-            return Status.CANCELLED;
+            return Status.FAILED;
         }
         if (!bb.stateMachine.getCurrent().isState(AttackState.INSTANCE)) {
             MessageManager.getInstance().dispatchMessage(BattleTelegraph.INSTANCE, bb, MessageConstants.attack, bb);

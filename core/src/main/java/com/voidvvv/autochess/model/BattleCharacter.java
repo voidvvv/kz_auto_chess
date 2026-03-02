@@ -36,7 +36,7 @@ public class BattleCharacter {
     public float progressCouldDamage = 0.15f;
     public float maxAttackActProgress = 0.25f;
     public float currentAttackProgress = 0f;
-
+    public float attackCooldown = 1f;
 
     public BattleCharacter(Card card, CharacterStats stats, float x, float y, boolean isEnemy) {
         this.card = card;

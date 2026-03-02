@@ -83,6 +83,7 @@ public class BattleUnitBlackboard implements Telegraph {
 
     private void onMessageAttack(Telegram telegram) {
         if (this.stateMachine.getCurrent().isState(AttackState.INSTANCE)) return;
+        if (this.self.attackCooldown > 0) return;
         this.stateMachine.switchState(States.ATTACK_STATE);
     }
     private void onMessageDoAttack(Telegram telegram) {
@@ -104,5 +105,11 @@ public class BattleUnitBlackboard implements Telegraph {
 
     private void doSomething() {
 
+    }
+
+    public void update(float delta) {
+        this.stateMachine.update(delta);
+        this.self.attackCooldown -= delta;
+        this.self.attackCooldown = Math.max( this.self.attackCooldown, 0);
     }
 }

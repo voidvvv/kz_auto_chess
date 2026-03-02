@@ -304,18 +304,19 @@ public class GameScreen implements Screen {
             battlefield.removeCharacter(c);
         }
         unitTrees.removeIf(t -> t.getObject().getSelf().isDead());
-        if (battlefield.getPlayerCharacters().isEmpty() || battlefield.getEnemyCharacters().isEmpty()) {
-            endBattle();
-        }
+
 
         battleUpdater.update(delta); // 通过damage event listener监听伤害事件
 
         damageRenderUpdater.update(delta);
 
         for (var bb : bbList) {
-            bb.stateMachine.update(delta);
+            bb.update(delta);
         }
         postUpdateBattle(delta);
+        if (battlefield.getPlayerCharacters().isEmpty() || battlefield.getEnemyCharacters().isEmpty()) {
+            endBattle();
+        }
     }
 
     private void postUpdateBattle(float delta) {
