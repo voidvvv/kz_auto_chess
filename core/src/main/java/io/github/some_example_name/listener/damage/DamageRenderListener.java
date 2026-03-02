@@ -21,7 +21,7 @@ public class DamageRenderListener implements DamageEventListener{
         DamageShowModel model = new DamageShowModel();
         model.damage = de.getDamage();
         model.pos.set( de.getTo().getX(),  de.getTo().getY(), 0f);
-        model.time = 1F;
+        model.time = 0.2F;
         model.from = de.getFrom();
         model.to = de.getTo();
         this.damageShowModelModelHolder.addModel(model);

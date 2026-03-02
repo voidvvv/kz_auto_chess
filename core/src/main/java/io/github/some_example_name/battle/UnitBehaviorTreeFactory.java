@@ -1,7 +1,6 @@
 package io.github.some_example_name.battle;
 
 import com.badlogic.gdx.ai.btree.BehaviorTree;
-import com.badlogic.gdx.ai.btree.branch.Selector;
 import com.badlogic.gdx.ai.btree.branch.Sequence;
 import io.github.some_example_name.model.BattleCharacter;
 import io.github.some_example_name.model.Battlefield;
@@ -11,11 +10,18 @@ import io.github.some_example_name.model.Battlefield;
  */
 public final class UnitBehaviorTreeFactory {
 
-    private UnitBehaviorTreeFactory() {}
+    private UnitBehaviorTreeFactory() {
+    }
 
-    /** 创建根为 Selector(AttackTarget, FindEnemy) 的行为树 */
+    /**
+     * 创建根为 Selector(AttackTarget, FindEnemy) 的行为树
+     */
     public static BehaviorTree<BattleUnitBlackboard> create(BattleCharacter self, Battlefield battlefield) {
         BattleUnitBlackboard bb = new BattleUnitBlackboard(self, battlefield);
+        return create(bb);
+    }
+
+    public static BehaviorTree<BattleUnitBlackboard> create(BattleUnitBlackboard bb) {
         Sequence<BattleUnitBlackboard> root = new Sequence<>();
         root.addChild(new FindEnemyTask());
         root.addChild(new MoveToEnemyTask());

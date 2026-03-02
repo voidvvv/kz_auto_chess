@@ -14,7 +14,7 @@ public class MoveToEnemyTask extends LeafTask<BattleUnitBlackboard> {
         BattleCharacter target = bb.getTarget();
         BattleCharacter self = bb.getSelf();
 
-        self.stateMachine.switchState(States.BASE_MOVE_STATE);
+        bb.stateMachine.switchState(States.BASE_MOVE_STATE);
         firstFrame = true;
     }
 
@@ -31,7 +31,7 @@ public class MoveToEnemyTask extends LeafTask<BattleUnitBlackboard> {
             return Status.FAILED;
         }
 
-        if (!self.stateMachine.getCurrent().isState(States.BASE_MOVE_STATE)) {
+        if (!bb.stateMachine.getCurrent().isState(States.BASE_MOVE_STATE)) {
             return Status.FAILED;
         }
 
@@ -46,7 +46,7 @@ public class MoveToEnemyTask extends LeafTask<BattleUnitBlackboard> {
             self.moveComponent.dir.set(targetX - x, targetY - y);
             return Status.RUNNING;
         } else {
-            self.stateMachine.switchState(States.NORMAL_STATE);
+            bb.stateMachine.switchState(States.NORMAL_STATE);
 
             return Status.SUCCEEDED;
         }

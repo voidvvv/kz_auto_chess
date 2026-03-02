@@ -31,7 +31,7 @@ public class DamageLineRender {
         spriteBatch.begin();
         for (DamageShowModel model : damageShowModelModelHolder.getModels()) {
             BattleCharacter to = model.to;
-            defaultFont.draw(spriteBatch, model.damage.val + "", to.getX(), to.getY());
+            defaultFont.draw(spriteBatch, (int)model.damage.val + "", to.getX(), to.getY());
         }
 
         spriteBatch.end();
