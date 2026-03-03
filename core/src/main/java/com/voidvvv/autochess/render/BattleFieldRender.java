@@ -62,7 +62,10 @@ public class BattleFieldRender {
         game.getBatch().end();
 
         for (BattleCharacter character : battlefield.getCharacters()) {
-            if (!character.isDead()) {
+            if (character.isDead()) {
+                // 渲染死亡角色为半透明，表示已死亡但会在下一轮复活
+                CharacterRenderer.renderWithAlpha(shapeRenderer, character, 0.3f);
+            } else {
                 CharacterRenderer.render(shapeRenderer, character);
             }
         }

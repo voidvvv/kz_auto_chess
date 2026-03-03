@@ -14,6 +14,7 @@ public class BattleCharacter {
     private Card card;
     private String name;
     private CharacterStats stats;
+    private CharacterStats battleStats;
     private float x, y;
     private float initX, initY;
     private float size = 40;
@@ -53,6 +54,7 @@ public class BattleCharacter {
     }
 
     public void reset() {
+        battleStats = null; // 确保战斗属性清除
         this.x = initX;
         this.y = initY;
         this.currentHp = stats != null ? stats.getHealth() : 100f;
@@ -60,9 +62,24 @@ public class BattleCharacter {
         moveComponent.speed = 10f;
         moveComponent.canWalk = true;
         setTarget(null);
+        // 重置计时器和攻击进度
+        this.time = 0f;
+        this.currentTime = 0f;
+        this.lastStateTime = 0f;
+        this.currentAttackProgress = 0f;
         if (stats != null && card != null) {
             inferAttackRange();
         }
+    }
+
+    public void enterBattle() {
+        // 进入战斗状态，初始化战斗属性
+        battleStats = stats; // 目前引用相同的基础属性，未来可以复制或应用buff
+    }
+
+    public void exitBattle() {
+        // 退出战斗状态，清除战斗属性
+        battleStats = null;
     }
 
     public CharacterCamp getCamp() {
@@ -84,7 +101,7 @@ public class BattleCharacter {
     }
 
     public Card getCard() { return card; }
-    public CharacterStats getStats() { return stats; }
+    public CharacterStats getStats() { return battleStats != null ? battleStats : stats; }
     public float getX() { return x; }
     public float getY() { return y; }
     public void setPosition(float x, float y) {

@@ -42,9 +42,9 @@ public class I18N {
             if (!bundleFile.exists()) {
                 Gdx.app.error("I18N", "Bundle file not found: " + bundleFile.path());
                 // 创建默认的bundle作为后备
-                bundle = I18NBundle.createBundle(bundleFile, Locale.ENGLISH);
-            } else {
                 bundle = I18NBundle.createBundle(bundleFile, locale);
+            } else {
+                bundle = I18NBundle.createBundle(bundleFile);
             }
 
             initialized = true;

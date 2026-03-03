@@ -256,6 +256,7 @@ public class GameScreen implements Screen {
         LevelEnemyConfig.spawnEnemiesInBattlefield(battlefield, enemyIds, cardPool);
         for (BattleCharacter c : battlefield.getCharacters()) {
             if (c.isDead()) continue;
+            c.enterBattle();
             c.setNextAttackTime(0);
             c.setTarget(null);
             BattleUnitBlackboard battleUnitBlackboard = new BattleUnitBlackboard(c, battlefield);
@@ -270,16 +271,22 @@ public class GameScreen implements Screen {
     private void endBattle() {
         phase = GamePhase.PLACEMENT;
         unitTrees.clear();
-        List<BattleCharacter> toRemove = new ArrayList<>();
+
+        // 只移除敌方角色（无论生死），因为我方角色无论生死都会在下一轮复活
+        List<BattleCharacter> enemiesToRemove = new ArrayList<>();
         for (BattleCharacter c : battlefield.getCharacters()) {
-            if (c.isDead()) toRemove.add(c);
+            if (c.isEnemy()) enemiesToRemove.add(c);
         }
-        for (BattleCharacter c : toRemove) {
+        for (BattleCharacter c : enemiesToRemove) {
             battlefield.removeCharacter(c);
         }
+
+        // 重置所有我方角色（包括死亡的，让它们复活）
         for (BattleCharacter c : battlefield.getCharacters()) {
-            c.reset();
+            c.exitBattle(); // 清除战斗属性
+            c.reset();      // 恢复初始状态，包括满血复活
         }
+
         gold += 5;
         playerLevel = Math.min(5, playerLevel + 1);
         cardShop.setPlayerLevel(playerLevel);
@@ -298,9 +305,10 @@ public class GameScreen implements Screen {
             tree.step();
         }
 
+        // 只移除敌方死亡角色，我方死亡角色会留在战场上直到战斗结束后复活
         List<BattleCharacter> toRemove = new ArrayList<>();
         for (BattleCharacter c : battlefield.getCharacters()) {
-            if (c.isDead()) toRemove.add(c);
+            if (c.isDead() && c.isEnemy()) toRemove.add(c);
         }
         for (BattleCharacter c : toRemove) {
             battlefield.removeCharacter(c);
