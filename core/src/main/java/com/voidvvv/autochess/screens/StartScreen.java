@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.voidvvv.autochess.KzAutoChess;
 import com.voidvvv.autochess.utils.FontUtils;
+import com.voidvvv.autochess.utils.I18N;
 
 /**
  * 游戏开始界面
@@ -87,27 +88,25 @@ public class StartScreen implements Screen {
         titleFont.getData().setScale(1.0f);
 
         // 绘制标题
-        GlyphLayout titleLayout = new GlyphLayout(titleFont, "自走棋");
+        String titleText = I18N.get("title");
+        GlyphLayout titleLayout = new GlyphLayout(titleFont, titleText);
         float titleX = (Gdx.graphics.getWidth() - titleLayout.width) / 2;
         float titleY = Gdx.graphics.getHeight() - 100;
 
-        // 如果布局宽度为0，说明字体不支持这些字符，使用英文
-        if (titleLayout.width < 1) {
-            titleLayout = new GlyphLayout(titleFont, "Auto Chess");
-            titleX = (Gdx.graphics.getWidth() - titleLayout.width) / 2;
-        }
         titleFont.draw(game.getBatch(), titleLayout, titleX, titleY);
 
         // 绘制按钮文字
         buttonFont.setColor(Color.WHITE);
         buttonFont.getData().setScale(1.0f);
-        GlyphLayout buttonLayout = new GlyphLayout(buttonFont, "开始游戏");
+        String buttonText = I18N.get("start_game");
+        GlyphLayout buttonLayout = new GlyphLayout(buttonFont, buttonText);
         float textX = buttonX + (buttonWidth - buttonLayout.width) / 2;
         float textY = buttonY + (buttonHeight + buttonLayout.height) / 2;
 
         // 如果布局宽度为0，使用英文
         if (buttonLayout.width < 1) {
-            buttonLayout = new GlyphLayout(buttonFont, "Start Game");
+            buttonText = "Start Game";
+            buttonLayout = new GlyphLayout(buttonFont, buttonText);
             textX = buttonX + (buttonWidth - buttonLayout.width) / 2;
         }
         buttonFont.draw(game.getBatch(), buttonLayout, textX, textY);

@@ -1,5 +1,7 @@
 package com.voidvvv.autochess.model;
 
+import com.voidvvv.autochess.utils.I18N;
+
 /**
  * 卡牌数据类
  */
@@ -48,20 +50,32 @@ public class Card {
      * 卡牌类型枚举
      */
     public enum CardType {
-        WARRIOR("战士"),
-        MAGE("法师"),
-        ARCHER("射手"),
-        ASSASSIN("刺客"),
-        TANK("坦克");
+        WARRIOR("warrior"),
+        MAGE("mage"),
+        ARCHER("archer"),
+        ASSASSIN("assassin"),
+        TANK("tank");
 
-        private final String displayName;
+        private final String i18nKey;
 
-        CardType(String displayName) {
-            this.displayName = displayName;
+        CardType(String i18nKey) {
+            this.i18nKey = i18nKey;
         }
 
         public String getDisplayName() {
-            return displayName;
+            String key = "card_type_" + i18nKey;
+            return I18N.get(key, getDefaultDisplayName());
+        }
+
+        private String getDefaultDisplayName() {
+            switch (this) {
+                case WARRIOR: return "战士";
+                case MAGE: return "法师";
+                case ARCHER: return "射手";
+                case ASSASSIN: return "刺客";
+                case TANK: return "坦克";
+                default: return name();
+            }
         }
     }
 }

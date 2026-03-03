@@ -29,6 +29,7 @@ import com.voidvvv.autochess.updater.BattleUpdater;
 import com.voidvvv.autochess.updater.DamageRenderUpdater;
 import com.voidvvv.autochess.utils.CharacterRenderer;
 import com.voidvvv.autochess.utils.FontUtils;
+import com.voidvvv.autochess.utils.I18N;
 import com.voidvvv.autochess.utils.CameraController;
 
 import java.util.ArrayList;
@@ -199,7 +200,8 @@ public class GameScreen implements Screen {
         buttonStyle.fontColor = Color.WHITE;
 
         // 刷新按钮
-        TextButton refreshButton = new TextButton("刷新 (" + cardShop.getRefreshCost() + "金币)", buttonStyle);
+        String refreshText = I18N.format("refresh_cost", cardShop.getRefreshCost());
+        TextButton refreshButton = new TextButton(refreshText, buttonStyle);
         refreshButton.setPosition(shopAreaX + shopAreaWidth - 120, shopAreaY + shopAreaHeight + 20);
         refreshButton.setSize(120, 40);
         // 确保按钮文字可见
@@ -210,7 +212,7 @@ public class GameScreen implements Screen {
                 if (gold >= cardShop.getRefreshCost()) {
                     gold -= cardShop.getRefreshCost();
                     cardShop.refresh();
-                    refreshButton.setText("刷新 (" + cardShop.getRefreshCost() + "金币)");
+                    refreshButton.setText(I18N.format("refresh_cost", cardShop.getRefreshCost()));
                     refreshButton.getLabel().setColor(Color.WHITE);
                 }
             }
@@ -218,7 +220,7 @@ public class GameScreen implements Screen {
         stage.addActor(refreshButton);
 
         // 返回按钮
-        TextButton backButton = new TextButton("返回", buttonStyle);
+        TextButton backButton = new TextButton(I18N.get("back"), buttonStyle);
         float screenHeight = game.getViewManagement().getUIViewport().getWorldHeight();
         backButton.setPosition(50, screenHeight - 60);
         backButton.setSize(100, 40);
@@ -232,7 +234,7 @@ public class GameScreen implements Screen {
         stage.addActor(backButton);
 
         // 开始战斗按钮（仅放置阶段可点）
-        startBattleButton = new TextButton("开始战斗", buttonStyle);
+        startBattleButton = new TextButton(I18N.get("start_battle"), buttonStyle);
         startBattleButton.setPosition(shopAreaX + shopAreaWidth - 260, shopAreaY + shopAreaHeight + 20);
         startBattleButton.setSize(120, 40);
         startBattleButton.getLabel().setColor(Color.WHITE);
@@ -530,12 +532,12 @@ public class GameScreen implements Screen {
         game.getBatch().begin();
         titleFont.setColor(Color.WHITE);
         titleFont.getData().setScale(1.0f);
-        String titleText = "关卡 " + level + " - 自走棋";
+        String titleText = I18N.format("stage_level", level);
         GlyphLayout titleLayout = new GlyphLayout(titleFont, titleText);
         float uiHeight = game.getViewManagement().getUIViewport().getWorldHeight();
         titleFont.draw(game.getBatch(), titleLayout, 50, uiHeight - 30);
 
-        String infoText = "金币: " + gold + " | 等级: " + playerLevel;
+        String infoText = I18N.format("gold", gold) + " | " + I18N.format("player_level", playerLevel);
         GlyphLayout infoLayout = new GlyphLayout(titleFont, infoText);
         float uiWidth = game.getViewManagement().getUIViewport().getWorldWidth();
         titleFont.draw(game.getBatch(), infoLayout, uiWidth - infoLayout.width - 50, uiHeight - 30);
@@ -565,7 +567,7 @@ public class GameScreen implements Screen {
         BitmapFont font = FontUtils.getSmallFont();
         font.setColor(Color.YELLOW);
         font.getData().setScale(1.0f);
-        GlyphLayout titleLayout = new GlyphLayout(font, "商店");
+        GlyphLayout titleLayout = new GlyphLayout(font, I18N.get("shop"));
         font.draw(game.getBatch(), titleLayout, shopAreaX + 10, shopAreaY + shopAreaHeight - 10);
         game.getBatch().end();
 
@@ -609,7 +611,7 @@ public class GameScreen implements Screen {
         BitmapFont font = FontUtils.getSmallFont();
         font.setColor(Color.CYAN);
         font.getData().setScale(1.0f);
-        String deckTitle = "我的卡组 (" + playerDeck.getTotalCardCount() + " 张)";
+        String deckTitle = I18N.format("deck", playerDeck.getTotalCardCount());
         GlyphLayout titleLayout = new GlyphLayout(font, deckTitle);
         font.draw(game.getBatch(), titleLayout, deckAreaX + 10, deckAreaY + deckAreaHeight - 10);
         game.getBatch().end();
@@ -619,7 +621,7 @@ public class GameScreen implements Screen {
         if (ownedCards.isEmpty()) {
             game.getBatch().begin();
             font.setColor(Color.GRAY);
-            GlyphLayout emptyLayout = new GlyphLayout(font, "暂无卡牌\n在商店购买卡牌");
+            GlyphLayout emptyLayout = new GlyphLayout(font, I18N.get("deck_empty"));
             float emptyX = deckAreaX + (deckAreaWidth - emptyLayout.width) / 2;
             float emptyY = deckAreaY + deckAreaHeight / 2;
             font.draw(game.getBatch(), emptyLayout, emptyX, emptyY);

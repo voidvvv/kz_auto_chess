@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.voidvvv.autochess.model.Card;
 import com.voidvvv.autochess.utils.FontUtils;
+import com.voidvvv.autochess.utils.I18N;
 
 /**
  * 卡牌渲染组件
@@ -75,7 +76,9 @@ public class CardRenderer {
 
         // 卡牌等级
         cardFont.setColor(Color.CYAN);
-        String tierText = showCount ? "T" + card.getTier() : "等级: " + card.getTier();
+        String tierText = showCount ?
+                    I18N.format("tier_short", card.getTier()) :
+                    I18N.format("tier_level", card.getTier());
         GlyphLayout tierLayout = new GlyphLayout(cardFont, tierText);
         cardFont.draw(batch, tierLayout, x + 5, y + 8);
 
@@ -83,7 +86,8 @@ public class CardRenderer {
         if (!showCount) {
             cardFont.setColor(Color.GOLD);
             cardFont.getData().setScale(0.8f);
-            GlyphLayout costLayout = new GlyphLayout(cardFont, "费用: " + card.getCost());
+            String costText = I18N.format("cost_text", card.getCost());
+            GlyphLayout costLayout = new GlyphLayout(cardFont, costText);
             cardFont.draw(batch, costLayout, x + 5, y + 20);
         }
 
@@ -117,7 +121,7 @@ public class CardRenderer {
         batch.begin();
         cardFont.setColor(Color.BLACK);
         cardFont.getData().setScale(0.75f);
-        String countText = "x" + count;
+        String countText = I18N.format("count_text", count);
         GlyphLayout countLayout = new GlyphLayout(cardFont, countText);
         float countX = badgeX - countLayout.width/2;
         float countY = badgeY + countLayout.height/2;

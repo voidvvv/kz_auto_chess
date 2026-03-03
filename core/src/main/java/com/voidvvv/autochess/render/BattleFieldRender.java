@@ -9,6 +9,7 @@ import com.voidvvv.autochess.model.BattleCharacter;
 import com.voidvvv.autochess.model.Battlefield;
 import com.voidvvv.autochess.utils.CharacterRenderer;
 import com.voidvvv.autochess.utils.FontUtils;
+import com.voidvvv.autochess.utils.I18N;
 
 public class BattleFieldRender {
     private KzAutoChess game;
@@ -49,14 +50,14 @@ public class BattleFieldRender {
         BitmapFont font = FontUtils.getSmallFont();
         font.setColor(Color.WHITE);
         font.getData().setScale(1.0f);
-        GlyphLayout titleLayout = new GlyphLayout(font, "战场");
+        GlyphLayout titleLayout = new GlyphLayout(font, I18N.get("battlefield"));
         float titleY = battlefield.getY() + battlefield.getHeight() - 10;
         font.draw(game.getBatch(), titleLayout, battlefield.getX() + 10, titleY);
         font.setColor(0.7f, 0.8f, 1f, 1);
-        GlyphLayout playerLayout = new GlyphLayout(font, "己方");
+        GlyphLayout playerLayout = new GlyphLayout(font, I18N.get("player_side"));
         font.draw(game.getBatch(), playerLayout, x + 10, splitY - 25);
         font.setColor(0.9f, 0.6f, 0.6f, 1);
-        GlyphLayout enemyLayout = new GlyphLayout(font, "敌方");
+        GlyphLayout enemyLayout = new GlyphLayout(font, I18N.get("enemy_side"));
         font.draw(game.getBatch(), enemyLayout, x + 10, splitY + 15);
         game.getBatch().end();
 

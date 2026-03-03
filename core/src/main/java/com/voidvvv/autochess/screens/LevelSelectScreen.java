@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.voidvvv.autochess.KzAutoChess;
 import com.voidvvv.autochess.utils.FontUtils;
+import com.voidvvv.autochess.utils.I18N;
 
 /**
  * 关卡选择界面
@@ -72,7 +73,7 @@ public class LevelSelectScreen implements Screen {
         game.getBatch().begin();
         titleFont.setColor(Color.WHITE);
         titleFont.getData().setScale(1.0f);
-        GlyphLayout titleLayout = new GlyphLayout(titleFont, "选择关卡");
+        GlyphLayout titleLayout = new GlyphLayout(titleFont, I18N.get("level_select"));
         float titleX = (Gdx.graphics.getWidth() - titleLayout.width) / 2;
         float titleY = Gdx.graphics.getHeight() - 80;
         titleFont.draw(game.getBatch(), titleLayout, titleX, titleY);
@@ -100,7 +101,7 @@ public class LevelSelectScreen implements Screen {
             game.getBatch().begin();
             buttonFont.setColor(Color.WHITE);
             buttonFont.getData().setScale(1.0f);
-            String levelText = "关卡 " + (i + 1);
+            String levelText = I18N.format("stage_level", (i + 1));
             GlyphLayout layout = new GlyphLayout(buttonFont, levelText);
             float textX = levelButtonX[i] + (levelButtonWidth - layout.width) / 2;
             float textY = levelButtonY[i] + (levelButtonHeight + layout.height) / 2;
@@ -134,7 +135,7 @@ public class LevelSelectScreen implements Screen {
         game.getBatch().begin();
         buttonFont.setColor(Color.WHITE);
         buttonFont.getData().setScale(1.0f);
-        GlyphLayout backLayout = new GlyphLayout(buttonFont, "返回");
+        GlyphLayout backLayout = new GlyphLayout(buttonFont, I18N.get("back"));
         float backTextX = backButtonX + (backButtonWidth - backLayout.width) / 2;
         float backTextY = backButtonY + (backButtonHeight + backLayout.height) / 2;
         buttonFont.draw(game.getBatch(), backLayout, backTextX, backTextY);
