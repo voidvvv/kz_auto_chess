@@ -1,0 +1,8 @@
+# i18n resource bundle for Kz Auto Chess
+# Base properties file (English)
+
+title = Auto Chess
+start_game = Start Game
+level_select = Level Select
+back = Back
+exit = Exit
