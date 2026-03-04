@@ -1,8 +1,12 @@
-package com.voidvvv.autochess.model;
+package com.voidvvv.autochess.manage;
 
+import com.voidvvv.autochess.model.BattleCharacter;
+import com.voidvvv.autochess.model.Battlefield;
+import com.voidvvv.autochess.model.Projectile;
 import com.voidvvv.autochess.model.battle.DamageEventHolder;
 import com.voidvvv.autochess.model.battle.Damage;
 import com.voidvvv.autochess.model.event.DamageEvent;
+import com.voidvvv.autochess.updater.ProjectileUpdater;
 import com.voidvvv.autochess.utils.CharacterCamp;
 
 import java.util.ArrayList;
@@ -17,6 +21,7 @@ public class ProjectileManager {
 
     private final List<Projectile> projectiles = new ArrayList<>();
     private final DamageEventHolder damageEventHolder;
+    private final ProjectileUpdater projectileUpdater = new ProjectileUpdater();
 
     public ProjectileManager(DamageEventHolder damageEventHolder) {
         this.damageEventHolder = damageEventHolder;
@@ -46,8 +51,8 @@ public class ProjectileManager {
         while (iterator.hasNext()) {
             Projectile projectile = iterator.next();
 
-            // 更新投掷物位置
-            boolean shouldRemove = projectile.update(deltaTime);
+            // 使用ProjectileUpdater更新投掷物位置
+            boolean shouldRemove = projectileUpdater.update(projectile, deltaTime);
 
             // 检查碰撞
             if (!shouldRemove) {

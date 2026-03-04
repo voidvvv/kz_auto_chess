@@ -20,6 +20,7 @@ import com.voidvvv.autochess.battle.BattleUnitBlackboard;
 import com.voidvvv.autochess.battle.UnitBehaviorTreeFactory;
 import com.voidvvv.autochess.listener.damage.DamageRenderListener;
 import com.voidvvv.autochess.model.*;
+import com.voidvvv.autochess.manage.ProjectileManager;
 import com.voidvvv.autochess.render.BattleFieldRender;
 import com.voidvvv.autochess.render.DamageLineRender;
 import com.voidvvv.autochess.render.ProjectileRenderer;

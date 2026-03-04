@@ -2,6 +2,7 @@ package com.voidvvv.autochess.model;
 
 import com.voidvvv.autochess.model.battle.DamageEventHolder;
 import com.voidvvv.autochess.model.battle.DamageEventListenerHolder;
+import com.voidvvv.autochess.manage.ProjectileManager;
 
 import java.util.ArrayList;
 import java.util.List;

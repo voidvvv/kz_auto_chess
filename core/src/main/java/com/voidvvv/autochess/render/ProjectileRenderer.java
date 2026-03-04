@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.voidvvv.autochess.KzAutoChess;
 import com.voidvvv.autochess.model.Projectile;
-import com.voidvvv.autochess.model.ProjectileManager;
+import com.voidvvv.autochess.manage.ProjectileManager;
 
 import java.util.List;
 

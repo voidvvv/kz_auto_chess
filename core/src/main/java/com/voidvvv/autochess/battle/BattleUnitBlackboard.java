@@ -6,7 +6,7 @@ import com.voidvvv.autochess.model.BattleCharacter;
 import com.voidvvv.autochess.model.Battlefield;
 import com.voidvvv.autochess.model.Card;
 import com.voidvvv.autochess.model.Projectile;
-import com.voidvvv.autochess.model.ProjectileManager;
+import com.voidvvv.autochess.manage.ProjectileManager;
 import com.voidvvv.autochess.model.CharacterStats;
 import com.voidvvv.autochess.model.battle.Damage;
 import com.voidvvv.autochess.model.event.DamageEvent;

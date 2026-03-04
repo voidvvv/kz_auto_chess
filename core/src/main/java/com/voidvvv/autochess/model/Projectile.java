@@ -72,57 +72,15 @@ public class Projectile {
 
         // 初始化飞行方向
         if (target != null) {
-            updateDirectionToTarget();
+            initDirectionToTarget();
         }
     }
 
+    
     /**
-     * 更新投掷物状态
-     * @param deltaTime 时间增量（秒）
-     * @return true 如果投掷物应该被移除（超出范围或已命中）
+     * 初始化方向指向目标（私有方法，仅用于构造器）
      */
-    public boolean update(float deltaTime) {
-        if (hasHit) {
-            return true; // 已命中，需要移除
-        }
-
-        // 根据类型更新飞行方向
-        switch (type) {
-            case ARROW:
-                // 直线飞行，方向保持不变
-                break;
-            case MAGIC_BALL:
-                // 追踪目标
-                if (target != null && !target.isDead()) {
-                    updateTrackingDirection(deltaTime);
-                }
-                break;
-        }
-
-        // 移动投掷物
-        float moveX = direction.x * speed * deltaTime;
-        float moveY = direction.y * speed * deltaTime;
-        x += moveX;
-        y += moveY;
-
-        // 更新飞行距离
-        distanceTraveled += Math.sqrt(moveX * moveX + moveY * moveY);
-
-        // 更新粒子生成计时器
-        particleSpawnTimer += deltaTime;
-
-        // 检查是否超出最大飞行距离
-        if (distanceTraveled >= maxFlightDistance) {
-            return true; // 超出范围，需要移除
-        }
-
-        return false; // 继续飞行
-    }
-
-    /**
-     * 更新方向指向目标
-     */
-    private void updateDirectionToTarget() {
+    private void initDirectionToTarget() {
         if (target == null) return;
 
         float dx = target.getX() - x;
@@ -136,45 +94,20 @@ public class Projectile {
     }
 
     /**
-     * 更新追踪方向（平滑转向）
-     */
-    private void updateTrackingDirection(float deltaTime) {
-        if (target == null || target.isDead()) return;
-
-        // 计算目标方向
-        float dx = target.getX() - x;
-        float dy = target.getY() - y;
-        float distance = (float) Math.sqrt(dx * dx + dy * dy);
-
-        if (distance < 0.001f) return;
-
-        // 计算当前方向与目标方向之间的角度差
-        float targetAngle = (float) Math.atan2(dy, dx);
-        float currentAngle = (float) Math.atan2(direction.y, direction.x);
-
-        // 计算角度差（规范化到 -PI 到 PI）
-        float angleDiff = targetAngle - currentAngle;
-        while (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
-        while (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
-
-        // 限制转向速度
-        float maxAngleChange = currentTrackingSpeed * (float) Math.PI / 180f * deltaTime;
-        if (Math.abs(angleDiff) > maxAngleChange) {
-            angleDiff = Math.signum(angleDiff) * maxAngleChange;
-        }
-
-        // 应用角度变化
-        float newAngle = currentAngle + angleDiff;
-        direction.x = (float) Math.cos(newAngle);
-        direction.y = (float) Math.sin(newAngle);
-    }
-
-    /**
      * 命中目标
      */
     public void hit() {
         hasHit = true;
     }
+
+    // Setter 方法
+    public void setX(float x) { this.x = x; }
+    public void setY(float y) { this.y = y; }
+    public void setDistanceTraveled(float distanceTraveled) { this.distanceTraveled = distanceTraveled; }
+    public void setParticleSpawnTimer(float particleSpawnTimer) { this.particleSpawnTimer = particleSpawnTimer; }
+    public float getParticleSpawnTimer() { return particleSpawnTimer; }
+    public float getParticleSpawnInterval() { return particleSpawnInterval; }
+    public float getCurrentTrackingSpeed() { return currentTrackingSpeed; }
 
     /**
      * 检查是否可以生成粒子
