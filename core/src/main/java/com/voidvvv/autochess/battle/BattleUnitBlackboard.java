@@ -4,6 +4,9 @@ import com.badlogic.gdx.ai.msg.Telegram;
 import com.badlogic.gdx.ai.msg.Telegraph;
 import com.voidvvv.autochess.model.BattleCharacter;
 import com.voidvvv.autochess.model.Battlefield;
+import com.voidvvv.autochess.model.Card;
+import com.voidvvv.autochess.model.Projectile;
+import com.voidvvv.autochess.model.ProjectileManager;
 import com.voidvvv.autochess.model.CharacterStats;
 import com.voidvvv.autochess.model.battle.Damage;
 import com.voidvvv.autochess.model.event.DamageEvent;
@@ -88,13 +91,70 @@ public class BattleUnitBlackboard implements Telegraph {
     }
     private void onMessageDoAttack(Telegram telegram) {
         if (!couldDamage) return;
-        DamageEvent de = new DamageEvent();
-        de.setFrom(self);
-        de.setTo(target);
-        float damage = computeDamage(self, target);
-        de.setDamage(new Damage((float)damage, Damage.DamageType.PhySic));
-        this.getBattlefield().getDamageEventHolder().addModel(de);
 
+        // 获取攻击者卡牌类型
+        Card.CardType attackerType = self.getCard().getType();
+        float damage = computeDamage(self, target);
+
+        // 检查是否需要使用投掷物（远程攻击者）
+        boolean shouldUseProjectile = false;
+        Projectile.ProjectileType projectileType = null;
+
+        if (attackerType == Card.CardType.ARCHER) {
+            shouldUseProjectile = true;
+            projectileType = Projectile.ProjectileType.ARROW;
+        } else if (attackerType == Card.CardType.MAGE) {
+            shouldUseProjectile = true;
+            projectileType = Projectile.ProjectileType.MAGIC_BALL;
+        }
+
+        if (shouldUseProjectile) {
+            // 远程攻击者：创建投掷物
+            createProjectile(self, target, damage, projectileType);
+        } else {
+            // 近战攻击者：直接造成伤害
+            createDirectDamage(self, target, damage);
+        }
+    }
+
+    /**
+     * 创建投掷物
+     */
+    private void createProjectile(BattleCharacter source, BattleCharacter target, float damage,
+                                  Projectile.ProjectileType projectileType) {
+        // 从角色位置发射投掷物（稍微偏移，避免从角色中心发射）
+        float offset = source.getSize() / 2f + 5f;
+        float startX = source.getX();
+        float startY = source.getY() + offset;
+
+        // 获取战场中的ProjectileManager
+        Battlefield battlefield = getBattlefield();
+        ProjectileManager projectileManager = battlefield.getProjectileManager();
+        if (projectileManager != null) {
+            projectileManager.createProjectile(startX, startY, source, target, damage, projectileType);
+        } else {
+            // 如果ProjectileManager不可用，使用直接伤害
+            createDirectDamage(source, target, damage);
+        }
+    }
+
+    /**
+     * 创建直接伤害
+     */
+    private void createDirectDamage(BattleCharacter source, BattleCharacter target, float damage) {
+        DamageEvent de = new DamageEvent();
+        de.setFrom(source);
+        de.setTo(target);
+
+        // 根据攻击者类型确定伤害类型
+        Damage.DamageType damageType = Damage.DamageType.PhySic;
+        Card.CardType attackerType = source.getCard().getType();
+        if (attackerType == Card.CardType.MAGE) {
+            damageType = Damage.DamageType.Magic;
+        }
+
+        de.setDamage(new Damage(damage, damageType));
+        this.getBattlefield().getDamageEventHolder().addModel(de);
     }
 
     private float computeDamage(BattleCharacter attacker, BattleCharacter defender) {

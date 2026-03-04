@@ -160,5 +160,45 @@ public class BattleCharacter {
         return (float) Math.sqrt(dx * dx + dy * dy);
     }
 
+    /**
+     * 获取碰撞半径
+     */
+    public float getCollisionRadius() {
+        return size / 2f;
+    }
+
+    /**
+     * 获取碰撞中心X坐标
+     */
+    public float getCollisionCenterX() {
+        return x;
+    }
+
+    /**
+     * 获取碰撞中心Y坐标
+     */
+    public float getCollisionCenterY() {
+        return y;
+    }
+
+    /**
+     * 检测与投掷物的碰撞
+     */
+    public boolean collidesWith(Projectile projectile) {
+        if (projectile == null) return false;
+        return collidesWith(projectile.getX(), projectile.getY(), projectile.getCollisionRadius());
+    }
+
+    /**
+     * 检测与圆形区域的碰撞
+     */
+    public boolean collidesWith(float x, float y, float radius) {
+        float dx = getCollisionCenterX() - x;
+        float dy = getCollisionCenterY() - y;
+        float distanceSquared = dx * dx + dy * dy;
+        float combinedRadius = getCollisionRadius() + radius;
+        return distanceSquared <= combinedRadius * combinedRadius;
+    }
+
 }
 

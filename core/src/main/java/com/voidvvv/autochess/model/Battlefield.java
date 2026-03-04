@@ -16,6 +16,7 @@ public class Battlefield {
 
     private DamageEventHolder damageEventHolder;
     private DamageEventListenerHolder damageEventListenerHolder;
+    private ProjectileManager projectileManager;
     /** 玩家区域占战场高度的比例（靠己方一侧） */
     public static final float PLAYER_ZONE_RATIO = 0.5f;
 
@@ -27,6 +28,7 @@ public class Battlefield {
         this.characters = new ArrayList<>();
         this.damageEventHolder = new DamageEventHolder();
         this.damageEventListenerHolder = new DamageEventListenerHolder();
+        this.projectileManager = new ProjectileManager(damageEventHolder);
     }
 
     /** 玩家可放置区域：Y 从底边到中线 */
@@ -184,11 +186,19 @@ public class Battlefield {
         this.characters.clear();
         this.damageEventHolder.clear();
         this.getDamageEventListenerHolder().clear();
+        if (this.projectileManager != null) {
+            this.projectileManager.clear();
+        }
     }
 
     public float getX() { return x; }
     public float getY() { return y; }
     public float getWidth() { return width; }
     public float getHeight() { return height; }
+
+    public ProjectileManager getProjectileManager() { return projectileManager; }
+    public void setProjectileManager(ProjectileManager projectileManager) {
+        this.projectileManager = projectileManager;
+    }
 }
 

@@ -22,6 +22,7 @@ import com.voidvvv.autochess.listener.damage.DamageRenderListener;
 import com.voidvvv.autochess.model.*;
 import com.voidvvv.autochess.render.BattleFieldRender;
 import com.voidvvv.autochess.render.DamageLineRender;
+import com.voidvvv.autochess.render.ProjectileRenderer;
 import com.voidvvv.autochess.sm.machine.StateMachine;
 import com.voidvvv.autochess.ui.CardRenderer;
 import com.voidvvv.autochess.updater.BattleCharacterUpdater;
@@ -98,6 +99,9 @@ public class GameScreen implements Screen {
 
     private DamageLineRender damageLineRender;
 
+    // 投掷物系统
+    private ProjectileRenderer projectileRenderer;
+
     public GameScreen(KzAutoChess game, int level) {
         this.game = game;
         this.level = level;
@@ -139,6 +143,9 @@ public class GameScreen implements Screen {
 
         battleFieldRender = new BattleFieldRender(shapeRenderer,game);
         damageShowModelModelHolder = new ModelHolder<>();
+
+        // 初始化投掷物渲染器
+        projectileRenderer = new ProjectileRenderer(game, shapeRenderer);
     }
 
     private void initUI() {
@@ -323,6 +330,13 @@ public class GameScreen implements Screen {
         for (var bb : bbList) {
             bb.update(delta);
         }
+
+        // 更新投掷物管理器
+        ProjectileManager projectileManager = battlefield.getProjectileManager();
+        if (projectileManager != null) {
+            projectileManager.update(delta, battlefield);
+        }
+
         postUpdateBattle(delta);
         if (battlefield.getPlayerCharacters().isEmpty() || battlefield.getEnemyCharacters().isEmpty()) {
             endBattle();
@@ -507,6 +521,13 @@ public class GameScreen implements Screen {
 
         // 绘制战场
         drawBattlefield();
+
+        // 渲染投掷物
+        ProjectileManager projectileManager = battlefield.getProjectileManager();
+        if (projectileManager != null) {
+            projectileRenderer.render(projectileManager, Gdx.graphics.getDeltaTime());
+        }
+
         shapeRenderer.end();
         damageLineRender.render(shapeRenderer, game.getBatch());
 
@@ -772,5 +793,10 @@ public class GameScreen implements Screen {
             skin.dispose();
         }
         shapeRenderer.dispose();
+
+        // 清理投掷物渲染器
+        if (projectileRenderer != null) {
+            projectileRenderer.dispose();
+        }
     }
 }
