@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.voidvvv.autochess.KzAutoChess;
 import com.voidvvv.autochess.model.Projectile;
 import com.voidvvv.autochess.manage.ProjectileManager;
+import com.voidvvv.autochess.updater.ParticleSystemUpdater;
 
 import java.util.List;
 
@@ -16,12 +17,14 @@ public class ProjectileRenderer {
 
     private final KzAutoChess game;
     private final ShapeRenderer shapeRenderer;
-    private final ParticleSystem particleSystem;
+    private final ParticleSystemUpdater particleSystemUpdater;
+    private final ParticleSystem particleSystemRenderer;
 
     public ProjectileRenderer(KzAutoChess game, ShapeRenderer shapeRenderer) {
         this.game = game;
         this.shapeRenderer = shapeRenderer;
-        this.particleSystem = new ParticleSystem();
+        this.particleSystemUpdater = new ParticleSystemUpdater();
+        this.particleSystemRenderer = new ParticleSystem();
     }
 
     /**
@@ -33,7 +36,7 @@ public class ProjectileRenderer {
         }
 
         // 更新粒子系统
-        particleSystem.update(deltaTime);
+        particleSystemUpdater.update(deltaTime);
 
         List<Projectile> projectiles = projectileManager.getProjectiles();
         if (projectiles.isEmpty()) {
@@ -185,7 +188,7 @@ public class ProjectileRenderer {
             particleColor.b *= 0.8f;
             particleColor.a = 0.7f;
 
-            particleSystem.spawnParticle(
+            particleSystemUpdater.spawnParticle(
                     particleX + offsetX, particleY + offsetY,
                     particleColor, size, lifetime, particleSpeed
             );
@@ -196,14 +199,14 @@ public class ProjectileRenderer {
      * 渲染粒子效果
      */
     private void renderParticles() {
-        if (particleSystem.isEmpty()) {
+        if (particleSystemUpdater.isEmpty()) {
             return;
         }
 
         shapeRenderer.setProjectionMatrix(game.getViewManagement().getWorldCamera().combined);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 
-        particleSystem.render(shapeRenderer);
+        particleSystemRenderer.render(shapeRenderer, particleSystemUpdater.getParticles());
 
         shapeRenderer.end();
     }
@@ -212,13 +215,13 @@ public class ProjectileRenderer {
      * 清理资源
      */
     public void dispose() {
-        particleSystem.dispose();
+        particleSystemUpdater.clear();
     }
 
     /**
-     * 获取粒子系统（用于其他类访问）
+     * 获取粒子系统更新器（用于其他类访问）
      */
-    public ParticleSystem getParticleSystem() {
-        return particleSystem;
+    public ParticleSystemUpdater getParticleSystemUpdater() {
+        return particleSystemUpdater;
     }
 }
