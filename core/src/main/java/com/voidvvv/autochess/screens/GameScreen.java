@@ -18,6 +18,7 @@ import com.badlogic.gdx.ai.btree.BehaviorTree;
 import com.voidvvv.autochess.KzAutoChess;
 import com.voidvvv.autochess.battle.BattleUnitBlackboard;
 import com.voidvvv.autochess.battle.UnitBehaviorTreeFactory;
+import com.voidvvv.autochess.logic.SynergyManager;
 import com.voidvvv.autochess.listener.damage.DamageRenderListener;
 import com.voidvvv.autochess.model.*;
 import com.voidvvv.autochess.manage.ProjectileManager;
@@ -61,8 +62,8 @@ public class GameScreen implements Screen {
     private CameraController cameraController;
 
     // 游戏状态
-    private int gold = 10;
-    private int playerLevel = 1;
+    private PlayerEconomy playerEconomy;
+    private SynergyManager synergyManager;
     private GamePhase phase = GamePhase.PLACEMENT;
     private float battleTime;
     private final List<BehaviorTree<BattleUnitBlackboard>> unitTrees = new ArrayList<>();
@@ -109,9 +110,11 @@ public class GameScreen implements Screen {
         // 初始化游戏数据
         this.cardPool = new CardPool();
         this.cardShop = new CardShop(cardPool);
-        this.cardShop.setPlayerLevel(playerLevel);
+        this.playerEconomy = new PlayerEconomy();
+        this.cardShop.setPlayerLevel(playerEconomy.getPlayerLevel());
         this.cardShop.refresh();
         this.playerDeck = new PlayerDeck();
+        this.synergyManager = new SynergyManager();
 
         // 加载角色属性配置
         CharacterStats.Config.load();
@@ -217,8 +220,8 @@ public class GameScreen implements Screen {
         refreshButton.addListener(new com.badlogic.gdx.scenes.scene2d.utils.ClickListener() {
             @Override
             public void clicked(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y) {
-                if (gold >= cardShop.getRefreshCost()) {
-                    gold -= cardShop.getRefreshCost();
+                if (playerEconomy.getGold() >= cardShop.getRefreshCost()) {
+                    playerEconomy.spendGold(cardShop.getRefreshCost());
                     cardShop.refresh();
                     refreshButton.setText(I18N.format("refresh_cost", cardShop.getRefreshCost()));
                     refreshButton.getLabel().setColor(Color.WHITE);
@@ -295,9 +298,10 @@ public class GameScreen implements Screen {
             c.reset();      // 恢复初始状态，包括满血复活
         }
 
-        gold += 5;
-        playerLevel = Math.min(5, playerLevel + 1);
-        cardShop.setPlayerLevel(playerLevel);
+        // 判断战斗结果：如果敌人空了，玩家胜利；如果玩家空了，玩家失败
+        boolean playerWon = battlefield.getEnemyCharacters().isEmpty();
+        playerEconomy.endRound(playerWon);
+        cardShop.setPlayerLevel(playerEconomy.getPlayerLevel());
         if (startBattleButton != null) {
             startBattleButton.setVisible(true);
         }
@@ -345,9 +349,16 @@ public class GameScreen implements Screen {
     }
 
     private void postUpdateBattle(float delta) {
+        List<BattleCharacter> aliveCharacters = new ArrayList<>();
         for (BattleCharacter c : battlefield.getCharacters()) {
             if (c.isDead()) continue;
             battleCharacterUpdater.update(c, delta);
+            aliveCharacters.add(c);
+        }
+
+        // 应用羁绊效果到所有存活角色
+        if (!aliveCharacters.isEmpty()) {
+            synergyManager.applySynergyEffects(aliveCharacters);
         }
     }
 
@@ -502,9 +513,9 @@ public class GameScreen implements Screen {
         // 检查是否点击了商店中的卡牌（使用UI坐标）
         Card shopCard = getCardAtShopPosition(uiX, uiY);
         if (shopCard != null) {
-            if (gold >= shopCard.getCost()) {
+            if (playerEconomy.getGold() >= shopCard.getCost()) {
                 if (cardShop.buyCard(shopCard)) {
-                    gold -= shopCard.getCost();
+                    playerEconomy.spendGold(shopCard.getCost());
                     playerDeck.addCard(shopCard);
                 }
             }
@@ -567,10 +578,24 @@ public class GameScreen implements Screen {
         float uiHeight = game.getViewManagement().getUIViewport().getWorldHeight();
         titleFont.draw(game.getBatch(), titleLayout, 50, uiHeight - 30);
 
-        String infoText = I18N.format("gold", gold) + " | " + I18N.format("player_level", playerLevel);
+        String infoText = playerEconomy.getEconomyInfoString();
         GlyphLayout infoLayout = new GlyphLayout(titleFont, infoText);
         float uiWidth = game.getViewManagement().getUIViewport().getWorldWidth();
         titleFont.draw(game.getBatch(), infoLayout, uiWidth - infoLayout.width - 50, uiHeight - 30);
+
+        // 绘制羁绊信息
+        BitmapFont smallFont = FontUtils.getSmallFont();
+        smallFont.setColor(Color.LIGHT_GRAY);
+        smallFont.getData().setScale(0.8f);
+        String synergyInfo = synergyManager.getSynergyInfoString();
+        // 只显示前几行，避免过多信息
+        String[] lines = synergyInfo.split("\n");
+        int maxLines = 3;
+        for (int i = 0; i < Math.min(lines.length, maxLines); i++) {
+            GlyphLayout lineLayout = new GlyphLayout(smallFont, lines[i]);
+            smallFont.draw(game.getBatch(), lineLayout, uiWidth - lineLayout.width - 50, uiHeight - 60 - i * 20);
+        }
+
         game.getBatch().end();
 
         // 绘制商店区域
@@ -578,6 +603,22 @@ public class GameScreen implements Screen {
 
         // 绘制卡组区域
         drawDeckArea();
+    }
+
+    /**
+     * 检查卡牌是否可升级
+     * @param card 要检查的卡牌
+     * @return 如果卡牌可以升级则返回true
+     */
+    private boolean isCardUpgradable(Card card) {
+        if (card == null) return false;
+        // 卡牌必须可以升级（星级小于3）
+        if (!card.canUpgrade()) return false;
+        // 检查是否有足够数量的相同基础卡牌
+        int baseCardId = card.getBaseCardId();
+        int currentCount = playerDeck.getCardCountByBaseId(baseCardId);
+        // 需要3张相同基础卡牌才能升级
+        return currentCount >= 3;
     }
 
     private void drawShopArea() {
@@ -620,7 +661,7 @@ public class GameScreen implements Screen {
             float cardY = cardStartY;
             boolean hover = uiCoords.x >= cardX && uiCoords.x <= cardX + cardWidth &&
                            uiCoords.y >= cardY && uiCoords.y <= cardY + cardHeight;
-            CardRenderer.render(shapeRenderer, game.getBatch(), card, cardX, cardY, cardWidth, cardHeight, hover, false, 0);
+            CardRenderer.render(shapeRenderer, game.getBatch(), card, cardX, cardY, cardWidth, cardHeight, hover, false, 0, false);
         }
     }
 
@@ -684,7 +725,8 @@ public class GameScreen implements Screen {
             int cardCount = playerDeck.getCardCount(card);
             boolean hover = uiCoords.x >= cardX && uiCoords.x <= cardX + deckCardWidth &&
                            uiCoords.y >= cardY && uiCoords.y <= cardY + deckCardHeight;
-            CardRenderer.render(shapeRenderer, game.getBatch(), card, cardX, cardY, deckCardWidth, deckCardHeight, hover, true, cardCount);
+            boolean upgradable = isCardUpgradable(card);
+            CardRenderer.render(shapeRenderer, game.getBatch(), card, cardX, cardY, deckCardWidth, deckCardHeight, hover, true, cardCount, upgradable);
         }
     }
 
@@ -700,7 +742,7 @@ public class GameScreen implements Screen {
             shapeRenderer.setProjectionMatrix(game.getViewManagement().getUICamera().combined);
 
             game.getBatch().setColor(1, 1, 1, 0.5f);
-            CardRenderer.render(shapeRenderer, game.getBatch(), draggingCard, dragX - 60, dragY - 80, 120, 160, false, false, 0);
+            CardRenderer.render(shapeRenderer, game.getBatch(), draggingCard, dragX - 60, dragY - 80, 120, 160, false, false, 0, false);
             game.getBatch().setColor(1, 1, 1, 1);
         }
 

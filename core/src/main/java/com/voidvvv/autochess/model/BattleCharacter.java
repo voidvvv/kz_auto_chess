@@ -1,6 +1,8 @@
 package com.voidvvv.autochess.model;
 
 import com.voidvvv.autochess.utils.CharacterCamp;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 战场角色类
@@ -31,6 +33,8 @@ public class BattleCharacter {
 
     public final MoveComponent moveComponent = new MoveComponent();
 
+    // 羁绊效果系统
+    private Map<String, SynergyEffect> activeSynergyEffects = new HashMap<>();
 
 
     // 普通攻击
@@ -200,5 +204,158 @@ public class BattleCharacter {
         return distanceSquared <= combinedRadius * combinedRadius;
     }
 
+    // ===================== 羁绊效果系统 =====================
+
+    /**
+     * 添加羁绊效果
+     */
+    public void addSynergyEffect(String synergyName,
+                                float attackBonus, float defenseBonus,
+                                float magicBonus, float manaRegenBonus) {
+        addSynergyEffect(synergyName, attackBonus, defenseBonus, magicBonus, manaRegenBonus,
+                        0, 0, 0, 0, 0, 0, 0, 0);
+    }
+
+    public void addSynergyEffect(String synergyName,
+                                float attackBonus, float defenseBonus,
+                                float magicBonus, float manaRegenBonus,
+                                float attackSpeedBonus, float critBonus) {
+        addSynergyEffect(synergyName, attackBonus, defenseBonus, magicBonus, manaRegenBonus,
+                        attackSpeedBonus, critBonus, 0, 0, 0, 0, 0, 0);
+    }
+
+    public void addSynergyEffect(String synergyName,
+                                float attackBonus, float defenseBonus,
+                                float magicBonus, float manaRegenBonus,
+                                float attackSpeedBonus, float critBonus,
+                                float critDamageBonus, float dodgeBonus) {
+        addSynergyEffect(synergyName, attackBonus, defenseBonus, magicBonus, manaRegenBonus,
+                        attackSpeedBonus, critBonus, critDamageBonus, dodgeBonus, 0, 0, 0, 0);
+    }
+
+    public void addSynergyEffect(String synergyName,
+                                float attackBonus, float defenseBonus,
+                                float magicBonus, float manaRegenBonus,
+                                float attackSpeedBonus, float critBonus,
+                                float critDamageBonus, float dodgeBonus,
+                                float hpBonus, float damageReductionBonus) {
+        addSynergyEffect(synergyName, attackBonus, defenseBonus, magicBonus, manaRegenBonus,
+                        attackSpeedBonus, critBonus, critDamageBonus, dodgeBonus,
+                        hpBonus, damageReductionBonus, 0, 0);
+    }
+
+    public void addSynergyEffect(String synergyName,
+                                float attackBonus, float defenseBonus,
+                                float magicBonus, float manaRegenBonus,
+                                float attackSpeedBonus, float critBonus,
+                                float critDamageBonus, float dodgeBonus,
+                                float hpBonus, float damageReductionBonus,
+                                float lifeStealBonus, float expBonus) {
+        SynergyEffect existing = activeSynergyEffects.get(synergyName);
+        if (existing != null) {
+            // 合并效果
+            SynergyEffect newEffect = new SynergyEffect(synergyName,
+                    attackBonus, defenseBonus, magicBonus, manaRegenBonus,
+                    attackSpeedBonus, critBonus, critDamageBonus, dodgeBonus,
+                    hpBonus, damageReductionBonus, lifeStealBonus, expBonus);
+            existing.merge(newEffect);
+        } else {
+            // 创建新效果
+            SynergyEffect effect = new SynergyEffect(synergyName,
+                    attackBonus, defenseBonus, magicBonus, manaRegenBonus,
+                    attackSpeedBonus, critBonus, critDamageBonus, dodgeBonus,
+                    hpBonus, damageReductionBonus, lifeStealBonus, expBonus);
+            activeSynergyEffects.put(synergyName, effect);
+        }
+    }
+
+    /**
+     * 清除所有羁绊效果
+     */
+    public void clearSynergyEffects() {
+        activeSynergyEffects.clear();
+    }
+
+    /**
+     * 获取指定羁绊的效果
+     */
+    public SynergyEffect getSynergyEffect(String synergyName) {
+        return activeSynergyEffects.get(synergyName);
+    }
+
+    /**
+     * 获取所有激活的羁绊效果
+     */
+    public Map<String, SynergyEffect> getAllSynergyEffects() {
+        return new HashMap<>(activeSynergyEffects);
+    }
+
+    /**
+     * 检查是否有激活的羁绊效果
+     */
+    public boolean hasActiveSynergyEffects() {
+        return !activeSynergyEffects.isEmpty();
+    }
+
+    /**
+     * 计算总攻击力加成（包括所有羁绊效果）
+     */
+    public float getTotalAttackBonus() {
+        float total = 0;
+        for (SynergyEffect effect : activeSynergyEffects.values()) {
+            total += effect.getAttackBonus();
+        }
+        return total;
+    }
+
+    /**
+     * 计算总防御力加成（包括所有羁绊效果）
+     */
+    public float getTotalDefenseBonus() {
+        float total = 0;
+        for (SynergyEffect effect : activeSynergyEffects.values()) {
+            total += effect.getDefenseBonus();
+        }
+        return total;
+    }
+
+    /**
+     * 计算总魔法强度加成（包括所有羁绊效果）
+     */
+    public float getTotalMagicBonus() {
+        float total = 0;
+        for (SynergyEffect effect : activeSynergyEffects.values()) {
+            total += effect.getMagicBonus();
+        }
+        return total;
+    }
+
+    /**
+     * 计算总生命值加成（包括所有羁绊效果）
+     */
+    public float getTotalHpBonus() {
+        float total = 0;
+        for (SynergyEffect effect : activeSynergyEffects.values()) {
+            total += effect.getHpBonus();
+        }
+        return total;
+    }
+
+    /**
+     * 获取羁绊效果信息字符串
+     */
+    public String getSynergyEffectsInfo() {
+        if (activeSynergyEffects.isEmpty()) {
+            return "无羁绊效果";
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append("羁绊效果:");
+        for (SynergyEffect effect : activeSynergyEffects.values()) {
+            if (effect.hasAnyBonus()) {
+                sb.append("\n  ").append(effect);
+            }
+        }
+        return sb.toString();
+    }
 }
 

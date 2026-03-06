@@ -65,6 +65,104 @@ public class PlayerDeck {
     }
 
     /**
+     * 获取指定基础ID的卡牌数量（用于升级检查）
+     */
+    public int getCardCountByBaseId(int baseCardId) {
+        int total = 0;
+        for (Card card : allCards) {
+            if (card.getBaseCardId() == baseCardId) {
+                total += getCardCount(card.getId());
+            }
+        }
+        return total;
+    }
+
+    /**
+     * 移除指定基础ID的一定数量的卡牌
+     * @param baseCardId 基础卡牌ID
+     * @param count 要移除的数量
+     * @return 实际移除的数量
+     */
+    public int removeCardsByBaseId(int baseCardId, int count) {
+        int removed = 0;
+        List<Card> cardsToRemove = new ArrayList<>();
+
+        // 收集需要移除的卡牌
+        for (Card card : allCards) {
+            if (card.getBaseCardId() == baseCardId) {
+                int cardId = card.getId();
+                int available = cardCounts.getOrDefault(cardId, 0);
+                int toRemoveFromThisCard = Math.min(available, count - removed);
+
+                if (toRemoveFromThisCard > 0) {
+                    // 更新数量
+                    if (available > toRemoveFromThisCard) {
+                        cardCounts.put(cardId, available - toRemoveFromThisCard);
+                    } else {
+                        cardCounts.remove(cardId);
+                        cardsToRemove.add(card);
+                    }
+                    removed += toRemoveFromThisCard;
+
+                    if (removed >= count) {
+                        break;
+                    }
+                }
+            }
+        }
+
+        // 从allCards中移除数量为0的卡牌
+        allCards.removeAll(cardsToRemove);
+        return removed;
+    }
+
+    /**
+     * 检查是否可以升级指定卡牌（拥有3张相同基础卡牌）
+     */
+    public boolean canUpgradeCard(Card card) {
+        if (card == null || !card.canUpgrade()) {
+            return false;
+        }
+        int baseCardId = card.getBaseCardId();
+        int count = getCardCountByBaseId(baseCardId);
+        return count >= 3;
+    }
+
+    /**
+     * 升级指定卡牌（需要先检查canUpgradeCard）
+     * @param card 要升级的卡牌
+     * @return 升级后的卡牌，如果无法升级则返回null
+     */
+    public Card upgradeCard(Card card) {
+        if (!canUpgradeCard(card)) {
+            return null;
+        }
+
+        // 移除3张基础卡牌
+        removeCardsByBaseId(card.getBaseCardId(), 3);
+
+        // 创建并添加升级后的卡牌
+        Card upgradedCard = card.createUpgradedCard();
+        if (upgradedCard != null) {
+            addCard(upgradedCard);
+        }
+        return upgradedCard;
+    }
+
+    /**
+     * 获取所有可升级的卡牌列表
+     */
+    public List<Card> getUpgradableCards() {
+        List<Card> upgradableCards = new ArrayList<>();
+        for (Card card : allCards) {
+            if (canUpgradeCard(card)) {
+                upgradableCards.add(card);
+            }
+        }
+        return upgradableCards;
+    }
+
+    /**
      * 获取所有拥有的卡牌（去重后的列表）
      */
     public List<Card> getAllUniqueCards() {

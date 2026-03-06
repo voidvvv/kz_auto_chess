@@ -36,6 +36,12 @@ public class CardRenderer {
     public static void render(ShapeRenderer shapeRenderer, SpriteBatch batch,
                              Card card, float x, float y, float width, float height,
                              boolean hover, boolean showCount, int count) {
+        render(shapeRenderer, batch, card, x, y, width, height, hover, showCount, count, false);
+    }
+
+    public static void render(ShapeRenderer shapeRenderer, SpriteBatch batch,
+                             Card card, float x, float y, float width, float height,
+                             boolean hover, boolean showCount, int count, boolean upgradable) {
         // 绘制卡牌背景
         Color cardColor = getCardColorByTier(card.getTier());
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
@@ -49,7 +55,15 @@ public class CardRenderer {
 
         // 绘制卡牌边框
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        shapeRenderer.setColor(hover ? Color.YELLOW : Color.WHITE);
+        Color borderColor;
+        if (upgradable) {
+            borderColor = Color.GREEN; // 可升级卡牌用绿色边框
+        } else if (hover) {
+            borderColor = Color.YELLOW;
+        } else {
+            borderColor = Color.WHITE;
+        }
+        shapeRenderer.setColor(borderColor);
         shapeRenderer.rect(x, y, width, height);
         shapeRenderer.end();
 
@@ -81,6 +95,20 @@ public class CardRenderer {
                     I18N.format("tier_level", card.getTier());
         GlyphLayout tierLayout = new GlyphLayout(cardFont, tierText);
         cardFont.draw(batch, tierLayout, x + 5, y + 8);
+
+        // 卡牌星级（如果大于1星）
+        int starLevel = card.getStarLevel();
+        if (starLevel > 1) {
+            cardFont.setColor(Color.GOLD);
+            cardFont.getData().setScale(showCount ? 0.7f : 0.8f);
+            StringBuilder stars = new StringBuilder();
+            for (int i = 0; i < starLevel; i++) {
+                stars.append("★");
+            }
+            GlyphLayout starLayout = new GlyphLayout(cardFont, stars.toString());
+            // 在等级右侧显示
+            cardFont.draw(batch, starLayout, x + 5 + tierLayout.width + 5, y + 8);
+        }
 
         // 如果不是卡组中的卡牌，显示费用
         if (!showCount) {
