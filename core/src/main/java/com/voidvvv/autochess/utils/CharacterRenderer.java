@@ -1,5 +1,7 @@
 package com.voidvvv.autochess.utils;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.voidvvv.autochess.model.BattleCharacter;
@@ -18,28 +20,36 @@ public class CharacterRenderer {
      * @param alpha 透明度 (0.0-1.0)
      */
     public static void renderWithAlpha(ShapeRenderer shapeRenderer, BattleCharacter character, float alpha) {
-        Card card = character.getCard();
-        float x = character.getX();
-        float y = character.getY();
-        float size = character.getSize();
+        // 启用混合模式以支持透明度
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+        try {
+            Card card = character.getCard();
+            float x = character.getX();
+            float y = character.getY();
+            float size = character.getSize();
 
-        // 根据卡牌类型选择不同的渲染方式
-        switch (card.getType()) {
-            case WARRIOR:
-                renderWarriorWithAlpha(shapeRenderer, x, y, size, card, alpha);
-                break;
-            case MAGE:
-                renderMageWithAlpha(shapeRenderer, x, y, size, card, alpha);
-                break;
-            case ARCHER:
-                renderArcherWithAlpha(shapeRenderer, x, y, size, card, alpha);
-                break;
-            case ASSASSIN:
-                renderAssassinWithAlpha(shapeRenderer, x, y, size, card, alpha);
-                break;
-            case TANK:
-                renderTankWithAlpha(shapeRenderer, x, y, size, card, alpha);
-                break;
+            // 根据卡牌类型选择不同的渲染方式
+            switch (card.getType()) {
+                case WARRIOR:
+                    renderWarriorWithAlpha(shapeRenderer, x, y, size, card, alpha);
+                    break;
+                case MAGE:
+                    renderMageWithAlpha(shapeRenderer, x, y, size, card, alpha);
+                    break;
+                case ARCHER:
+                    renderArcherWithAlpha(shapeRenderer, x, y, size, card, alpha);
+                    break;
+                case ASSASSIN:
+                    renderAssassinWithAlpha(shapeRenderer, x, y, size, card, alpha);
+                    break;
+                case TANK:
+                    renderTankWithAlpha(shapeRenderer, x, y, size, card, alpha);
+                    break;
+            }
+        } finally {
+            // 渲染完成后禁用混合模式，避免影响其他渲染
+            Gdx.gl.glDisable(GL20.GL_BLEND);
         }
     }
 
