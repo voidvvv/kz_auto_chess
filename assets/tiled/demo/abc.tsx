@@ -3,7 +3,7 @@
  <editorsettings>
   <export target="abc..tsj" format="json"/>
  </editorsettings>
- <image source="../../DungeonCrawl_ProjectUtumnoTileset.png" width="2048" height="1536"/>
+ <image source="DungeonCrawl_ProjectUtumnoTileset.png" width="2048" height="1536"/>
  <tile id="72">
   <objectgroup draworder="index" id="2">
    <object id="1" x="16.088" y="14.4959"/>
