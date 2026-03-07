@@ -17,6 +17,7 @@ public class Card {
     private int starLevel; // 星级 (1-3)
     private int baseCardId; // 基础卡牌ID，用于追踪升级链
     private List<SynergyType> synergies; // 羁绊类型列表
+    private String tiledResourceKey; // Tiled资源key (格式: "tilesetId+tileId")
 
     public Card(int id, String name, String description, int cost, int tier, CardType type) {
         this(id, name, description, cost, tier, type, 1, id, new ArrayList<>());
@@ -24,6 +25,11 @@ public class Card {
 
     public Card(int id, String name, String description, int cost, int tier, CardType type,
                 int starLevel, int baseCardId, List<SynergyType> synergies) {
+        this(id, name, description, cost, tier, type, starLevel, baseCardId, synergies, null);
+    }
+
+    public Card(int id, String name, String description, int cost, int tier, CardType type,
+                int starLevel, int baseCardId, List<SynergyType> synergies, String tiledResourceKey) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -33,6 +39,7 @@ public class Card {
         this.starLevel = starLevel;
         this.baseCardId = baseCardId;
         this.synergies = synergies != null ? synergies : new ArrayList<>();
+        this.tiledResourceKey = tiledResourceKey;
     }
 
     public int getId() {
@@ -94,6 +101,10 @@ public class Card {
         return this.synergies != null && this.synergies.contains(synergy);
     }
 
+    public String getTiledResourceKey() {
+        return tiledResourceKey;
+    }
+
     /**
      * 检查卡牌是否可以升级
      */
@@ -113,7 +124,7 @@ public class Card {
         int newCost = this.cost + 1;
         int newStarLevel = this.starLevel + 1;
         return new Card(newId, newName, this.description, newCost, this.tier, this.type,
-                       newStarLevel, this.baseCardId, new ArrayList<>(this.synergies));
+                       newStarLevel, this.baseCardId, new ArrayList<>(this.synergies), this.tiledResourceKey);
     }
 
     /**

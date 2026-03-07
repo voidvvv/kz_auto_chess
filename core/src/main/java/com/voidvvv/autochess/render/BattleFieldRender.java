@@ -10,6 +10,7 @@ import com.voidvvv.autochess.model.Battlefield;
 import com.voidvvv.autochess.utils.CharacterRenderer;
 import com.voidvvv.autochess.utils.FontUtils;
 import com.voidvvv.autochess.utils.I18N;
+import com.voidvvv.autochess.utils.RenderConfig;
 
 public class BattleFieldRender {
     private KzAutoChess game;
@@ -64,9 +65,23 @@ public class BattleFieldRender {
         for (BattleCharacter character : battlefield.getCharacters()) {
             if (character.isDead()) {
                 // 渲染死亡角色为半透明，表示已死亡但会在下一轮复活
-                CharacterRenderer.renderWithAlpha(shapeRenderer, character, 0.3f);
+                if (RenderConfig.USE_TILED_RENDERING && character.hasTiledTexture()) {
+                    game.getBatch().begin();
+                    game.getBatch().setProjectionMatrix(game.getViewManagement().getWorldCamera().combined);
+                    TiledBattleCharacterRender.renderWithAlpha(game.getBatch(), character, 0.3f);
+                    game.getBatch().end();
+                } else {
+                    CharacterRenderer.renderWithAlpha(shapeRenderer, character, 0.3f);
+                }
             } else {
-                CharacterRenderer.render(shapeRenderer, character);
+                if (RenderConfig.USE_TILED_RENDERING && character.hasTiledTexture()) {
+                    game.getBatch().begin();
+                    game.getBatch().setProjectionMatrix(game.getViewManagement().getWorldCamera().combined);
+                    TiledBattleCharacterRender.render(game.getBatch(), character);
+                    game.getBatch().end();
+                } else {
+                    CharacterRenderer.render(shapeRenderer, character);
+                }
             }
         }
     }

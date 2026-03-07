@@ -10,6 +10,10 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.maps.MapLayers;
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapTileSet;
+import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -34,6 +38,8 @@ import com.voidvvv.autochess.utils.CharacterRenderer;
 import com.voidvvv.autochess.utils.FontUtils;
 import com.voidvvv.autochess.utils.I18N;
 import com.voidvvv.autochess.utils.CameraController;
+import com.voidvvv.autochess.utils.TiledAssetLoader;
+import com.voidvvv.autochess.utils.RenderConfig;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -103,6 +109,10 @@ public class GameScreen implements Screen {
 
     // 投掷物系统
     private ProjectileRenderer projectileRenderer;
+
+    // Tiled资源加载器
+    private TiledAssetLoader tiledAssetLoader;
+    private TiledMap tiledMap;
 
     public GameScreen(KzAutoChess game, int level) {
         this.game = game;
@@ -369,8 +379,20 @@ public class GameScreen implements Screen {
         // 添加Stage（处理UI按钮点击）
         multiplexer.addProcessor(stage);
 
-        // 添加相机控制器的滚轮输入处理器
+        // 添加热键处理器
         multiplexer.addProcessor(new InputAdapter() {
+            @Override
+            public boolean keyDown(int keycode) {
+                // F5键切换渲染模式
+                if (keycode == com.badlogic.gdx.Input.Keys.F5) {
+                    RenderConfig.toggleRendering();
+                    String mode = RenderConfig.USE_TILED_RENDERING ? "Tiled渲染" : "几何渲染";
+                    Gdx.app.log("GameScreen", "渲染模式已切换: " + mode);
+                    return true;
+                }
+                return false;
+            }
+
             @Override
             public boolean scrolled(float amountX, float amountY) {
                 // 将滚轮事件传递给相机控制器
@@ -396,6 +418,39 @@ public class GameScreen implements Screen {
         damageRenderUpdater = new DamageRenderUpdater(  this.damageShowModelModelHolder);
         damageLineRender = new DamageLineRender(this.damageShowModelModelHolder);
         bbList.clear();
+
+        // 加载Tiled资源
+        loadTiledResources();
+    }
+
+    /**
+     * 加载Tiled地图资源和角色纹理
+     */
+    private void loadTiledResources() {
+        try {
+            tiledAssetLoader = new TiledAssetLoader();
+            tiledMap = new TmxMapLoader().load("tiled/demo/2.tmx");
+
+            if (tiledMap != null) {
+                // 遍历所有tileset，加载碰撞框和纹理
+                for (TiledMapTileSet tileSet : tiledMap.getTileSets()) {
+                    if (tileSet != null) {
+                        tiledAssetLoader.loadBaseCollision(tileSet);
+                        Gdx.app.log("GameScreen", "Loaded tileset: " + tileSet.getName());
+                    }
+                }
+
+                // 为战场上的所有角色加载Tiled资源
+                for (BattleCharacter character : battlefield.getCharacters()) {
+                    character.loadTiledResources(tiledAssetLoader);
+                }
+
+                Gdx.app.log("GameScreen", "Tiled resources loaded successfully");
+            }
+        } catch (Exception e) {
+            Gdx.app.error("GameScreen", "Failed to load Tiled resources: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -840,6 +895,11 @@ public class GameScreen implements Screen {
         // 清理投掷物渲染器
         if (projectileRenderer != null) {
             projectileRenderer.dispose();
+        }
+
+        // 清理Tiled地图
+        if (tiledMap != null) {
+            tiledMap.dispose();
         }
     }
 }
