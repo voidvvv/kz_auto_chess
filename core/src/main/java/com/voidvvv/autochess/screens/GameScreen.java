@@ -10,7 +10,6 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.maps.MapLayers;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileSet;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
@@ -47,7 +46,9 @@ import com.voidvvv.autochess.utils.TiledAssetLoader;
 import com.voidvvv.autochess.utils.RenderConfig;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 游戏运行界面（重构版，使用Scene2D）
@@ -78,6 +79,9 @@ public class GameScreen implements Screen {
     private GamePhase phase = GamePhase.PLACEMENT;
     private float battleTime;
     private final List<BehaviorTree<BattleUnitBlackboard>> unitTrees = new ArrayList<>();
+    private final Map<BattleCharacter, BattleUnitBlackboard> characterMapping = new HashMap<>();
+    private final Map<BattleUnitBlackboard, BehaviorTree> behaviorTreeMap = new HashMap<>();
+
 
     // 拖拽状态
     private Card draggingCard;
@@ -286,20 +290,37 @@ public class GameScreen implements Screen {
     private void startBattle() {
         phase = GamePhase.BATTLE;
         battleTime = 0;
-        unitTrees.clear();
+//        unitTrees.clear();
         List<Integer> enemyIds = LevelEnemyConfig.getEnemyCardIdsForLevel(level);
         LevelEnemyConfig.spawnEnemiesInBattlefield(battlefield, enemyIds, cardPool, characterStatsLoader);
         for (BattleCharacter c : battlefield.getCharacters()) {
             if (c.isDead()) continue;
             c.enterBattle();
-            c.setNextAttackTime(0);
-            c.setTarget(null);
-            BattleUnitBlackboard battleUnitBlackboard = new BattleUnitBlackboard(c, battlefield);
-            bbList.add(battleUnitBlackboard);
-            unitTrees.add(UnitBehaviorTreeFactory.create(battleUnitBlackboard));
         }
         if (startBattleButton != null) {
             startBattleButton.setVisible(false);
+        }
+    }
+
+    private void loadCharacter(BattleCharacter c) {
+//        if (c.isDead()) return;
+//        c.enterBattle();
+        c.setNextAttackTime(0);
+        c.setTarget(null);
+        BattleUnitBlackboard battleUnitBlackboard = new BattleUnitBlackboard(c, battlefield);
+        characterMapping.put(c, battleUnitBlackboard);
+        bbList.add(battleUnitBlackboard);
+        var tree = UnitBehaviorTreeFactory.create(battleUnitBlackboard);
+        unitTrees.add(tree);
+        behaviorTreeMap.put(battleUnitBlackboard, tree);
+    }
+
+    private void unloadCharacter (BattleCharacter c) {
+        BattleUnitBlackboard bb = characterMapping.remove(c);
+        if (bb != null) {
+            bbList.remove(bb);
+            var tree = behaviorTreeMap.remove(bb);
+            unitTrees.remove(tree);
         }
     }
 
@@ -536,6 +557,7 @@ public class GameScreen implements Screen {
                 // 拖回卡组（使用UI坐标）
                 playerDeck.addCard(draggingCharacter.getCard());
                 battlefield.removeCharacter(draggingCharacter.getX(), draggingCharacter.getY());
+                unloadCharacter(draggingCharacter);
                 draggingCharacter = null;
             } else {
                 // 取消拖拽
@@ -543,14 +565,15 @@ public class GameScreen implements Screen {
             }
             return;
         }
-
+        BattleCharacter tmp = null;
         // 如果正在拖拽卡牌，尝试放置（使用世界坐标）
         if (draggingCard != null) {
             if (battlefield.contains(worldX, worldY)) {
                 // 在战场上放置角色
                 CharacterStats stats = characterStatsLoader.getStats(draggingCard.getId());
-                if (stats != null && battlefield.placeCharacter(draggingCard, stats, worldX, worldY)) {
+                if (stats != null && (tmp = battlefield.placeCharacter(draggingCard, stats, worldX, worldY)) != null) {
                     playerDeck.removeCard(draggingCard);
+                    loadCharacter(tmp);
                     draggingCard = null;
                 }
             } else {
