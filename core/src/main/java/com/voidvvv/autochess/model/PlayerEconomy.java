@@ -1,6 +1,7 @@
 package com.voidvvv.autochess.model;
 
 import com.voidvvv.autochess.utils.I18N;
+import com.voidvvv.autochess.logic.EconomyCalculator;
 
 /**
  * 玩家经济管理系统
@@ -25,14 +26,7 @@ public class PlayerEconomy {
     private int totalWinStreakBonus; // 累计连胜奖励
     private int totalLoseStreakBonus; // 累计连败补偿
 
-    // 配置常量
-    private static final int BASE_INCOME_PER_ROUND = 5; // 每回合基础收入
-    private static final int INTEREST_PER_10_GOLD = 1; // 每10金币利息
-    private static final int MAX_INTEREST = 5; // 最大利息
-    private static final int[] WIN_STREAK_REWARDS = {0, 0, 1, 1, 2, 2, 3}; // 连胜奖励
-    private static final int[] LOSE_STREAK_COMPENSATION = {0, 0, 1, 1, 2}; // 连败补偿
-    private static final int[] EXP_TO_NEXT_LEVEL = {4, 6, 8, 10, 12, 14, 16, 18, 20, 22}; // 升级所需经验
-    private static final int[] LEVEL_UP_GOLD_REWARD = {0, 1, 1, 1, 1, 1, 1, 1, 1, 1}; // 升级金币奖励
+    // Note: Configuration constants moved to EconomyCalculator
 
     public PlayerEconomy() {
         this.gold = 10; // 初始金币
@@ -41,7 +35,7 @@ public class PlayerEconomy {
         this.loseStreak = 0;
         this.playerLevel = 1;
         this.experience = 0;
-        this.experienceToNextLevel = EXP_TO_NEXT_LEVEL[0];
+        this.experienceToNextLevel = EconomyCalculator.getExperienceRequirement(1);
         this.totalGoldEarned = 0;
         this.totalGoldSpent = 0;
         this.totalInterestEarned = 0;
@@ -53,144 +47,29 @@ public class PlayerEconomy {
         this();
         this.gold = Math.max(0, startingGold);
         this.playerLevel = Math.max(1, Math.min(10, startingLevel));
-        updateExperienceRequirement();
+        this.experienceToNextLevel = EconomyCalculator.getExperienceRequirement(playerLevel);
     }
 
     /**
-     * 计算当前利息
-     */
-    private void calculateInterest() {
-        int baseGold = Math.min(gold, 50); // 最多计算50金币的利息
-        this.interest = Math.min(MAX_INTEREST, baseGold / 10 * INTEREST_PER_10_GOLD);
-    }
-
-    /**
-     * 更新升级所需经验
-     */
-    private void updateExperienceRequirement() {
-        if (playerLevel <= 10) {
-            this.experienceToNextLevel = EXP_TO_NEXT_LEVEL[playerLevel - 1];
-        } else {
-            this.experienceToNextLevel = Integer.MAX_VALUE;
-        }
-    }
-
-    /**
-     * 增加金币
+     * 增加金币（委托给EconomyCalculator计算利息）
      */
     public void addGold(int amount) {
-        if (amount > 0) {
-            this.gold += amount;
-            this.totalGoldEarned += amount;
-            calculateInterest(); // 金币变化时重新计算利息
-        }
+        if (amount <= 0) return;
+        this.gold += amount;
+        this.interest = EconomyCalculator.calculateInterest(this.gold);
     }
 
     /**
-     * 花费金币
+     * 花费金币（委托给EconomyCalculator计算利息）
      */
     public boolean spendGold(int amount) {
         if (amount > 0 && gold >= amount) {
             this.gold -= amount;
             this.totalGoldSpent += amount;
-            calculateInterest(); // 金币变化时重新计算利息
+            this.interest = EconomyCalculator.calculateInterest(this.gold);
             return true;
         }
         return false;
-    }
-
-    /**
-     * 尝试升级玩家等级
-     * @return 是否成功升级
-     */
-    public boolean tryLevelUp() {
-        if (playerLevel >= 10) {
-            return false; // 已达最大等级
-        }
-
-        if (experience >= experienceToNextLevel) {
-            // 升级
-            playerLevel++;
-            experience -= experienceToNextLevel;
-            updateExperienceRequirement();
-
-            // 升级奖励
-            int reward = LEVEL_UP_GOLD_REWARD[playerLevel - 1];
-            if (reward > 0) {
-                addGold(reward);
-            }
-
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * 增加经验值
-     */
-    public void addExperience(int exp) {
-        if (exp > 0) {
-            this.experience += exp;
-            // 检查是否可以升级
-            while (experience >= experienceToNextLevel && playerLevel < 10) {
-                tryLevelUp();
-            }
-        }
-    }
-
-    /**
-     * 回合结束结算
-     * @param won 是否胜利
-     */
-    public void endRound(boolean won) {
-        // 处理连胜/连败
-        if (won) {
-            winStreak++;
-            loseStreak = 0;
-
-            // 连胜奖励
-            if (winStreak < WIN_STREAK_REWARDS.length) {
-                int bonus = WIN_STREAK_REWARDS[winStreak];
-                if (bonus > 0) {
-                    addGold(bonus);
-                    totalWinStreakBonus += bonus;
-                }
-            } else {
-                // 超过数组长度，使用最后一个值
-                int bonus = WIN_STREAK_REWARDS[WIN_STREAK_REWARDS.length - 1];
-                if (bonus > 0) {
-                    addGold(bonus);
-                    totalWinStreakBonus += bonus;
-                }
-            }
-
-            // 胜利经验奖励
-            addExperience(2);
-        } else {
-            loseStreak++;
-            winStreak = 0;
-
-            // 连败补偿
-            if (loseStreak < LOSE_STREAK_COMPENSATION.length) {
-                int compensation = LOSE_STREAK_COMPENSATION[loseStreak];
-                if (compensation > 0) {
-                    addGold(compensation);
-                    totalLoseStreakBonus += compensation;
-                }
-            }
-        }
-
-        // 基础回合奖励
-        addGold(BASE_INCOME_PER_ROUND);
-
-        // 利息收入
-        if (interest > 0) {
-            addGold(interest);
-            totalInterestEarned += interest;
-        }
-
-        // 每回合基础经验
-        addExperience(1);
     }
 
     /**
@@ -202,20 +81,43 @@ public class PlayerEconomy {
     }
 
     /**
-     * 获取升级所需剩余经验
+     * 尝试升级玩家等级（需要4金币）
+     * 委托给EconomyCalculator计算
+     * @return 是否成功升级
      */
-    public int getRemainingExperience() {
-        return Math.max(0, experienceToNextLevel - experience);
+    public boolean tryLevelUp() {
+        return EconomyCalculator.tryLevelUp(this);
     }
 
     /**
-     * 获取经验进度百分比 (0-100)
+     * 增加经验值并检查是否可以升级（自动升级不消耗金币）
+     * 委托给EconomyCalculator计算
+     */
+    public void addExperience(int exp) {
+        EconomyCalculator.addExperience(this, exp);
+    }
+
+    /**
+     * 回合结束结算
+     * 委托给EconomyCalculator计算
+     * @param won 是否胜利
+     */
+    public void endRound(boolean won) {
+        EconomyCalculator.endRound(this, won);
+    }
+
+    /**
+     * 获取升级所需剩余经验（委托给EconomyCalculator）
+     */
+    public int getRemainingExperience() {
+        return EconomyCalculator.getRemainingExperience(this);
+    }
+
+    /**
+     * 获取经验进度百分比 (0-100)（委托给EconomyCalculator）
      */
     public float getExperiencePercentage() {
-        if (playerLevel >= 10) {
-            return 100f;
-        }
-        return (float) experience / experienceToNextLevel * 100f;
+        return EconomyCalculator.getExperiencePercentage(this);
     }
 
     // Getters
@@ -232,31 +134,61 @@ public class PlayerEconomy {
     public int getTotalWinStreakBonus() { return totalWinStreakBonus; }
     public int getTotalLoseStreakBonus() { return totalLoseStreakBonus; }
 
+    // Setters (for EconomyCalculator to update state)
+    public void setGold(int gold) {
+        this.gold = gold;
+    }
+
+    public void setInterest(int interest) {
+        this.interest = interest;
+    }
+
+    public void setWinStreak(int winStreak) {
+        this.winStreak = winStreak;
+    }
+
+    public void setLoseStreak(int loseStreak) {
+        this.loseStreak = loseStreak;
+    }
+
+    public void setPlayerLevel(int playerLevel) {
+        this.playerLevel = playerLevel;
+    }
+
+    public void setExperience(int experience) {
+        this.experience = experience;
+    }
+
+    public void setExperienceToNextLevel(int experienceToNextLevel) {
+        this.experienceToNextLevel = experienceToNextLevel;
+    }
+
+    public void setTotalGoldEarned(int totalGoldEarned) {
+        this.totalGoldEarned = totalGoldEarned;
+    }
+
+    public void setTotalGoldSpent(int totalGoldSpent) {
+        this.totalGoldSpent = totalGoldSpent;
+    }
+
+    public void setTotalInterestEarned(int totalInterestEarned) {
+        this.totalInterestEarned = totalInterestEarned;
+    }
+
+    public void setTotalWinStreakBonus(int totalWinStreakBonus) {
+        this.totalWinStreakBonus = totalWinStreakBonus;
+    }
+
+    public void setTotalLoseStreakBonus(int totalLoseStreakBonus) {
+        this.totalLoseStreakBonus = totalLoseStreakBonus;
+    }
+
     /**
      * 获取当前回合总收入预览（基础收入 + 利息 + 连胜/连败奖励）
+     * 委托给EconomyCalculator计算
      */
     public int getRoundIncomePreview(boolean assumeWin) {
-        int income = BASE_INCOME_PER_ROUND;
-
-        // 利息
-        income += interest;
-
-        // 连胜/连败奖励
-        if (assumeWin) {
-            int nextWinStreak = winStreak + 1;
-            if (nextWinStreak < WIN_STREAK_REWARDS.length) {
-                income += WIN_STREAK_REWARDS[nextWinStreak];
-            } else if (WIN_STREAK_REWARDS.length > 0) {
-                income += WIN_STREAK_REWARDS[WIN_STREAK_REWARDS.length - 1];
-            }
-        } else {
-            int nextLoseStreak = loseStreak + 1;
-            if (nextLoseStreak < LOSE_STREAK_COMPENSATION.length) {
-                income += LOSE_STREAK_COMPENSATION[nextLoseStreak];
-            }
-        }
-
-        return income;
+        return EconomyCalculator.getRoundIncomePreview(this, assumeWin);
     }
 
     /**

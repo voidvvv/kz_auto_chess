@@ -108,29 +108,35 @@ public class EconomyCalculator {
     }
 
     /**
-     * 添加经验值并检查是否可以升级
+     * 添加经验值并检查是否可以升级（自动升级不需要金币）
      * @param economy 玩家经济
      * @param exp 经验值
      */
     public static void addExperience(PlayerEconomy economy, int exp) {
-        if (exp > 0) {
-            int newExp = economy.getExperience() + exp;
+        if (exp <= 0) {
+            return;
+        }
 
-            // 检查是否可以升级
-            while (newExp >= getExperienceRequirement(economy.getPlayerLevel()) && economy.getPlayerLevel() < 10) {
-                if (tryLevelUp(economy)) {
-                    // tryLevelUp会自动更新经验，所以需要重新获取
-                    newExp = economy.getExperience();
-                } else {
-                    break;
-                }
-            }
+        int newExp = economy.getExperience() + exp;
+        int currentLevel = economy.getPlayerLevel();
 
-            if (newExp >= getExperienceRequirement(economy.getPlayerLevel()) || economy.getPlayerLevel() >= 10) {
-                // 如果不能再升级，更新为最终经验值
-                newExp = newExp % getExperienceRequirement(economy.getPlayerLevel());
+        // 检查是否可以升级（自动升级不消耗金币，只检查经验）
+        while (currentLevel < 10 && newExp >= getExperienceRequirement(currentLevel)) {
+            int requiredXp = getExperienceRequirement(currentLevel);
+            newExp -= requiredXp;
+            currentLevel++;
+
+            // 升级奖励
+            int reward = LEVEL_UP_GOLD_REWARD[currentLevel - 1];
+            if (reward > 0) {
+                addGold(economy, reward);
             }
         }
+
+        // 更新最终状态
+        economy.setPlayerLevel(currentLevel);
+        economy.setExperience(newExp);
+        economy.setExperienceToNextLevel(getExperienceRequirement(currentLevel));
     }
 
     /**
@@ -139,10 +145,14 @@ public class EconomyCalculator {
      * @param win 是否胜利
      */
     public static void endRound(PlayerEconomy economy, boolean win) {
+        int initialGold = economy.getGold();
+        int initialInterest = economy.getInterest();
         int newGold = economy.getGold();
         int newWinStreak = economy.getWinStreak();
         int newLoseStreak = economy.getLoseStreak();
         int newExp = economy.getExperience();
+        int winStreakBonus = 0;
+        int loseStreakBonus = 0;
 
         // 处理连胜/连败
         if (win) {
@@ -154,12 +164,14 @@ public class EconomyCalculator {
                 int bonus = WIN_STREAK_REWARDS[newWinStreak];
                 if (bonus > 0) {
                     newGold += bonus;
+                    winStreakBonus += bonus;
                 }
             } else {
                 // 超过数组长度，使用最后一个值
                 int bonus = WIN_STREAK_REWARDS[WIN_STREAK_REWARDS.length - 1];
                 if (bonus > 0) {
                     newGold += bonus;
+                    winStreakBonus += bonus;
                 }
             }
 
@@ -174,6 +186,7 @@ public class EconomyCalculator {
                 int compensation = LOSE_STREAK_COMPENSATION[newLoseStreak];
                 if (compensation > 0) {
                     newGold += compensation;
+                    loseStreakBonus += compensation;
                 }
             }
         }
@@ -181,17 +194,21 @@ public class EconomyCalculator {
         // 基础回合奖励
         newGold += BASE_INCOME_PER_ROUND;
 
-        // 利息收入
-        int interest = economy.getInterest();
-        if (interest > 0) {
-            newGold += interest;
-        }
+        // 利息收入（初始利息）
+        newGold += initialInterest;
 
         // 每回合基础经验
         newExp += 1;
 
-        // 更新经济状态
+        // 更新经济状态（包括重新计算利息）
         updateFull(economy, newGold, newWinStreak, newLoseStreak, newExp);
+
+        // 计算新增利息（final interest - initial interest）
+        int interestEarned = economy.getInterest() - initialInterest;
+
+        // 更新统计信息
+        updateStats(economy, BASE_INCOME_PER_ROUND + winStreakBonus + loseStreakBonus + initialInterest, 0,
+                    interestEarned, winStreakBonus, loseStreakBonus);
     }
 
     /**
@@ -228,13 +245,27 @@ public class EconomyCalculator {
     // ========== 私有辅助方法 ==========
 
     /**
-     * 更新经济状态（金币、利息）
+     * 添加金币
      */
     private static void addGold(PlayerEconomy economy, int amount) {
         if (amount > 0) {
             int newGold = economy.getGold() + amount;
             updateGoldAndInterest(economy, newGold);
+            updateStats(economy, amount, 0, economy.getInterest(), 0, 0);
         }
+    }
+
+    /**
+     * 花费金币
+     */
+    private static boolean spendGold(PlayerEconomy economy, int amount) {
+        if (amount > 0 && economy.getGold() >= amount) {
+            int newGold = economy.getGold() - amount;
+            updateGoldAndInterest(economy, newGold);
+            updateStats(economy, 0, amount, economy.getInterest(), 0, 0);
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -242,16 +273,18 @@ public class EconomyCalculator {
      */
     private static void updateGoldAndInterest(PlayerEconomy economy, int newGold) {
         int interest = calculateInterest(newGold);
-        // 注意：这里无法直接修改economy的字段，需要通过反射或公开的setter
-        // 为了简化，我们假设economy有对应的方法来更新这些值
+        economy.setGold(newGold);
+        economy.setInterest(interest);
     }
 
     /**
      * 更新等级和经验
      */
     private static void updateLevel(PlayerEconomy economy, int newLevel, int newExp, int newGold) {
+        economy.setPlayerLevel(newLevel);
+        economy.setExperience(newExp);
+        economy.setExperienceToNextLevel(getExperienceRequirement(newLevel));
         updateFull(economy, newGold, economy.getWinStreak(), economy.getLoseStreak(), newExp);
-        // 需要通过其他方式更新等级和经验
     }
 
     /**
@@ -259,7 +292,23 @@ public class EconomyCalculator {
      */
     private static void updateFull(PlayerEconomy economy, int newGold, int newWinStreak, int newLoseStreak, int newExp) {
         int interest = calculateInterest(newGold);
-        // 注意：这里无法直接修改economy的字段
-        // 实际实现需要economy提供相应的方法
+        economy.setGold(newGold);
+        economy.setInterest(interest);
+        economy.setWinStreak(newWinStreak);
+        economy.setLoseStreak(newLoseStreak);
+        economy.setExperience(newExp);
+        economy.setExperienceToNextLevel(getExperienceRequirement(economy.getPlayerLevel()));
+    }
+
+    /**
+     * 更新统计信息（累计值）
+     */
+    private static void updateStats(PlayerEconomy economy, int goldEarned, int goldSpent, int interestEarned,
+                                   int winStreakBonus, int loseStreakBonus) {
+        economy.setTotalGoldEarned(economy.getTotalGoldEarned() + goldEarned);
+        economy.setTotalGoldSpent(economy.getTotalGoldSpent() + goldSpent);
+        economy.setTotalInterestEarned(economy.getTotalInterestEarned() + interestEarned);
+        economy.setTotalWinStreakBonus(economy.getTotalWinStreakBonus() + winStreakBonus);
+        economy.setTotalLoseStreakBonus(economy.getTotalLoseStreakBonus() + loseStreakBonus);
     }
 }

@@ -28,6 +28,7 @@ import com.voidvvv.autochess.model.*;
 import com.voidvvv.autochess.manage.ProjectileManager;
 import com.voidvvv.autochess.manage.RenderDataManager;
 import com.voidvvv.autochess.logic.CharacterStatsLoader;
+import com.voidvvv.autochess.logic.EconomyCalculator;
 import com.voidvvv.autochess.render.BattleFieldRender;
 import com.voidvvv.autochess.logic.CardUpgradeLogic;
 import com.voidvvv.autochess.render.DamageLineRender;
@@ -323,7 +324,7 @@ public class GameScreen implements Screen {
 
         // 判断战斗结果：如果敌人空了，玩家胜利；如果玩家空了，玩家失败
         boolean playerWon = battlefield.getEnemyCharacters().isEmpty();
-        playerEconomy.endRound(playerWon);
+        EconomyCalculator.endRound(playerEconomy, playerWon);
         cardShop.setPlayerLevel(playerEconomy.getPlayerLevel());
         if (startBattleButton != null) {
             startBattleButton.setVisible(true);
