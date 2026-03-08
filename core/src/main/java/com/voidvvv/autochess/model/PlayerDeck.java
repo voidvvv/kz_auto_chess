@@ -117,52 +117,6 @@ public class PlayerDeck {
     }
 
     /**
-     * 检查是否可以升级指定卡牌（拥有3张相同基础卡牌）
-     */
-    public boolean canUpgradeCard(Card card) {
-        if (card == null || !card.canUpgrade()) {
-            return false;
-        }
-        int baseCardId = card.getBaseCardId();
-        int count = getCardCountByBaseId(baseCardId);
-        return count >= 3;
-    }
-
-    /**
-     * 升级指定卡牌（需要先检查canUpgradeCard）
-     * @param card 要升级的卡牌
-     * @return 升级后的卡牌，如果无法升级则返回null
-     */
-    public Card upgradeCard(Card card) {
-        if (!canUpgradeCard(card)) {
-            return null;
-        }
-
-        // 移除3张基础卡牌
-        removeCardsByBaseId(card.getBaseCardId(), 3);
-
-        // 创建并添加升级后的卡牌
-        Card upgradedCard = card.createUpgradedCard();
-        if (upgradedCard != null) {
-            addCard(upgradedCard);
-        }
-        return upgradedCard;
-    }
-
-    /**
-     * 获取所有可升级的卡牌列表
-     */
-    public List<Card> getUpgradableCards() {
-        List<Card> upgradableCards = new ArrayList<>();
-        for (Card card : allCards) {
-            if (canUpgradeCard(card)) {
-                upgradableCards.add(card);
-            }
-        }
-        return upgradableCards;
-    }
-
-    /**
      * 获取所有拥有的卡牌（去重后的列表）
      */
     public List<Card> getAllUniqueCards() {

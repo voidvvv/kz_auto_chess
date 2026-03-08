@@ -134,18 +134,4 @@ public class Projectile {
     public float getSpeed() { return speed; }
     public float getDistanceTraveled() { return distanceTraveled; }
     public float getMaxFlightDistance() { return maxFlightDistance; }
-
-    /**
-     * 获取投掷物颜色（用于渲染）
-     */
-    public com.badlogic.gdx.graphics.Color getColor() {
-        switch (type) {
-            case ARROW:
-                return com.badlogic.gdx.graphics.Color.BROWN;
-            case MAGIC_BALL:
-                return com.badlogic.gdx.graphics.Color.PURPLE;
-            default:
-                return com.badlogic.gdx.graphics.Color.WHITE;
-        }
-    }
 }

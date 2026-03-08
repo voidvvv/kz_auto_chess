@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.voidvvv.autochess.KzAutoChess;
+import com.voidvvv.autochess.manage.RenderDataManager;
 import com.voidvvv.autochess.model.BattleCharacter;
 import com.voidvvv.autochess.model.Battlefield;
 import com.voidvvv.autochess.utils.CharacterRenderer;
@@ -15,10 +16,12 @@ import com.voidvvv.autochess.utils.RenderConfig;
 public class BattleFieldRender {
     private KzAutoChess game;
     private ShapeRenderer shapeRenderer;
+    private RenderDataManager renderDataManager;
 
-    public BattleFieldRender(ShapeRenderer shapeRenderer,KzAutoChess game) {
+    public BattleFieldRender(ShapeRenderer shapeRenderer, KzAutoChess game, RenderDataManager renderDataManager) {
         this.game = game;
         this.shapeRenderer = shapeRenderer;
+        this.renderDataManager = renderDataManager;
     }
 
     public void render(Battlefield battlefield) {
@@ -65,19 +68,19 @@ public class BattleFieldRender {
         for (BattleCharacter character : battlefield.getCharacters()) {
             if (character.isDead()) {
                 // 渲染死亡角色为半透明，表示已死亡但会在下一轮复活
-                if (RenderConfig.USE_TILED_RENDERING && character.hasTiledTexture()) {
+                if (RenderConfig.USE_TILED_RENDERING && renderDataManager != null && renderDataManager.hasCharacterTexture(character)) {
                     game.getBatch().begin();
                     game.getBatch().setProjectionMatrix(game.getViewManagement().getWorldCamera().combined);
-                    TiledBattleCharacterRender.renderWithAlpha(game.getBatch(), character, 0.3f);
+                    TiledBattleCharacterRender.renderWithAlpha(game.getBatch(), character, 0.3f, renderDataManager);
                     game.getBatch().end();
                 } else {
                     CharacterRenderer.renderWithAlpha(shapeRenderer, character, 0.3f);
                 }
             } else {
-                if (RenderConfig.USE_TILED_RENDERING && character.hasTiledTexture()) {
+                if (RenderConfig.USE_TILED_RENDERING && renderDataManager != null && renderDataManager.hasCharacterTexture(character)) {
                     game.getBatch().begin();
                     game.getBatch().setProjectionMatrix(game.getViewManagement().getWorldCamera().combined);
-                    TiledBattleCharacterRender.render(game.getBatch(), character);
+                    TiledBattleCharacterRender.render(game.getBatch(), character, renderDataManager);
                     game.getBatch().end();
                 } else {
                     CharacterRenderer.render(shapeRenderer, character);

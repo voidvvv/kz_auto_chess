@@ -3,6 +3,8 @@ package com.voidvvv.autochess.render;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.voidvvv.autochess.KzAutoChess;
+import com.voidvvv.autochess.manage.ParticleSpawner;
+import com.voidvvv.autochess.manage.RenderDataManager;
 import com.voidvvv.autochess.model.Projectile;
 import com.voidvvv.autochess.manage.ProjectileManager;
 import com.voidvvv.autochess.updater.ParticleSystemUpdater;
@@ -19,12 +21,16 @@ public class ProjectileRenderer {
     private final ShapeRenderer shapeRenderer;
     private final ParticleSystemUpdater particleSystemUpdater;
     private final ParticleSystem particleSystemRenderer;
+    private final RenderDataManager renderDataManager;
+    private final ParticleSpawner particleSpawner;
 
-    public ProjectileRenderer(KzAutoChess game, ShapeRenderer shapeRenderer) {
+    public ProjectileRenderer(KzAutoChess game, ShapeRenderer shapeRenderer, RenderDataManager renderDataManager) {
         this.game = game;
         this.shapeRenderer = shapeRenderer;
+        this.renderDataManager = renderDataManager;
         this.particleSystemUpdater = new ParticleSystemUpdater();
         this.particleSystemRenderer = new ParticleSystem();
+        this.particleSpawner = new ParticleSpawner(particleSystemUpdater);
     }
 
     /**
@@ -65,7 +71,7 @@ public class ProjectileRenderer {
         float x = projectile.getX();
         float y = projectile.getY();
         float radius = projectile.getRadius();
-        Color color = projectile.getColor();
+        Color color = getProjectileColor(projectile);
 
         // 设置投掷物颜色
         shapeRenderer.setColor(color);
@@ -82,7 +88,7 @@ public class ProjectileRenderer {
 
         // 检查是否需要生成粒子
         if (projectile.shouldSpawnParticle()) {
-            spawnParticle(projectile);
+            particleSpawner.spawnParticle(projectile, getProjectileColor(projectile));
         }
     }
 
@@ -122,7 +128,7 @@ public class ProjectileRenderer {
     private void renderMagicBall(Projectile projectile, float x, float y, float radius) {
         // 绘制外部光晕
         float glowRadius = radius * 1.2f;
-        Color baseColor = projectile.getColor();
+        Color baseColor = getProjectileColor(projectile);
 
         // 创建渐变色
         Color innerColor = new Color(baseColor);
@@ -145,57 +151,6 @@ public class ProjectileRenderer {
     }
 
     /**
-     * 生成粒子效果
-     */
-    private void spawnParticle(Projectile projectile) {
-        float x = projectile.getX();
-        float y = projectile.getY();
-        Color color = projectile.getColor();
-        float dirX = projectile.getDirection().x;
-        float dirY = projectile.getDirection().y;
-        float speed = projectile.getSpeed();
-
-        // 在投掷物后方生成粒子
-        float particleX = x - dirX * projectile.getRadius() * 0.8f;
-        float particleY = y - dirY * projectile.getRadius() * 0.8f;
-
-        // 根据投掷物类型生成不同数量的粒子
-        int particleCount;
-        switch (projectile.getType()) {
-            case ARROW:
-                particleCount = 2;
-                break;
-            case MAGIC_BALL:
-                particleCount = 4;
-                break;
-            default:
-                particleCount = 1;
-                break;
-        }
-
-        for (int i = 0; i < particleCount; i++) {
-            // 随机粒子参数
-            float offsetX = (float) (Math.random() * projectile.getRadius() * 0.5f - projectile.getRadius() * 0.25f);
-            float offsetY = (float) (Math.random() * projectile.getRadius() * 0.5f - projectile.getRadius() * 0.25f);
-            float particleSpeed = speed * 0.1f + (float) Math.random() * speed * 0.05f;
-            float lifetime = 0.2f + (float) Math.random() * 0.2f;
-            float size = projectile.getRadius() * (0.3f + (float) Math.random() * 0.2f);
-
-            // 调整粒子颜色（稍暗一些）
-            Color particleColor = new Color(color);
-            particleColor.r *= 0.8f;
-            particleColor.g *= 0.8f;
-            particleColor.b *= 0.8f;
-            particleColor.a = 0.7f;
-
-            particleSystemUpdater.spawnParticle(
-                    particleX + offsetX, particleY + offsetY,
-                    particleColor, size, lifetime, particleSpeed
-            );
-        }
-    }
-
-    /**
      * 渲染粒子效果
      */
     private void renderParticles() {
@@ -209,6 +164,28 @@ public class ProjectileRenderer {
         particleSystemRenderer.render(shapeRenderer, particleSystemUpdater.getParticles());
 
         shapeRenderer.end();
+    }
+
+    /**
+     * 获取投掷物颜色
+     * 如果RenderDataManager中有颜色则使用，否则根据类型返回默认颜色
+     */
+    private Color getProjectileColor(Projectile projectile) {
+        if (renderDataManager != null) {
+            Color color = renderDataManager.getProjectileColor(projectile);
+            if (color != null) {
+                return color;
+            }
+        }
+        // 默认颜色
+        switch (projectile.getType()) {
+            case ARROW:
+                return Color.BROWN;
+            case MAGIC_BALL:
+                return Color.PURPLE;
+            default:
+                return Color.WHITE;
+        }
     }
 
     /**

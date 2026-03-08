@@ -26,7 +26,10 @@ import com.voidvvv.autochess.logic.SynergyManager;
 import com.voidvvv.autochess.listener.damage.DamageRenderListener;
 import com.voidvvv.autochess.model.*;
 import com.voidvvv.autochess.manage.ProjectileManager;
+import com.voidvvv.autochess.manage.RenderDataManager;
+import com.voidvvv.autochess.logic.CharacterStatsLoader;
 import com.voidvvv.autochess.render.BattleFieldRender;
+import com.voidvvv.autochess.logic.CardUpgradeLogic;
 import com.voidvvv.autochess.render.DamageLineRender;
 import com.voidvvv.autochess.render.ProjectileRenderer;
 import com.voidvvv.autochess.sm.machine.StateMachine;
@@ -110,6 +113,12 @@ public class GameScreen implements Screen {
     // 投掷物系统
     private ProjectileRenderer projectileRenderer;
 
+    // 渲染数据管理器
+    private RenderDataManager renderDataManager;
+
+    // 角色属性加载器
+    private CharacterStatsLoader characterStatsLoader;
+
     // Tiled资源加载器
     private TiledAssetLoader tiledAssetLoader;
     private TiledMap tiledMap;
@@ -127,7 +136,8 @@ public class GameScreen implements Screen {
         this.synergyManager = new SynergyManager();
 
         // 加载角色属性配置
-        CharacterStats.Config.load();
+        this.characterStatsLoader = new CharacterStatsLoader();
+        this.characterStatsLoader.load("character_stats.json");
 
         // 初始化UI
         // Stage使用UI viewport（用于按钮等UI元素）
@@ -155,11 +165,14 @@ public class GameScreen implements Screen {
         Gdx.app.log("GameScreen", "Button font loaded: " + (FontUtils.getDefaultFont() != null));
 
 
-        battleFieldRender = new BattleFieldRender(shapeRenderer,game);
+        // 初始化渲染数据管理器
+        renderDataManager = new RenderDataManager();
+
+        battleFieldRender = new BattleFieldRender(shapeRenderer, game, renderDataManager);
         damageShowModelModelHolder = new ModelHolder<>();
 
         // 初始化投掷物渲染器
-        projectileRenderer = new ProjectileRenderer(game, shapeRenderer);
+        projectileRenderer = new ProjectileRenderer(game, shapeRenderer, renderDataManager);
     }
 
     private void initUI() {
@@ -274,7 +287,7 @@ public class GameScreen implements Screen {
         battleTime = 0;
         unitTrees.clear();
         List<Integer> enemyIds = LevelEnemyConfig.getEnemyCardIdsForLevel(level);
-        LevelEnemyConfig.spawnEnemiesInBattlefield(battlefield, enemyIds, cardPool);
+        LevelEnemyConfig.spawnEnemiesInBattlefield(battlefield, enemyIds, cardPool, characterStatsLoader);
         for (BattleCharacter c : battlefield.getCharacters()) {
             if (c.isDead()) continue;
             c.enterBattle();
@@ -442,7 +455,16 @@ public class GameScreen implements Screen {
 
                 // 为战场上的所有角色加载Tiled资源
                 for (BattleCharacter character : battlefield.getCharacters()) {
-                    character.loadTiledResources(tiledAssetLoader);
+                    if (character.getCard() != null) {
+                        String key = character.getCard().getTiledResourceKey();
+                        if (key != null && tiledAssetLoader.hasResource(key)) {
+                            renderDataManager.setCharacterTexture(character, tiledAssetLoader.getTexture(key));
+                            com.voidvvv.autochess.model.BaseCollision collision = tiledAssetLoader.getCollision(key);
+                            if (collision != null) {
+                                character.baseCollision = collision;
+                            }
+                        }
+                    }
                 }
 
                 Gdx.app.log("GameScreen", "Tiled resources loaded successfully");
@@ -539,7 +561,7 @@ public class GameScreen implements Screen {
         if (draggingCard != null) {
             if (battlefield.contains(worldX, worldY)) {
                 // 在战场上放置角色
-                CharacterStats stats = CharacterStats.Config.getStats(draggingCard.getId());
+                CharacterStats stats = characterStatsLoader.getStats(draggingCard.getId());
                 if (stats != null && battlefield.placeCharacter(draggingCard, stats, worldX, worldY)) {
                     playerDeck.removeCard(draggingCard);
                     draggingCard = null;
@@ -666,14 +688,7 @@ public class GameScreen implements Screen {
      * @return 如果卡牌可以升级则返回true
      */
     private boolean isCardUpgradable(Card card) {
-        if (card == null) return false;
-        // 卡牌必须可以升级（星级小于3）
-        if (!card.canUpgrade()) return false;
-        // 检查是否有足够数量的相同基础卡牌
-        int baseCardId = card.getBaseCardId();
-        int currentCount = playerDeck.getCardCountByBaseId(baseCardId);
-        // 需要3张相同基础卡牌才能升级
-        return currentCount >= 3;
+        return CardUpgradeLogic.canUpgradeCard(playerDeck, card);
     }
 
     private void drawShopArea() {

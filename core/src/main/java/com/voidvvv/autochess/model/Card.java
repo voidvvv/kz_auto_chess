@@ -106,28 +106,6 @@ public class Card {
     }
 
     /**
-     * 检查卡牌是否可以升级
-     */
-    public boolean canUpgrade() {
-        return starLevel < 3;
-    }
-
-    /**
-     * 创建升级后的卡牌
-     */
-    public Card createUpgradedCard() {
-        if (!canUpgrade()) {
-            return null;
-        }
-        int newId = this.id + 1000; // 简单ID生成策略
-        String newName = this.name + "★";
-        int newCost = this.cost + 1;
-        int newStarLevel = this.starLevel + 1;
-        return new Card(newId, newName, this.description, newCost, this.tier, this.type,
-                       newStarLevel, this.baseCardId, new ArrayList<>(this.synergies), this.tiledResourceKey);
-    }
-
-    /**
      * 卡牌类型枚举
      */
     public enum CardType {

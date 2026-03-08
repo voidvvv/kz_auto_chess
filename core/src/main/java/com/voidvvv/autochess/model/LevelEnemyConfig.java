@@ -1,5 +1,6 @@
 package com.voidvvv.autochess.model;
 
+import com.voidvvv.autochess.logic.CharacterStatsLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -34,10 +35,11 @@ public final class LevelEnemyConfig {
      * @param battlefield 战场
      * @param cardIds 本关敌人 cardId 列表
      * @param cardPool 用于根据 id 取 Card
+     * @param statsLoader 用于获取角色属性
      * @return 成功放置的数量
      */
     public static int spawnEnemiesInBattlefield(Battlefield battlefield, List<Integer> cardIds,
-                                                 CardPool cardPool) {
+                                                 CardPool cardPool, CharacterStatsLoader statsLoader) {
         if (cardIds == null || cardIds.isEmpty()) return 0;
 
         float bw = battlefield.getWidth();
@@ -57,7 +59,7 @@ public final class LevelEnemyConfig {
         for (int i = 0; i < count; i++) {
             int id = cardIds.get(i);
             Card card = cardPool.getCardById(id);
-            CharacterStats stats = CharacterStats.Config.getStats(id);
+            CharacterStats stats = statsLoader.getStats(id);
             if (card == null || stats == null) continue;
 
             int c = i % cols;

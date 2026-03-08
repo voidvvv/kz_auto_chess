@@ -1,8 +1,6 @@
 package com.voidvvv.autochess.model;
 
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.voidvvv.autochess.utils.CharacterCamp;
-import com.voidvvv.autochess.utils.TiledAssetLoader;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,9 +37,6 @@ public class BattleCharacter {
     private Map<String, SynergyEffect> activeSynergyEffects = new HashMap<>();
 
     public BaseCollision baseCollision = new BaseCollision();
-
-    /** Tiled纹理区域 */
-    private TextureRegion tiledTexture;
 
     // 普通攻击
     public float progressCouldDamage = 0.15f;
@@ -362,37 +357,6 @@ public class BattleCharacter {
             }
         }
         return sb.toString();
-    }
-
-    // ===================== Tiled资源系统 =====================
-
-    /**
-     * 从Tiled资源加载器加载纹理和碰撞框
-     */
-    public void loadTiledResources(TiledAssetLoader loader) {
-        if (card == null) return;
-        String key = card.getTiledResourceKey();
-        if (key != null && loader.hasResource(key)) {
-            this.tiledTexture = loader.getTexture(key);
-            BaseCollision collision = loader.getCollision(key);
-            if (collision != null) {
-                this.baseCollision = collision;
-            }
-        }
-    }
-
-    /**
-     * 获取Tiled纹理区域
-     */
-    public TextureRegion getTiledTexture() {
-        return tiledTexture;
-    }
-
-    /**
-     * 检查是否有Tiled纹理
-     */
-    public boolean hasTiledTexture() {
-        return tiledTexture != null;
     }
 }
 
