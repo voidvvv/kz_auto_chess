@@ -29,6 +29,7 @@ import com.voidvvv.autochess.manage.ProjectileManager;
 import com.voidvvv.autochess.manage.RenderDataManager;
 import com.voidvvv.autochess.logic.CharacterStatsLoader;
 import com.voidvvv.autochess.logic.EconomyCalculator;
+import com.voidvvv.autochess.render.BattleCharacterRender;
 import com.voidvvv.autochess.render.BattleFieldRender;
 import com.voidvvv.autochess.logic.CardUpgradeLogic;
 import com.voidvvv.autochess.render.DamageLineRender;
@@ -121,7 +122,6 @@ public class GameScreen implements Screen {
     private CharacterStatsLoader characterStatsLoader;
 
     // Tiled资源加载器
-    private TiledAssetLoader tiledAssetLoader;
     private TiledMap tiledMap;
 
     public GameScreen(KzAutoChess game, int level) {
@@ -442,31 +442,17 @@ public class GameScreen implements Screen {
      */
     private void loadTiledResources() {
         try {
-            tiledAssetLoader = new TiledAssetLoader();
             tiledMap = new TmxMapLoader().load("tiled/demo/2.tmx");
 
             if (tiledMap != null) {
                 // 遍历所有tileset，加载碰撞框和纹理
                 for (TiledMapTileSet tileSet : tiledMap.getTileSets()) {
                     if (tileSet != null) {
-                        tiledAssetLoader.loadBaseCollision(tileSet);
+                        TiledAssetLoader.loadBaseCollision(tileSet);
                         Gdx.app.log("GameScreen", "Loaded tileset: " + tileSet.getName());
                     }
                 }
 
-                // 为战场上的所有角色加载Tiled资源
-                for (BattleCharacter character : battlefield.getCharacters()) {
-                    if (character.getCard() != null) {
-                        String key = character.getCard().getTiledResourceKey();
-                        if (key != null && tiledAssetLoader.hasResource(key)) {
-                            renderDataManager.setCharacterTexture(character, tiledAssetLoader.getTexture(key));
-                            com.voidvvv.autochess.model.BaseCollision collision = tiledAssetLoader.getCollision(key);
-                            if (collision != null) {
-                                character.baseCollision = collision;
-                            }
-                        }
-                    }
-                }
 
                 Gdx.app.log("GameScreen", "Tiled resources loaded successfully");
             }
@@ -620,6 +606,14 @@ public class GameScreen implements Screen {
 
         shapeRenderer.end();
         damageLineRender.render(shapeRenderer, game.getBatch());
+
+
+
+        game.getBatch().begin();
+        for (BattleUnitBlackboard battleUnitBlackboard : bbList) {
+            BattleCharacterRender.render(game.getBatch(), battleUnitBlackboard.getSelf());
+        }
+        game.getBatch().end();
 
         // 渲染每个角色的状态
         renderBattleCharacterState();
@@ -803,6 +797,7 @@ public class GameScreen implements Screen {
 
     private void drawBattlefield() {
         battleFieldRender.render( battlefield);
+
     }
 
     private void drawDragging() {

@@ -14,16 +14,16 @@ import java.util.Map;
 
 public class TiledAssetLoader {
 
-    public Map<String, BaseCollision> collisionMapping = new HashMap<>();
+    public static Map<String, BaseCollision> collisionMapping = new HashMap<>();
 
-    public Map<String, TextureRegion> textureRegionMap = new HashMap<>();
+    public static Map<String, TextureRegion> textureRegionMap = new HashMap<>();
 
-    public void loadBaseCollision (TiledMapTileSet tiledSet) {
+    public static void loadBaseCollision (TiledMapTileSet tiledSet) {
         String prefix = tiledSet.getName();
         for (TiledMapTile tiledMapTile : tiledSet) {
             int id = tiledMapTile.getId();
             int d = tiledMapTile.getProperties().get("firstid", 1, Integer.class);
-            String key = prefix + (id - d + 1);
+            String key = prefix + "+" + (id - d + 1);
             BaseCollision bc = extractCollision(tiledMapTile);
 
             if (bc != null) {
@@ -33,22 +33,25 @@ public class TiledAssetLoader {
         }
     }
 
-    private BaseCollision extractCollision(TiledMapTile tiledMapTile) {
+    private static BaseCollision extractCollision(TiledMapTile tiledMapTile) {
         MapObjects objects = tiledMapTile.getObjects();
         MapObject mo = objects.get("base");
         MapObject face = objects.get("face");
         MapObject bottom = objects.get("bottom");
 
-        BaseCollision bc = null;
+        BaseCollision bc = new BaseCollision();
         if (mo instanceof PointMapObject pmo) {
-            bc =  new BaseCollision();
             bc.base.set(pmo.getPoint());
         }
-        if (bc != null && face instanceof RectangleMapObject rmo) {
+        if (face instanceof RectangleMapObject rmo) {
             bc.face.set(rmo.getRectangle());
+        } else {
+            bc.face.set(2,2,10,10);
         }
-        if (bc != null && bottom instanceof RectangleMapObject rmo) {
+        if (bottom instanceof RectangleMapObject rmo) {
             bc.bottom.set(rmo.getRectangle());
+        } else {
+            bc.bottom.set(2,2,10,10);
         }
         return bc;
     }
@@ -58,7 +61,7 @@ public class TiledAssetLoader {
      * @param key 资源key (格式: "tilesetId+tileId")
      * @return 碰撞框，如果不存在则返回null
      */
-    public BaseCollision getCollision(String key) {
+    public static BaseCollision getCollision(String key) {
         return collisionMapping.get(key);
     }
 
@@ -67,7 +70,7 @@ public class TiledAssetLoader {
      * @param key 资源key (格式: "tilesetId+tileId")
      * @return 纹理区域，如果不存在则返回null
      */
-    public TextureRegion getTexture(String key) {
+    public static TextureRegion getTexture(String key) {
         return textureRegionMap.get(key);
     }
 
@@ -76,7 +79,7 @@ public class TiledAssetLoader {
      * @param key 资源key (格式: "tilesetId+tileId")
      * @return 如果碰撞框和纹理都存在则返回true
      */
-    public boolean hasResource(String key) {
+    public static boolean hasResource(String key) {
         return collisionMapping.containsKey(key) && textureRegionMap.containsKey(key);
     }
 }
