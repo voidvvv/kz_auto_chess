@@ -80,26 +80,6 @@ endBattle() → 清除敌人/复活玩家/经济结算
 - `ui/` - UI组件
 - `utils/` - 工具类（`I18N`、`FontUtils`、`RenderConfig`、`TiledAssetLoader`）
 
-## 羁绊系统
-
-| 类型 | 阈值 | 效果 |
-|------|--------|------|
-| WARRIOR | 2,4,6 | 攻击+5%/级，防御+10%/级 |
-| MAGE | 3,6,9 | 魔法+8%/级，回蓝+15%/级 |
-| ARCHER | 2,4,6 | 攻速+10%/级，暴击+3%/级 |
-| ASSASSIN | 3,6 | 暴伤+15%/级，闪避+5%/级 |
-| TANK | 2,4,6 | 生命+10%/级，减伤+3%/级 |
-| DRAGON | 2 | 全属性+5%/级 |
-| BEAST | 2,4 | 攻击+5%/级，吸血+4%/级 |
-| HUMAN | 2,4,6 | 全属性+3%/级，经验+10%/级 |
-
-## 关键配置
-
-- **视口**：双视口（UI固定/Game世界坐标）
-- **坐标系**：左下角原点
-- **战场**：玩家区（下半）vs 敌人区（上半）
-- **投掷物**：ARROW直线/MAGIC_BALL追踪
-- **伤害**：物理-防50%，魔法-防25%，真实-无视防御
 
 ## 重要须知
 
@@ -111,22 +91,6 @@ C:/myFiles/dev/project/idea_projects/kz_auto_chess/src/main/java/com/voidvvv/aut
 
 ### 渲染模式切换
 按 **F5** 在几何渲染和Tiled纹理渲染之间切换。
-
-### 性能优化建议（高优先级）
-
-| 问题 | 影响 | 建议 |
-|------|--------|------|
-| 无对象池 | GC压力 | 为`Projectile`、`DamageEvent`、`Particle`实现LibGDX Pool |
-| 资源未统一管理 | 内存泄漏风险 | 使用AssetManager统一管理Skin、TiledMap、Font |
-| 渲染批处理低效 | 性能下降 | 减少begin/end对，合并投影矩阵设置 |
-| 碰撞O(n²) | 扩展性差 | 使用Box2D或空间分区 |
-
-### 代码质量技术债
-
-- `io/TestMain.java` - 无关测试文件，应删除
-- `BattleUnitBlackboard.doSomething()` - 空方法，应删除
-- `Ashley`依赖 - 已引入但未使用ECS模式
-- 测试覆盖率极低 - 需添加核心逻辑单元测试
 
 ## 国际化
 
