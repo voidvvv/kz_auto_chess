@@ -20,10 +20,10 @@ public class MoveState extends AbstractState {
     @Override
     protected void onEnter(BattleUnitBlackboard entity) {
         // 检查是否被禁锢
-        if (movementCalculator.isImmobilized(entity.getSelf().moveComponent)) {
-            // 被禁锢时不启用移动
-            return;
-        }
+//        if (movementCalculator.isImmobilized(entity.getSelf().moveComponent)) {
+//            // 被禁锢时不启用移动
+//            return;
+//        }
         entity.getSelf().moveComponent.canWalk = true;
     }
 
