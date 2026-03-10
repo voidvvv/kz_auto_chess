@@ -13,4 +13,12 @@ public interface BaseState<T> extends State<T> {
     boolean isState(BaseState<T> other);
 
     String name();
+
+    /**
+     * 转换守卫：当前状态是否允许退出并切换到 nextState。
+     * 返回 false 表示拒绝此次转换（可被 forceSwitch 绕过）。
+     */
+    default boolean canExit(T entity, BaseState<T> nextState) {
+        return true;
+    }
 }

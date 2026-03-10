@@ -37,6 +37,7 @@ public class BattleUnitBlackboard implements Telegraph {
 
         stateMachine = new BaseStateMachine<>();
         stateMachine.setOwn(this);
+        stateMachine.setInitialState(States.NORMAL_STATE);
     }
 
     public BattleCharacter getSelf() {

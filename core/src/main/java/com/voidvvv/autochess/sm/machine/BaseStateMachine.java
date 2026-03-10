@@ -2,51 +2,75 @@ package com.voidvvv.autochess.sm.machine;
 
 import com.badlogic.gdx.ai.msg.Telegram;
 import com.badlogic.gdx.ai.msg.Telegraph;
+import com.badlogic.gdx.utils.Array;
 import com.voidvvv.autochess.sm.state.BaseState;
-
-import java.util.ArrayDeque;
-import java.util.Deque;
 
 public class BaseStateMachine<T> implements Telegraph, StateMachine<T> {
     private T own;
-    private final int stackSize = 20;
-    private final Deque<BaseState<T>> stateStack = new ArrayDeque<>();
     private BaseState<T> current;
+    private BaseState<T> previous;
 
-    private BaseState<T> next;
+    private BaseState<T> pendingNext;
+    private boolean pendingForce;
 
+    private final Array<StateChangeListener<T>> listeners = new Array<>(false, 4);
+
+    @Override
     public void update(float delta) {
-        switchToNextState();
-        updateCurrentState(delta);
-    }
-
-    public void switchState (BaseState<T> next) {
-        this.next = next;
-    }
-
-    private void updateCurrentState(float delta) {
+        processPendingSwitch();
         if (current != null) {
             current.update(own, delta);
         }
     }
 
-    private void switchToNextState() {
-        if (next != null) {
-            if (current != null ) {
-                stateStack.push(current);
-                BaseState<T> last = current;
-                last.exit(own);
-            }
-            while (stateStack.size() >= stackSize) {
-                stateStack.poll();
-            }
+    @Override
+    public void switchState(BaseState<T> next) {
+        pendingNext = next;
+        pendingForce = false;
+    }
 
-            current = next;
+    @Override
+    public void forceSwitch(BaseState<T> next) {
+        pendingNext = next;
+        pendingForce = true;
+    }
+
+    @Override
+    public void setInitialState(BaseState<T> state) {
+        if (current != null) {
+            current.exit(own);
+        }
+        previous = current;
+        current = state;
+        if (current != null) {
             current.enter(own);
-            next = null;
         }
     }
 
+    private void processPendingSwitch() {
+        if (pendingNext == null) {
+            return;
+        }
+
+        BaseState<T> next = pendingNext;
+        boolean force = pendingForce;
+        pendingNext = null;
+        pendingForce = false;
+
+        if (!force && current != null && !current.canExit(own, next)) {
+            notifyRejected(current, next);
+            return;
+        }
+
+        BaseState<T> from = current;
+        if (current != null) {
+            current.exit(own);
+        }
+        previous = from;
+        current = next;
+        current.enter(own);
+        notifyChanged(from, current);
+    }
 
     @Override
     public boolean handleMessage(Telegram msg) {
@@ -55,11 +79,37 @@ public class BaseStateMachine<T> implements Telegraph, StateMachine<T> {
 
     @Override
     public BaseState<T> getCurrent() {
-        return this.current;
+        return current;
+    }
+
+    public BaseState<T> getPrevious() {
+        return previous;
     }
 
     @Override
     public void setOwn(T own) {
         this.own = own;
+    }
+
+    @Override
+    public void addListener(StateChangeListener<T> listener) {
+        listeners.add(listener);
+    }
+
+    @Override
+    public void removeListener(StateChangeListener<T> listener) {
+        listeners.removeValue(listener, true);
+    }
+
+    private void notifyChanged(BaseState<T> from, BaseState<T> to) {
+        for (int i = 0; i < listeners.size; i++) {
+            listeners.get(i).onStateChanged(own, from, to);
+        }
+    }
+
+    private void notifyRejected(BaseState<T> currentState, BaseState<T> rejected) {
+        for (int i = 0; i < listeners.size; i++) {
+            listeners.get(i).onStateChangeRejected(own, currentState, rejected);
+        }
     }
 }

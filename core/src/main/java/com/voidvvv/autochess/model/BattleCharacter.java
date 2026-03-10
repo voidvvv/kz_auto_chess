@@ -44,6 +44,11 @@ public class BattleCharacter {
     public float currentAttackProgress = 0f;
     public float attackCooldown = 1f;
 
+    /**
+     * 是否允许在攻击状态中切换到移动（特例角色如刺客可设为 true）
+     */
+    private boolean moveWhileAttacking = false;
+
     public BattleCharacter(Card card, CharacterStats stats, float x, float y, boolean isEnemy) {
         this.card = card;
         this.stats = stats;
@@ -136,6 +141,14 @@ public class BattleCharacter {
 
     public String getName() {
         return name;
+    }
+
+    public boolean canMoveWhileAttacking() {
+        return moveWhileAttacking;
+    }
+
+    public void setMoveWhileAttacking(boolean moveWhileAttacking) {
+        this.moveWhileAttacking = moveWhileAttacking;
     }
 
     /**
