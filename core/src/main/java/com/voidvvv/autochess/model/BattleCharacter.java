@@ -72,6 +72,10 @@ public class BattleCharacter {
         moveComponent.speed = 10f;
         moveComponent.canWalk = true;
         setTarget(null);
+
+        // 新增：清除移动效果列表
+        moveComponent.movementEffects.clear();
+
         // 重置计时器和攻击进度
         this.time = 0f;
         this.currentTime = 0f;

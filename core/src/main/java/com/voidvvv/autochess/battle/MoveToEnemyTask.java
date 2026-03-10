@@ -3,11 +3,16 @@ package com.voidvvv.autochess.battle;
 import com.badlogic.gdx.ai.btree.LeafTask;
 import com.badlogic.gdx.ai.btree.Task;
 import com.badlogic.gdx.math.Vector2;
+import com.voidvvv.autochess.logic.MovementCalculator;
 import com.voidvvv.autochess.model.BattleCharacter;
 import com.voidvvv.autochess.sm.state.common.States;
 
 public class MoveToEnemyTask extends LeafTask<BattleUnitBlackboard> {
     boolean firstFrame = false;
+
+    // 使用 MovementCalculator 检查禁锢（保持无状态）
+    private static final MovementCalculator movementCalculator = new MovementCalculator();
+
     @Override
     public void start() {
         BattleUnitBlackboard bb = getObject();
@@ -28,6 +33,11 @@ public class MoveToEnemyTask extends LeafTask<BattleUnitBlackboard> {
         BattleCharacter target = bb.getTarget();
         BattleCharacter self = bb.getSelf();
         if (target == null || target.isDead() || self == null || self.isDead()) {
+            return Status.FAILED;
+        }
+
+        // 新增：检查是否被禁锢
+        if (movementCalculator.isImmobilized(self.moveComponent)) {
             return Status.FAILED;
         }
 
