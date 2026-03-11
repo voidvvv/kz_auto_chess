@@ -627,7 +627,7 @@ public class GameScreen implements Screen {
             projectileRenderer.render(projectileManager, Gdx.graphics.getDeltaTime());
         }
 
-        shapeRenderer.end();
+//        shapeRenderer.end();
         damageLineRender.render(shapeRenderer, game.getBatch());
 
 
@@ -637,6 +637,12 @@ public class GameScreen implements Screen {
             BattleCharacterRender.render(game.getBatch(), battleUnitBlackboard.getSelf());
         }
         game.getBatch().end();
+        shapeRenderer.setAutoShapeType(true);
+        shapeRenderer.begin();
+        for (BattleUnitBlackboard battleUnitBlackboard : bbList) {
+            BattleCharacterRender.render(shapeRenderer, battleUnitBlackboard);
+        }
+        shapeRenderer.end();
 
         // 渲染每个角色的状态
         renderBattleCharacterState();
