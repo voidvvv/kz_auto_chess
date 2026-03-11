@@ -66,18 +66,18 @@ public class Battlefield {
     /**
      * 在战场上放置玩家角色（仅允许在玩家区域）
      */
-    public boolean placeCharacter(Card card, CharacterStats stats, float px, float py) {
+    public BattleCharacter placeCharacter(Card card, CharacterStats stats, float px, float py) {
         if (!isInPlayerZone(px, py)) {
-            return false;
+            return null;
         }
 
         for (BattleCharacter c : characters) {
-            if (c.contains(px, py)) return false;
+            if (c.contains(px, py)) return null;
         }
 
         BattleCharacter character = new BattleCharacter(card, stats, px, py, false);
         characters.add(character);
-        return true;
+        return character;
     }
 
     /**
