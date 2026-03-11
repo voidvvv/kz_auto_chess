@@ -47,6 +47,7 @@ import com.voidvvv.autochess.utils.RenderConfig;
 import com.voidvvv.autochess.event.GameEventSystem;
 import com.voidvvv.autochess.event.GameEventListener;
 import com.voidvvv.autochess.input.GameInputHandler;
+import com.voidvvv.autochess.ui.GameUIManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -84,6 +85,9 @@ public class GameScreen implements Screen {
     // 事件系统和输入处理器（Phase 1 新增）
     private GameEventSystem gameEventSystem;
     private GameInputHandler gameInputHandler;
+
+    // UI管理器（Phase 2 新增）
+    private GameUIManager gameUIManager;
     private float battleTime;
     private final List<BehaviorTree<BattleUnitBlackboard>> unitTrees = new ArrayList<>();
     private final Map<BattleCharacter, BattleUnitBlackboard> characterMapping = new HashMap<>();
@@ -308,6 +312,10 @@ public class GameScreen implements Screen {
         if (startBattleButton != null) {
             startBattleButton.setVisible(false);
         }
+        // 更新 UI 管理器（Phase 2）
+        if (gameUIManager != null) {
+            gameUIManager.setBattleButtonVisible(false);
+        }
     }
 
     private void loadCharacter(BattleCharacter c) {
@@ -358,6 +366,11 @@ public class GameScreen implements Screen {
         cardShop.setPlayerLevel(playerEconomy.getPlayerLevel());
         if (startBattleButton != null) {
             startBattleButton.setVisible(true);
+        }
+        // 更新 UI 管理器（Phase 2）
+        if (gameUIManager != null) {
+            gameUIManager.setBattleButtonVisible(true);
+            gameUIManager.updateUI();
         }
         this.bbList.clear();
     }
@@ -420,8 +433,10 @@ public class GameScreen implements Screen {
         // 创建输入多路复用器，同时处理Stage、GameInputHandler和相机控制器的输入
         InputMultiplexer multiplexer = new InputMultiplexer();
 
-        // 添加Stage（处理UI按钮点击）
-        multiplexer.addProcessor(stage);
+        // 添加GameUIManager的Stage（处理UI按钮点击）- Phase 2
+        if (gameUIManager != null) {
+            multiplexer.addProcessor(gameUIManager.getStage());
+        }
 
         // 添加GameInputHandler（处理游戏世界输入）
         multiplexer.addProcessor(gameInputHandler);
@@ -456,6 +471,12 @@ public class GameScreen implements Screen {
         gameInputHandler = new GameInputHandler(game, gameEventSystem);
         gameInputHandler.setBattlefield(battlefield);
         gameInputHandler.setPlayerDeck(playerDeck);
+
+        // 初始化 UI 管理器（Phase 2）
+        gameUIManager = new GameUIManager(game, level);
+        gameUIManager.setGameData(battlefield, cardShop, playerDeck, playerEconomy, synergyManager);
+        // 注册 UI 管理器作为事件监听器
+        gameEventSystem.registerListener(gameUIManager);
 
         // 同步游戏阶段到game实例
         game.setGamePhase(phase);
@@ -515,7 +536,10 @@ public class GameScreen implements Screen {
 
         handleInput();
 
-        stage.act(delta);
+        // 更新 UI（Phase 2）
+        if (gameUIManager != null) {
+            gameUIManager.act(delta);
+        }
         cameraController.update(delta);
 
         if (phase == GamePhase.BATTLE) {
@@ -525,18 +549,19 @@ public class GameScreen implements Screen {
         // 绘制游戏世界内容（战场和角色）- 使用游戏世界viewport
         drawWorldContent();
 
-        // 绘制UI内容（商店、卡组、标题）- 使用UI viewport
-        drawUIContent();
+        // 绘制UI内容（Phase 2 - 使用 GameUIManager）
+        if (gameUIManager != null) {
+            gameUIManager.renderCustomUI();
+            gameUIManager.renderDragPreview();
+            gameUIManager.draw();
+        }
 
-        // 绘制拖拽的卡牌/角色
+        // 绘制拖拽的卡牌/角色（保留以兼容旧代码，待移除）
         // 启用混合模式
         Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
         drawDragging();
         Gdx.gl.glDisable(GL20.GL_BLEND);
-
-        // 绘制UI（Scene2D）- 使用UI viewport
-        stage.draw();
     }
 
     private void handleInput() {
@@ -932,7 +957,11 @@ public class GameScreen implements Screen {
         // 更新两个viewport
         game.getViewManagement().update(width, height);
         stage.getViewport().update(width, height, true);
-//        initUI();
+
+        // 更新 UI 管理器（Phase 2）
+        if (gameUIManager != null) {
+            gameUIManager.resize(width, height);
+        }
     }
 
     @Override
@@ -953,6 +982,12 @@ public class GameScreen implements Screen {
 
     @Override
     public void dispose() {
+        // 清理 UI 管理器（Phase 2）
+        if (gameUIManager != null) {
+            gameUIManager.dispose();
+        }
+        gameUIManager = null;
+
         // 清理事件系统和输入处理器（Phase 1）
         if (gameEventSystem != null) {
             gameEventSystem.clear();

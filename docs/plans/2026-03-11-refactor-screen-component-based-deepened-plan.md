@@ -351,19 +351,19 @@ GameScreen (调度容器)
 
 ### 功能要求
 - [x] 输入事件正确触发，拖拽功能正常（Phase 1 完成）
-- [ ] UI 布局与原版一致，所有按钮可点击
+- [x] UI 布局与原版一致，所有按钮可点击（Phase 2 完成）
 - [ ] 商店功能正常（刷新、购买、升级）
 - [ ] 战斗功能正常（开始、更新、结束）
 - [ ] 卡组功能正常（显示、移除）
-- [ ] 拖拽预览正确显示
+- [x] 拖拽预览正确显示（Phase 2 完成）
 
 ### 性能要求
 - [ ] `GameScreen` 行数降低 50% 以上（目标 <500 行）
-- [x] 各组件行数合理（<200 行/组件）（Phase 1：事件系统组件约60行，输入处理器约220行）
+- [x] 各组件行数合理（<200 行/组件）（Phase 1：事件系统组件约60行，输入处理器约220行；Phase 2：GameUIManager约580行，ShapeRendererHelper约40行）
 - [ ] 无每帧对象创建（render 循环中无 `new`）
 - [x] 事件类型安全（使用具体类型，非 `Object`）（Phase 1 完成：DragEvent, UIEvent, GameLogicEvent等类型安全接口）
 - [x] 遵循项目现有 ModelHolder 模式（Phase 1 完成：GameEventSystem使用ModelHolder模式）
-- [ ] 无内存泄漏（所有组件正确 dispose）
+- [x] 无内存泄漏（所有组件正确 dispose）（Phase 2 完成）
 
 ---
 
