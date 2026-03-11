@@ -86,6 +86,17 @@ public class GameUIManager implements GameEventListener {
     // 布局参数
     private int level;
 
+    // UI区域布局参数（与渲染逻辑同步）
+    private float deckX;
+    private float deckY;
+    private float deckWidth;
+    private final float deckHeight = 250;
+
+    private float shopX;
+    private float shopY;
+    private float shopWidth;
+    private final float shopHeight = 200;
+
     public GameUIManager(KzAutoChess game, int level, ButtonCallback buttonCallback) {
         this.game = game;
         this.level = level;
@@ -102,7 +113,25 @@ public class GameUIManager implements GameEventListener {
         this.smallFont = FontUtils.getSmallFont();
 
         // 初始化布局
+        updateLayout();
         createLayout();
+    }
+
+    /**
+     * 更新UI布局参数
+     */
+    public void updateLayout() {
+        float uiWidth = game.getViewManagement().getUIViewport().getWorldWidth();
+
+        // 商店区域布局
+        shopX = 50;
+        shopY = 100;
+        shopWidth = uiWidth * 0.45f;
+
+        // 卡组区域布局
+        deckX = shopX + shopWidth + 10;
+        deckY = 100;
+        deckWidth = uiWidth - deckX - 50;
     }
 
     /**
@@ -412,10 +441,6 @@ public class GameUIManager implements GameEventListener {
         List<Card> shopCards = cardShop.getCurrentShopCards();
 
         // 渲染商店背景
-        float shopX = 50;
-        float shopY = 100;
-        float shopWidth = game.getViewManagement().getUIViewport().getWorldWidth() * 0.45f;
-        float shopHeight = 200;
         shapeRenderer.setAutoShapeType(true);
         shapeRenderer.begin();
         shapeRendererHelper.setShapeType(ShapeRenderer.ShapeType.Filled);
@@ -466,10 +491,6 @@ public class GameUIManager implements GameEventListener {
         List<Card> ownedCards = playerDeck.getAllUniqueCards();
 
         // 渲染卡组背景
-        float deckX = 50 + game.getViewManagement().getUIViewport().getWorldWidth() * 0.45f + 10;
-        float deckY = 100;
-        float deckWidth = game.getViewManagement().getUIViewport().getWorldWidth() - deckX - 50;
-        float deckHeight = 250;
         shapeRenderer.setAutoShapeType(true);
         shapeRenderer.begin();
         shapeRendererHelper.setShapeType(ShapeRenderer.ShapeType.Filled);
@@ -576,7 +597,74 @@ public class GameUIManager implements GameEventListener {
     public void resize(int width, int height) {
         stage.getViewport().update(width, height, true);
         // 重新计算布局参数
+        updateLayout();
         rootTable.invalidate();
+    }
+
+    /**
+     * 获取卡组区域内的卡牌（点击判定）
+     * @param x UI坐标x
+     * @param y UI坐标y
+     * @return 被点击的卡牌，如果没有则返回null
+     */
+    public Card getCardAtDeckPosition(float x, float y) {
+        if (playerDeck == null) return null;
+
+        List<Card> ownedCards = playerDeck.getAllUniqueCards();
+        if (ownedCards.isEmpty()) return null;
+
+        // 使用与渲染相同的布局参数
+        float cardStartX = deckX + 10;
+        float cardStartY = deckY + deckHeight - 40;
+        float deckCardWidth = 100;
+        float deckCardHeight = 130;
+        int cardsPerRow = (int) ((deckWidth - 20) / (deckCardWidth + 10));
+        if (cardsPerRow < 1) cardsPerRow = 1;
+
+        for (int i = 0; i < ownedCards.size(); i++) {
+            int row = i / cardsPerRow;
+            int col = i % cardsPerRow;
+
+            float cardX = cardStartX + col * (deckCardWidth + 10);
+            float cardY = cardStartY - row * (deckCardHeight + 10) - deckCardHeight;
+
+            // 检查点击位置是否在卡牌区域内
+            if (x >= cardX && x <= cardX + deckCardWidth &&
+                y >= cardY && y <= cardY + deckCardHeight) {
+                return ownedCards.get(i);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 获取商店区域内的卡牌（点击判定）
+     * @param x UI坐标x
+     * @param y UI坐标y
+     * @return 被点击的卡牌，如果没有则返回null
+     */
+    public Card getCardAtShopPosition(float x, float y) {
+        if (cardShop == null) return null;
+
+        List<Card> shopCards = cardShop.getCurrentShopCards();
+
+        // 使用与渲染相同的布局参数
+        float cardStartX = shopX + 20;
+        float cardStartY = shopY + 30;
+        float cardWidth = 120;
+        float cardHeight = 160;
+        float cardSpacing = 10;
+
+        for (int i = 0; i < shopCards.size(); i++) {
+            float cardX = cardStartX + i * (cardWidth + cardSpacing);
+            float cardY = cardStartY;
+
+            if (x >= cardX && x <= cardX + cardWidth &&
+                y >= cardY && y <= cardY + cardHeight) {
+                return shopCards.get(i);
+            }
+        }
+        return null;
     }
 
     /**

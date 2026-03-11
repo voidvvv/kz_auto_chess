@@ -657,14 +657,14 @@ public class GameScreen implements Screen, GameUIManager.ButtonCallback {
         }
 
         // 检查是否点击了卡组中的卡牌（使用UI坐标）
-        Card clickedCard = getCardAtDeckPosition(uiX, uiY);
+        Card clickedCard = gameUIManager.getCardAtDeckPosition(uiX, uiY);
         if (clickedCard != null && playerDeck.getCardCount(clickedCard) > 0) {
             draggingCard = clickedCard;
             return;
         }
 
         // 检查是否点击了商店中的卡牌（使用UI坐标）
-        Card shopCard = getCardAtShopPosition(uiX, uiY);
+        Card shopCard = gameUIManager.getCardAtShopPosition(uiX, uiY);
         if (shopCard != null) {
             if (playerEconomy.getGold() >= shopCard.getCost()) {
                 if (cardShop.buyCard(shopCard)) {
