@@ -8,6 +8,7 @@ public class CharacterStats {
     private float cardId;
     private float health;        // 健康值
     private float mana;          // 法力值
+    private float maxMana;       // 魔法值上限（技能系统）
     private float attack;        // 攻击力
     private float defense;       // 防御力
     private float magicPower;    // 魔法强度
@@ -19,6 +20,7 @@ public class CharacterStats {
         this.cardId = cardId;
         this.health = health;
         this.mana = mana;
+        this.maxMana = mana; // 默认maxMana等于mana
         this.attack = attack;
         this.defense = defense;
         this.magicPower = magicPower;
@@ -30,6 +32,7 @@ public class CharacterStats {
     public float getCardId() { return cardId; }
     public float getHealth() { return health; }
     public float getMana() { return mana; }
+    public float getMaxMana() { return maxMana; }
     public float getAttack() { return attack; }
     public float getDefense() { return defense; }
     public float getMagicPower() { return magicPower; }

@@ -1,5 +1,6 @@
 package com.voidvvv.autochess.battle;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.msg.Telegram;
 import com.badlogic.gdx.ai.msg.Telegraph;
 import com.voidvvv.autochess.model.BattleCharacter;
@@ -10,11 +11,15 @@ import com.voidvvv.autochess.manage.ProjectileManager;
 import com.voidvvv.autochess.model.CharacterStats;
 import com.voidvvv.autochess.model.battle.Damage;
 import com.voidvvv.autochess.model.event.DamageEvent;
+import com.voidvvv.autochess.model.Skill;
+import com.voidvvv.autochess.model.SkillType;
 import com.voidvvv.autochess.msg.MessageConstants;
 import com.voidvvv.autochess.sm.machine.BaseStateMachine;
 import com.voidvvv.autochess.sm.machine.StateMachine;
 import com.voidvvv.autochess.sm.state.common.AttackState;
 import com.voidvvv.autochess.sm.state.common.States;
+import com.voidvvv.autochess.model.skill.BasicSkill;
+import com.voidvvv.autochess.model.Card.CardType;
 
 /**
  * 行为树黑板：持有当前单位与战场引用，供寻敌、攻击等任务使用
@@ -24,6 +29,7 @@ public class BattleUnitBlackboard implements Telegraph {
     private final Battlefield battlefield;
     private BattleCharacter target;
     public StateMachine<BattleUnitBlackboard> stateMachine;
+
     /**
      * 当前帧用于攻击冷却判断，由外部每帧更新
      */
@@ -31,13 +37,206 @@ public class BattleUnitBlackboard implements Telegraph {
 
     public boolean couldDamage = false;
 
+    /**
+     * 魔法值组件（内部类，纯数据）
+     * 存储角色的魔法值状态
+     */
+    private static class ManaComponent {
+        float currentMana;
+        float maxMana;
+        float regenRate;     // 每秒恢复量
+        float attackGain;    // 攻击获得量
+
+        ManaComponent(float maxMana, float regenRate, float attackGain) {
+            this.currentMana = 0f;
+            this.maxMana = maxMana;
+            this.regenRate = regenRate;
+            this.attackGain = attackGain;
+        }
+
+        void gainMana(float amount) {
+            this.currentMana += amount;
+            this.currentMana = Math.min(this.currentMana, this.maxMana);
+        }
+
+        void reset() {
+            this.currentMana = 0f;
+        }
+
+        boolean isFull() {
+            return this.currentMana >= this.maxMana;
+        }
+
+        void setCurrentMana(float mana) {
+            this.currentMana = mana;
+        }
+
+        float getCurrentMana() {
+            return currentMana;
+        }
+
+        float getMaxMana() {
+            return maxMana;
+        }
+
+        float getRegenRate() {
+            return regenRate;
+        }
+
+        float getAttackGain() {
+            return attackGain;
+        }
+    }
+
+    /**
+     * 技能实例
+     */
+    private Skill<BattleUnitBlackboard> skill;
+
+    /**
+     * 魔法值组件
+     */
+    private ManaComponent mana;
+
+    // 默认魔法值配置
+    private static final float DEFAULT_MAX_MANA = 100f;
+    private static final float DEFAULT_REGEN_RATE = 10f;    // 每秒恢复10点
+    private static final float DEFAULT_ATTACK_GAIN = 20f;    // 每次攻击获得20点
+
     public BattleUnitBlackboard(BattleCharacter self, Battlefield battlefield) {
         this.self = self;
         this.battlefield = battlefield;
 
+        // 初始化技能和魔法值
+        this.skill = createSkillForCard(self.getCard());
+        this.mana = createManaForCard(self.getCard());
+
         stateMachine = new BaseStateMachine<>();
         stateMachine.setOwn(this);
         stateMachine.setInitialState(States.NORMAL_STATE);
+    }
+
+    /**
+     * 根据卡牌类型创建技能实例
+     */
+    private Skill<BattleUnitBlackboard> createSkillForCard(Card card) {
+        if (card == null) {
+            return new BasicSkill(); // 默认基础技能
+        }
+        SkillType skillType = card.getSkillType();
+        if (skillType == null) {
+            return new BasicSkill(); // 默认基础技能
+        }
+        switch (skillType) {
+            case BASIC:
+                return new BasicSkill();
+            // 未来扩展
+            case HEAL:
+            case AOE:
+            case BUFF:
+            case DEBUFF:
+            default:
+                return new BasicSkill();
+        }
+    }
+
+    /**
+     * 根据卡牌类型创建魔法值组件
+     */
+    private ManaComponent createManaForCard(Card card) {
+        float maxMana = DEFAULT_MAX_MANA;
+        float regenRate = DEFAULT_REGEN_RATE;
+        float attackGain = DEFAULT_ATTACK_GAIN;
+
+        // 优先级：Card配置 > 角色类型默认 > 全局默认
+        if (card != null) {
+            if (card.getMaxMana() > 0) {
+                maxMana = card.getMaxMana();
+            } else {
+                switch (card.getType()) {
+                    case MAGE:
+                        maxMana = 150f;      // 法师上限更高
+                        break;
+                    case WARRIOR:
+                        maxMana = 80f;    // 战士较低
+                        break;
+                    case ARCHER:
+                        maxMana = 100f;      // 弓手中等
+                        break;
+                    case ASSASSIN:
+                        maxMana = 90f;    // 刺客中等
+                        break;
+                    case TANK:
+                        maxMana = 70f;       // 坦克较低
+                        break;
+                    default:
+                        maxMana = DEFAULT_MAX_MANA;
+                }
+            }
+
+        }
+        return new ManaComponent(maxMana, regenRate, attackGain);
+
+    }
+
+    /**
+     * 更新魔法值
+     * @param delta 时间增量（秒）
+     */
+    public void updateMana(float delta) {
+        // 死亡时不更新魔法值
+        if (self.isDead()) {
+            return;
+        }
+        if (mana == null) return;
+        // 时间恢复
+        float timeGain = mana.getRegenRate() * delta;
+        mana.gainMana(timeGain);
+
+        // 检查是否满并尝试释放技能
+        if (mana.isFull()) {
+            tryCastSkill();
+        }
+    }
+
+    /**
+     * 攻击时增加魔法值
+     */
+    public void onAttackGainMana() {
+        if (mana == null) return;
+        mana.gainMana(mana.getAttackGain());
+    }
+
+    /**
+     * 尝试释放技能
+     * 只在空闲状态且魔法值满时释放
+     * @return 是否成功释放技能
+     */
+    public boolean tryCastSkill() {
+        if (mana == null || skill == null) return false;
+        if (!mana.isFull()) return false;
+
+        // 只在空闲状态释放
+        if (!stateMachine.getCurrent().isState(States.NORMAL_STATE)) {
+            return false;
+        }
+
+        try {
+            skill.cast(this);
+            // 释放成功后清零魔法值
+            mana.reset();
+            return true;
+        } catch (Exception e) {
+            Gdx.app.error("SkillSystem", "技能释放失败: " + e.getMessage(), e);
+            return false;
+        }
+    }
+
+    /**
+     * 获取技能实例
+     */
+    public Skill<BattleUnitBlackboard> getSkill() {
+        return skill;
     }
 
     public BattleCharacter getSelf() {
@@ -90,6 +289,7 @@ public class BattleUnitBlackboard implements Telegraph {
         if (this.self.attackCooldown > 0) return;
         this.stateMachine.switchState(States.ATTACK_STATE);
     }
+
     private void onMessageDoAttack(Telegram telegram) {
         if (!couldDamage) return;
 
@@ -116,6 +316,9 @@ public class BattleUnitBlackboard implements Telegraph {
             // 近战攻击者：直接造成伤害
             createDirectDamage(self, target, damage);
         }
+
+        // 攻击成功后增加魔法值
+        onAttackGainMana();
     }
 
     /**
@@ -164,13 +367,43 @@ public class BattleUnitBlackboard implements Telegraph {
         return as.getAttack();
     }
 
-    private void doSomething() {
+    /**
+     * 获取角色魔法值（用于渲染）
+     */
+    public float getCurrentMana() {
+        return mana == null ? 0f : mana.getCurrentMana();
+    }
 
+    /**
+     * 获取魔法值上限（用于渲染）
+     */
+    public float getMaxMana() {
+        return mana == null ? 0f : mana.getMaxMana();
+    }
+
+    /**
+     * 获取魔法值比例（用于渲染）
+     */
+    public float getManaRatio() {
+        if (mana == null || mana.getMaxMana() == 0f) return 0f;
+        return mana.getCurrentMana() / mana.getMaxMana();
     }
 
     public void update(float delta) {
+        // 更新魔法值
+        updateMana(delta);
+
         this.stateMachine.update(delta);
         this.self.attackCooldown -= delta;
         this.self.attackCooldown = Math.max( this.self.attackCooldown, 0);
+    }
+
+    /**
+     * 重置魔法值（用于角色重置时）
+     */
+    public void resetMana() {
+        if (mana != null) {
+            mana.reset();
+        }
     }
 }

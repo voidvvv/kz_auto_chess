@@ -12,7 +12,11 @@
       "Bash(./gradlew clean:*)",
       "Bash(rm:*)",
       "Bash(xargs grep:*)",
-      "Bash(./gradlew compileJava:*)"
+      "Bash(./gradlew compileJava:*)",
+      "Bash(./gradlew test:*)",
+      "Bash(cd core/src/main/java/com/voidvvv/autochess/render && sed -i '31s/ManaBarRenderer\\\\.render\\(shapeRenderer, character\\);/i/ManaBarRenderer\\\\.render\\(shapeRenderer, blackboard\\);' battleCharacterRender.java)",
+      "Bash(java -version 2>&1 && ./gradlew compileJava --no-daemon 2>&1 | tail -30)",
+      "Bash(./gradlew compileJava 2>&1 && echo \"Exit code: $?\")"
     ]
   }
 }
