@@ -44,6 +44,9 @@ import com.voidvvv.autochess.utils.I18N;
 import com.voidvvv.autochess.utils.CameraController;
 import com.voidvvv.autochess.utils.TiledAssetLoader;
 import com.voidvvv.autochess.utils.RenderConfig;
+import com.voidvvv.autochess.event.GameEventSystem;
+import com.voidvvv.autochess.event.GameEventListener;
+import com.voidvvv.autochess.input.GameInputHandler;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -77,6 +80,10 @@ public class GameScreen implements Screen {
     private PlayerEconomy playerEconomy;
     private SynergyManager synergyManager;
     private GamePhase phase = GamePhase.PLACEMENT;
+
+    // 事件系统和输入处理器（Phase 1 新增）
+    private GameEventSystem gameEventSystem;
+    private GameInputHandler gameInputHandler;
     private float battleTime;
     private final List<BehaviorTree<BattleUnitBlackboard>> unitTrees = new ArrayList<>();
     private final Map<BattleCharacter, BattleUnitBlackboard> characterMapping = new HashMap<>();
@@ -289,6 +296,7 @@ public class GameScreen implements Screen {
 
     private void startBattle() {
         phase = GamePhase.BATTLE;
+        game.setGamePhase(phase); // 同步到game实例（Phase 1）
         battleTime = 0;
 //        unitTrees.clear();
         List<Integer> enemyIds = LevelEnemyConfig.getEnemyCardIdsForLevel(level);
@@ -326,6 +334,7 @@ public class GameScreen implements Screen {
 
     private void endBattle() {
         phase = GamePhase.PLACEMENT;
+        game.setGamePhase(phase); // 同步到game实例（Phase 1）
         unitTrees.clear();
 
         // 只移除敌方角色（无论生死），因为我方角色无论生死都会在下一轮复活
@@ -408,21 +417,22 @@ public class GameScreen implements Screen {
     }
 
     private void setupInput() {
-        // 创建输入多路复用器，同时处理Stage和相机控制器的输入
+        // 创建输入多路复用器，同时处理Stage、GameInputHandler和相机控制器的输入
         InputMultiplexer multiplexer = new InputMultiplexer();
 
         // 添加Stage（处理UI按钮点击）
         multiplexer.addProcessor(stage);
 
-        // 添加热键处理器
+        // 添加GameInputHandler（处理游戏世界输入）
+        multiplexer.addProcessor(gameInputHandler);
+
+        // 添加热键和滚轮处理器
         multiplexer.addProcessor(new InputAdapter() {
             @Override
             public boolean keyDown(int keycode) {
-                // F5键切换渲染模式
-                if (keycode == com.badlogic.gdx.Input.Keys.F5) {
-                    RenderConfig.toggleRendering();
-                    String mode = RenderConfig.USE_TILED_RENDERING ? "Tiled渲染" : "几何渲染";
-                    Gdx.app.log("GameScreen", "渲染模式已切换: " + mode);
+                // ESC键返回关卡选择界面
+                if (keycode == com.badlogic.gdx.Input.Keys.ESCAPE) {
+                    game.setScreen(new LevelSelectScreen(game));
                     return true;
                 }
                 return false;
@@ -441,6 +451,15 @@ public class GameScreen implements Screen {
 
     @Override
     public void show() {
+        // 初始化事件系统和输入处理器（Phase 1）
+        gameEventSystem = new GameEventSystem();
+        gameInputHandler = new GameInputHandler(game, gameEventSystem);
+        gameInputHandler.setBattlefield(battlefield);
+        gameInputHandler.setPlayerDeck(playerDeck);
+
+        // 同步游戏阶段到game实例
+        game.setGamePhase(phase);
+
         setupInput();
         battleCharacterUpdater = new BattleCharacterUpdater();
 
@@ -488,8 +507,13 @@ public class GameScreen implements Screen {
         Gdx.gl.glClearColor(0.05f, 0.1f, 0.15f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        handleInput();
+        // 分发游戏事件（Phase 1）
+        if (gameEventSystem != null) {
+            gameEventSystem.dispatch();
+            gameEventSystem.clear();
+        }
 
+        handleInput();
 
         stage.act(delta);
         cameraController.update(delta);
@@ -497,7 +521,6 @@ public class GameScreen implements Screen {
         if (phase == GamePhase.BATTLE) {
             updateBattle(delta);
         }
-
 
         // 绘制游戏世界内容（战场和角色）- 使用游戏世界viewport
         drawWorldContent();
@@ -922,10 +945,21 @@ public class GameScreen implements Screen {
 
     @Override
     public void hide() {
+        // 取消拖拽（如果正在进行）
+        if (gameInputHandler != null) {
+            gameInputHandler.cancelDrag();
+        }
     }
 
     @Override
     public void dispose() {
+        // 清理事件系统和输入处理器（Phase 1）
+        if (gameEventSystem != null) {
+            gameEventSystem.clear();
+        }
+        gameInputHandler = null;
+        gameEventSystem = null;
+
         stage.dispose();
         if (skin != null) {
             skin.dispose();

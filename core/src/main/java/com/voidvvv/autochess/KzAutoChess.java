@@ -6,6 +6,7 @@ import com.voidvvv.autochess.screens.StartScreen;
 import com.voidvvv.autochess.utils.FontUtils;
 import com.voidvvv.autochess.utils.I18N;
 import com.voidvvv.autochess.utils.ViewManagement;
+import com.voidvvv.autochess.model.GamePhase;
 
 /**
  * 自走棋游戏主类
@@ -13,6 +14,7 @@ import com.voidvvv.autochess.utils.ViewManagement;
 public class KzAutoChess extends Game {
     private SpriteBatch batch;
     private ViewManagement viewManagement;
+    private GamePhase gamePhase = GamePhase.PLACEMENT;
 
     public KzAutoChess() {
         viewManagement = new ViewManagement();
@@ -20,6 +22,14 @@ public class KzAutoChess extends Game {
 
     public ViewManagement getViewManagement() {
         return viewManagement;
+    }
+
+    public GamePhase getGamePhase() {
+        return gamePhase;
+    }
+
+    public void setGamePhase(GamePhase gamePhase) {
+        this.gamePhase = gamePhase;
     }
 
     @Override
