@@ -11,4 +11,10 @@ public class NormalState extends AbstractState {
     public String name() {
         return "normal";
     }
+
+    @Override
+    public void onUpdate(BattleUnitBlackboard entity, float delta) {
+        // 尝试释放技能（当魔法值满且在空闲状态时）
+        entity.tryCastSkill();
+    }
 }

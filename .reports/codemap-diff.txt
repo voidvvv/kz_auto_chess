@@ -1,0 +1,50 @@
+# Codemap Generation Report
+Generated: 2026-03-12
+
+## Files Scanned
+- ~120 Java source files
+- ~20 configuration files
+- ~20 markdown files
+
+## Codemaps Created
+1. docs/CODEMAPS/architecture.md (new)
+2. docs/CODEMAPS/battle-system.md (new)
+3. docs/CODEMAPS/ui-system.md (new)
+4. docs/CODEMAPS/data-models.md (new)
+5. docs/CODEMAPS/index.md (new)
+
+## Project Structure Detected
+- Type: LibGDX game (auto-battler)
+- Language: Java 25
+- Build: Gradle
+- Modules: core (main logic), lwjgl3 (desktop launcher)
+
+## Key Packages
+- battle/ - Combat AI & blackboards
+- event/ - Event system
+- input/ - Input handling
+- logic/ - Game rules
+- manage/ - Managers
+- model/ - Data models
+- render/ - Rendering
+- screens/ - Game screens
+- sm/ - State machine
+- ui/ - UI components
+- updater/ - Update logic
+- utils/ - Utilities
+
+## Dependencies
+- LibGDX 1.14.0
+- Ashley (ECS)
+- Box2D (Physics)
+- LibGDX AI (Behavior trees)
+- FreeType (Text)
+
+## Stale Files Warning
+- No previous codemaps found (first generation)
+
+## Recent Changes (inferred from recent commits)
+- GameUIManager refactoring (button callbacks)
+- Deck card click detection fix
+- Screen component-based refactoring (Phase 2)
+- Combat skill system addition

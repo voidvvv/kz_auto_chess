@@ -44,6 +44,10 @@ import com.voidvvv.autochess.utils.I18N;
 import com.voidvvv.autochess.utils.CameraController;
 import com.voidvvv.autochess.utils.TiledAssetLoader;
 import com.voidvvv.autochess.utils.RenderConfig;
+import com.voidvvv.autochess.event.GameEventSystem;
+import com.voidvvv.autochess.event.GameEventListener;
+import com.voidvvv.autochess.input.GameInputHandler;
+import com.voidvvv.autochess.ui.GameUIManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,7 +58,7 @@ import java.util.Map;
  * 游戏运行界面（重构版，使用Scene2D）
  * 包含选卡/购卡、刷新功能、战场和卡组管理
  */
-public class GameScreen implements Screen {
+public class GameScreen implements Screen, GameUIManager.ButtonCallback {
     private KzAutoChess game;
     private int level;
 
@@ -73,10 +77,20 @@ public class GameScreen implements Screen {
     private BitmapFont titleFont;
     private CameraController cameraController;
 
+    // 临时GlyphLayout实例（用于避免每帧创建新对象，减少GC压力）
+    private final GlyphLayout tempGlyphLayout = new GlyphLayout();
+
     // 游戏状态
     private PlayerEconomy playerEconomy;
     private SynergyManager synergyManager;
     private GamePhase phase = GamePhase.PLACEMENT;
+
+    // 事件系统和输入处理器（Phase 1 新增）
+    private GameEventSystem gameEventSystem;
+    private GameInputHandler gameInputHandler;
+
+    // UI管理器（Phase 2 新增）
+    private GameUIManager gameUIManager;
     private float battleTime;
     private final List<BehaviorTree<BattleUnitBlackboard>> unitTrees = new ArrayList<>();
     private final Map<BattleCharacter, BattleUnitBlackboard> characterMapping = new HashMap<>();
@@ -164,7 +178,7 @@ public class GameScreen implements Screen {
         this.cameraController = new CameraController(worldCamera, worldWidth, worldHeight);
 
         initUI();
-        setupInput();
+//        setupInput();
 
         // 验证字体是否正确加载
         Gdx.app.log("GameScreen", "Button font loaded: " + (FontUtils.getDefaultFont() != null));
@@ -289,6 +303,7 @@ public class GameScreen implements Screen {
 
     private void startBattle() {
         phase = GamePhase.BATTLE;
+        game.setGamePhase(phase); // 同步到game实例（Phase 1）
         battleTime = 0;
 //        unitTrees.clear();
         List<Integer> enemyIds = LevelEnemyConfig.getEnemyCardIdsForLevel(level);
@@ -299,6 +314,10 @@ public class GameScreen implements Screen {
         }
         if (startBattleButton != null) {
             startBattleButton.setVisible(false);
+        }
+        // 更新 UI 管理器（Phase 2）
+        if (gameUIManager != null) {
+            gameUIManager.setBattleButtonVisible(false);
         }
     }
 
@@ -326,6 +345,7 @@ public class GameScreen implements Screen {
 
     private void endBattle() {
         phase = GamePhase.PLACEMENT;
+        game.setGamePhase(phase); // 同步到game实例（Phase 1）
         unitTrees.clear();
 
         // 只移除敌方角色（无论生死），因为我方角色无论生死都会在下一轮复活
@@ -350,8 +370,28 @@ public class GameScreen implements Screen {
         if (startBattleButton != null) {
             startBattleButton.setVisible(true);
         }
+        // 更新 UI 管理器（Phase 2）
+        if (gameUIManager != null) {
+            gameUIManager.setBattleButtonVisible(true);
+            gameUIManager.updateUI();
+        }
         this.bbList.clear();
     }
+
+    // ===== GameUIManager.ButtonCallback 接口实现 =====
+
+    @Override
+    public void onBackButtonClicked() {
+        game.setScreen(new LevelSelectScreen(game));
+    }
+
+    @Override
+    public void onStartBattleButtonClicked() {
+        if (phase != GamePhase.PLACEMENT) return;
+        startBattle();
+    }
+
+    // =============================================
 
     private void updateBattle(float delta) {
         battleTime += delta;
@@ -408,21 +448,24 @@ public class GameScreen implements Screen {
     }
 
     private void setupInput() {
-        // 创建输入多路复用器，同时处理Stage和相机控制器的输入
+        // 创建输入多路复用器，同时处理Stage、GameInputHandler和相机控制器的输入
         InputMultiplexer multiplexer = new InputMultiplexer();
 
-        // 添加Stage（处理UI按钮点击）
-        multiplexer.addProcessor(stage);
+        // 添加GameUIManager的Stage（处理UI按钮点击）- Phase 2
+        if (gameUIManager != null) {
+            multiplexer.addProcessor(gameUIManager.getStage());
+        }
 
-        // 添加热键处理器
+        // 添加GameInputHandler（处理游戏世界输入）
+        multiplexer.addProcessor(gameInputHandler);
+
+        // 添加热键和滚轮处理器
         multiplexer.addProcessor(new InputAdapter() {
             @Override
             public boolean keyDown(int keycode) {
-                // F5键切换渲染模式
-                if (keycode == com.badlogic.gdx.Input.Keys.F5) {
-                    RenderConfig.toggleRendering();
-                    String mode = RenderConfig.USE_TILED_RENDERING ? "Tiled渲染" : "几何渲染";
-                    Gdx.app.log("GameScreen", "渲染模式已切换: " + mode);
+                // ESC键返回关卡选择界面
+                if (keycode == com.badlogic.gdx.Input.Keys.ESCAPE) {
+                    game.setScreen(new LevelSelectScreen(game));
                     return true;
                 }
                 return false;
@@ -441,6 +484,21 @@ public class GameScreen implements Screen {
 
     @Override
     public void show() {
+        // 初始化事件系统和输入处理器（Phase 1）
+        gameEventSystem = new GameEventSystem();
+        gameInputHandler = new GameInputHandler(game, gameEventSystem);
+        gameInputHandler.setBattlefield(battlefield);
+        gameInputHandler.setPlayerDeck(playerDeck);
+
+        // 初始化 UI 管理器（Phase 2）
+        gameUIManager = new GameUIManager(game, level, this);
+        gameUIManager.setGameData(battlefield, cardShop, playerDeck, playerEconomy, synergyManager);
+        // 注册 UI 管理器作为事件监听器
+        gameEventSystem.registerListener(gameUIManager);
+
+        // 同步游戏阶段到game实例
+        game.setGamePhase(phase);
+
         setupInput();
         battleCharacterUpdater = new BattleCharacterUpdater();
 
@@ -488,32 +546,40 @@ public class GameScreen implements Screen {
         Gdx.gl.glClearColor(0.05f, 0.1f, 0.15f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+        // 分发游戏事件（Phase 1）
+        if (gameEventSystem != null) {
+            gameEventSystem.dispatch();
+            gameEventSystem.clear();
+        }
+
         handleInput();
 
-
-        stage.act(delta);
+        // 更新 UI（Phase 2）
+        if (gameUIManager != null) {
+            gameUIManager.act(delta);
+        }
         cameraController.update(delta);
 
         if (phase == GamePhase.BATTLE) {
             updateBattle(delta);
         }
 
-
         // 绘制游戏世界内容（战场和角色）- 使用游戏世界viewport
         drawWorldContent();
 
-        // 绘制UI内容（商店、卡组、标题）- 使用UI viewport
-        drawUIContent();
+        // 绘制UI内容（Phase 2 - 使用 GameUIManager）
+        if (gameUIManager != null) {
+            gameUIManager.renderCustomUI();
+            gameUIManager.renderDragPreview();
+            gameUIManager.draw();
+        }
 
-        // 绘制拖拽的卡牌/角色
+        // 绘制拖拽的卡牌/角色（保留以兼容旧代码，待移除）
         // 启用混合模式
         Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
         drawDragging();
         Gdx.gl.glDisable(GL20.GL_BLEND);
-
-        // 绘制UI（Scene2D）- 使用UI viewport
-        stage.draw();
     }
 
     private void handleInput() {
@@ -591,14 +657,14 @@ public class GameScreen implements Screen {
         }
 
         // 检查是否点击了卡组中的卡牌（使用UI坐标）
-        Card clickedCard = getCardAtDeckPosition(uiX, uiY);
+        Card clickedCard = gameUIManager.getCardAtDeckPosition(uiX, uiY);
         if (clickedCard != null && playerDeck.getCardCount(clickedCard) > 0) {
             draggingCard = clickedCard;
             return;
         }
 
         // 检查是否点击了商店中的卡牌（使用UI坐标）
-        Card shopCard = getCardAtShopPosition(uiX, uiY);
+        Card shopCard = gameUIManager.getCardAtShopPosition(uiX, uiY);
         if (shopCard != null) {
             if (playerEconomy.getGold() >= shopCard.getCost()) {
                 if (cardShop.buyCard(shopCard)) {
@@ -627,7 +693,7 @@ public class GameScreen implements Screen {
             projectileRenderer.render(projectileManager, Gdx.graphics.getDeltaTime());
         }
 
-        shapeRenderer.end();
+//        shapeRenderer.end();
         damageLineRender.render(shapeRenderer, game.getBatch());
 
 
@@ -637,6 +703,12 @@ public class GameScreen implements Screen {
             BattleCharacterRender.render(game.getBatch(), battleUnitBlackboard.getSelf());
         }
         game.getBatch().end();
+        shapeRenderer.setAutoShapeType(true);
+        shapeRenderer.begin();
+        for (BattleUnitBlackboard battleUnitBlackboard : bbList) {
+            BattleCharacterRender.render(shapeRenderer, battleUnitBlackboard);
+        }
+        shapeRenderer.end();
 
         // 渲染每个角色的状态
         renderBattleCharacterState();
@@ -669,14 +741,14 @@ public class GameScreen implements Screen {
         titleFont.setColor(Color.WHITE);
         titleFont.getData().setScale(1.0f);
         String titleText = I18N.format("stage_level", level);
-        GlyphLayout titleLayout = new GlyphLayout(titleFont, titleText);
+        tempGlyphLayout.setText(titleFont, titleText);
         float uiHeight = game.getViewManagement().getUIViewport().getWorldHeight();
-        titleFont.draw(game.getBatch(), titleLayout, 50, uiHeight - 30);
+        titleFont.draw(game.getBatch(), tempGlyphLayout, 50, uiHeight - 30);
 
         String infoText = playerEconomy.getEconomyInfoString();
-        GlyphLayout infoLayout = new GlyphLayout(titleFont, infoText);
+        tempGlyphLayout.setText(titleFont, infoText);
         float uiWidth = game.getViewManagement().getUIViewport().getWorldWidth();
-        titleFont.draw(game.getBatch(), infoLayout, uiWidth - infoLayout.width - 50, uiHeight - 30);
+        titleFont.draw(game.getBatch(), tempGlyphLayout, uiWidth - tempGlyphLayout.width - 50, uiHeight - 30);
 
         // 绘制羁绊信息
         BitmapFont smallFont = FontUtils.getSmallFont();
@@ -687,8 +759,8 @@ public class GameScreen implements Screen {
         String[] lines = synergyInfo.split("\n");
         int maxLines = 3;
         for (int i = 0; i < Math.min(lines.length, maxLines); i++) {
-            GlyphLayout lineLayout = new GlyphLayout(smallFont, lines[i]);
-            smallFont.draw(game.getBatch(), lineLayout, uiWidth - lineLayout.width - 50, uiHeight - 60 - i * 20);
+            tempGlyphLayout.setText(smallFont, lines[i]);
+            smallFont.draw(game.getBatch(), tempGlyphLayout, uiWidth - tempGlyphLayout.width - 50, uiHeight - 60 - i * 20);
         }
 
         game.getBatch().end();
@@ -726,8 +798,8 @@ public class GameScreen implements Screen {
         BitmapFont font = FontUtils.getSmallFont();
         font.setColor(Color.YELLOW);
         font.getData().setScale(1.0f);
-        GlyphLayout titleLayout = new GlyphLayout(font, I18N.get("shop"));
-        font.draw(game.getBatch(), titleLayout, shopAreaX + 10, shopAreaY + shopAreaHeight - 10);
+        tempGlyphLayout.setText(font, I18N.get("shop"));
+        font.draw(game.getBatch(), tempGlyphLayout, shopAreaX + 10, shopAreaY + shopAreaHeight - 10);
         game.getBatch().end();
 
         // 绘制商店中的卡牌
@@ -771,8 +843,8 @@ public class GameScreen implements Screen {
         font.setColor(Color.CYAN);
         font.getData().setScale(1.0f);
         String deckTitle = I18N.format("deck", playerDeck.getTotalCardCount());
-        GlyphLayout titleLayout = new GlyphLayout(font, deckTitle);
-        font.draw(game.getBatch(), titleLayout, deckAreaX + 10, deckAreaY + deckAreaHeight - 10);
+        tempGlyphLayout.setText(font, deckTitle);
+        font.draw(game.getBatch(), tempGlyphLayout, deckAreaX + 10, deckAreaY + deckAreaHeight - 10);
         game.getBatch().end();
 
         // 绘制卡组中的卡牌
@@ -780,10 +852,10 @@ public class GameScreen implements Screen {
         if (ownedCards.isEmpty()) {
             game.getBatch().begin();
             font.setColor(Color.GRAY);
-            GlyphLayout emptyLayout = new GlyphLayout(font, I18N.get("deck_empty"));
-            float emptyX = deckAreaX + (deckAreaWidth - emptyLayout.width) / 2;
+            tempGlyphLayout.setText(font, I18N.get("deck_empty"));
+            float emptyX = deckAreaX + (deckAreaWidth - tempGlyphLayout.width) / 2;
             float emptyY = deckAreaY + deckAreaHeight / 2;
-            font.draw(game.getBatch(), emptyLayout, emptyX, emptyY);
+            font.draw(game.getBatch(), tempGlyphLayout, emptyX, emptyY);
             game.getBatch().end();
             return;
         }
@@ -903,7 +975,11 @@ public class GameScreen implements Screen {
         // 更新两个viewport
         game.getViewManagement().update(width, height);
         stage.getViewport().update(width, height, true);
-//        initUI();
+
+        // 更新 UI 管理器（Phase 2）
+        if (gameUIManager != null) {
+            gameUIManager.resize(width, height);
+        }
     }
 
     @Override
@@ -916,10 +992,27 @@ public class GameScreen implements Screen {
 
     @Override
     public void hide() {
+        // 取消拖拽（如果正在进行）
+        if (gameInputHandler != null) {
+            gameInputHandler.cancelDrag();
+        }
     }
 
     @Override
     public void dispose() {
+        // 清理 UI 管理器（Phase 2）
+        if (gameUIManager != null) {
+            gameUIManager.dispose();
+        }
+        gameUIManager = null;
+
+        // 清理事件系统和输入处理器（Phase 1）
+        if (gameEventSystem != null) {
+            gameEventSystem.clear();
+        }
+        gameInputHandler = null;
+        gameEventSystem = null;
+
         stage.dispose();
         if (skin != null) {
             skin.dispose();
