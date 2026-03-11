@@ -26,6 +26,7 @@ import com.voidvvv.autochess.model.PlayerEconomy;
 import com.voidvvv.autochess.logic.SynergyManager;
 import com.voidvvv.autochess.utils.FontUtils;
 import com.voidvvv.autochess.utils.I18N;
+import com.voidvvv.autochess.logic.CardUpgradeLogic;
 
 import java.util.List;
 
@@ -45,6 +46,9 @@ public class GameUIManager implements GameEventListener {
     // UI 字体
     private BitmapFont titleFont;
     private BitmapFont smallFont;
+
+    // 临时GlyphLayout实例（用于避免每帧创建新对象，减少GC压力）
+    private final GlyphLayout tempGlyphLayout = new GlyphLayout();
 
     // UI 布局 Tables
     private Table rootTable;
@@ -127,7 +131,7 @@ public class GameUIManager implements GameEventListener {
         table.top().left().pad(10);
 
         // 背景色
-        table.setBackground(skin.getDrawable("default-pane"));
+//        table.setBackground(skin.getDrawable("default-pane"));
 
         // 创建按钮
         createHeaderButtons(table);
@@ -195,11 +199,7 @@ public class GameUIManager implements GameEventListener {
         Table table = new Table();
         table.top().left().pad(10);
 
-        // 标题
-        BitmapFont font = FontUtils.getSmallFont();
-        font.setColor(Color.YELLOW);
-        font.getData().setScale(1.0f);
-        GlyphLayout titleLayout = new GlyphLayout(font, I18N.get("shop"));
+        // 标题在renderShopContent()方法中动态渲染，无需此处创建GlyphLayout
 
         // 使用 Label 显示标题（Scene2D 方式）
         table.top();
@@ -365,15 +365,15 @@ public class GameUIManager implements GameEventListener {
         titleFont.getData().setScale(1.0f);
 
         String titleText = I18N.format("stage_level", level);
-        GlyphLayout titleLayout = new GlyphLayout(titleFont, titleText);
+        tempGlyphLayout.setText(titleFont, titleText);
         float uiHeight = game.getViewManagement().getUIViewport().getWorldHeight();
-        titleFont.draw(game.getBatch(), titleLayout, 50, uiHeight - 30);
+        titleFont.draw(game.getBatch(), tempGlyphLayout, 50, uiHeight - 30);
 
         if (playerEconomy != null) {
             String infoText = playerEconomy.getEconomyInfoString();
-            GlyphLayout infoLayout = new GlyphLayout(titleFont, infoText);
+            tempGlyphLayout.setText(titleFont, infoText);
             float uiWidth = game.getViewManagement().getUIViewport().getWorldWidth();
-            titleFont.draw(game.getBatch(), infoLayout, uiWidth - infoLayout.width - 50, uiHeight - 30);
+            titleFont.draw(game.getBatch(), tempGlyphLayout, uiWidth - tempGlyphLayout.width - 50, uiHeight - 30);
         }
 
         // 渲染羁绊信息
@@ -385,8 +385,8 @@ public class GameUIManager implements GameEventListener {
             int maxLines = 3;
             float uiWidth = game.getViewManagement().getUIViewport().getWorldWidth();
             for (int i = 0; i < Math.min(lines.length, maxLines); i++) {
-                GlyphLayout lineLayout = new GlyphLayout(smallFont, lines[i]);
-                smallFont.draw(game.getBatch(), lineLayout, uiWidth - lineLayout.width - 50, uiHeight - 60 - i * 20);
+                tempGlyphLayout.setText(smallFont, lines[i]);
+                smallFont.draw(game.getBatch(), tempGlyphLayout, uiWidth - tempGlyphLayout.width - 50, uiHeight - 60 - i * 20);
             }
         }
 
@@ -406,7 +406,8 @@ public class GameUIManager implements GameEventListener {
         float shopY = 100;
         float shopWidth = game.getViewManagement().getUIViewport().getWorldWidth() * 0.45f;
         float shopHeight = 200;
-
+        shapeRenderer.setAutoShapeType(true);
+        shapeRenderer.begin();
         shapeRendererHelper.setShapeType(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setColor(0.2f, 0.2f, 0.3f, 1);
         shapeRenderer.rect(shopX, shopY, shopWidth, shopHeight);
@@ -414,14 +415,14 @@ public class GameUIManager implements GameEventListener {
         shapeRendererHelper.setShapeType(ShapeRenderer.ShapeType.Line);
         shapeRenderer.setColor(Color.WHITE);
         shapeRenderer.rect(shopX, shopY, shopWidth, shopHeight);
-
+        shapeRenderer.end();
         // 渲染商店标题
         game.getBatch().begin();
         BitmapFont font = FontUtils.getSmallFont();
         font.setColor(Color.YELLOW);
         font.getData().setScale(1.0f);
-        GlyphLayout titleLayout = new GlyphLayout(font, I18N.get("shop"));
-        font.draw(game.getBatch(), titleLayout, shopX + 10, shopY + shopHeight - 10);
+        tempGlyphLayout.setText(font, I18N.get("shop"));
+        font.draw(game.getBatch(), tempGlyphLayout, shopX + 10, shopY + shopHeight - 10);
         game.getBatch().end();
 
         // 渲染卡牌
@@ -459,7 +460,8 @@ public class GameUIManager implements GameEventListener {
         float deckY = 100;
         float deckWidth = game.getViewManagement().getUIViewport().getWorldWidth() - deckX - 50;
         float deckHeight = 250;
-
+        shapeRenderer.setAutoShapeType(true);
+        shapeRenderer.begin();
         shapeRendererHelper.setShapeType(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setColor(0.15f, 0.2f, 0.25f, 1);
         shapeRenderer.rect(deckX, deckY, deckWidth, deckHeight);
@@ -467,25 +469,25 @@ public class GameUIManager implements GameEventListener {
         shapeRendererHelper.setShapeType(ShapeRenderer.ShapeType.Line);
         shapeRenderer.setColor(Color.WHITE);
         shapeRenderer.rect(deckX, deckY, deckWidth, deckHeight);
-
+        shapeRenderer.end();
         // 渲染标题
         game.getBatch().begin();
         BitmapFont font = FontUtils.getSmallFont();
         font.setColor(Color.CYAN);
         font.getData().setScale(1.0f);
         String deckTitle = I18N.format("deck", playerDeck.getTotalCardCount());
-        GlyphLayout titleLayout = new GlyphLayout(font, deckTitle);
-        font.draw(game.getBatch(), titleLayout, deckX + 10, deckY + deckHeight - 10);
+        tempGlyphLayout.setText(font, deckTitle);
+        font.draw(game.getBatch(), tempGlyphLayout, deckX + 10, deckY + deckHeight - 10);
         game.getBatch().end();
 
         // 空卡组提示
         if (ownedCards.isEmpty()) {
             game.getBatch().begin();
             font.setColor(Color.GRAY);
-            GlyphLayout emptyLayout = new GlyphLayout(font, I18N.get("deck_empty"));
-            float emptyX = deckX + (deckWidth - emptyLayout.width) / 2;
+            tempGlyphLayout.setText(font, I18N.get("deck_empty"));
+            float emptyX = deckX + (deckWidth - tempGlyphLayout.width) / 2;
             float emptyY = deckY + deckHeight / 2;
-            font.draw(game.getBatch(), emptyLayout, emptyX, emptyY);
+            font.draw(game.getBatch(), tempGlyphLayout, emptyX, emptyY);
             game.getBatch().end();
             return;
         }
@@ -525,8 +527,7 @@ public class GameUIManager implements GameEventListener {
      * 检查卡牌是否可升级
      */
     private boolean isCardUpgradable(Card card) {
-        // TODO: 实现 CardUpgradeLogic.canUpgradeCard
-        return false;
+        return CardUpgradeLogic.canUpgradeCard(playerDeck, card);
     }
 
     /**
@@ -538,7 +539,7 @@ public class GameUIManager implements GameEventListener {
             DragMovedEvent dragMovedEvent = (DragMovedEvent) event;
             updateDragState(draggingObject, dragMovedEvent.getX(), dragMovedEvent.getY(), true);
         }
-        // TODO: 处理其他事件类型
+        // 未来可在此处处理其他事件类型（如拖拽结束、放置事件等）
     }
 
     /**

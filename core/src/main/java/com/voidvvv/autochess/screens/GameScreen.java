@@ -77,6 +77,9 @@ public class GameScreen implements Screen {
     private BitmapFont titleFont;
     private CameraController cameraController;
 
+    // 临时GlyphLayout实例（用于避免每帧创建新对象，减少GC压力）
+    private final GlyphLayout tempGlyphLayout = new GlyphLayout();
+
     // 游戏状态
     private PlayerEconomy playerEconomy;
     private SynergyManager synergyManager;
@@ -723,14 +726,14 @@ public class GameScreen implements Screen {
         titleFont.setColor(Color.WHITE);
         titleFont.getData().setScale(1.0f);
         String titleText = I18N.format("stage_level", level);
-        GlyphLayout titleLayout = new GlyphLayout(titleFont, titleText);
+        tempGlyphLayout.setText(titleFont, titleText);
         float uiHeight = game.getViewManagement().getUIViewport().getWorldHeight();
-        titleFont.draw(game.getBatch(), titleLayout, 50, uiHeight - 30);
+        titleFont.draw(game.getBatch(), tempGlyphLayout, 50, uiHeight - 30);
 
         String infoText = playerEconomy.getEconomyInfoString();
-        GlyphLayout infoLayout = new GlyphLayout(titleFont, infoText);
+        tempGlyphLayout.setText(titleFont, infoText);
         float uiWidth = game.getViewManagement().getUIViewport().getWorldWidth();
-        titleFont.draw(game.getBatch(), infoLayout, uiWidth - infoLayout.width - 50, uiHeight - 30);
+        titleFont.draw(game.getBatch(), tempGlyphLayout, uiWidth - tempGlyphLayout.width - 50, uiHeight - 30);
 
         // 绘制羁绊信息
         BitmapFont smallFont = FontUtils.getSmallFont();
@@ -741,8 +744,8 @@ public class GameScreen implements Screen {
         String[] lines = synergyInfo.split("\n");
         int maxLines = 3;
         for (int i = 0; i < Math.min(lines.length, maxLines); i++) {
-            GlyphLayout lineLayout = new GlyphLayout(smallFont, lines[i]);
-            smallFont.draw(game.getBatch(), lineLayout, uiWidth - lineLayout.width - 50, uiHeight - 60 - i * 20);
+            tempGlyphLayout.setText(smallFont, lines[i]);
+            smallFont.draw(game.getBatch(), tempGlyphLayout, uiWidth - tempGlyphLayout.width - 50, uiHeight - 60 - i * 20);
         }
 
         game.getBatch().end();
@@ -780,8 +783,8 @@ public class GameScreen implements Screen {
         BitmapFont font = FontUtils.getSmallFont();
         font.setColor(Color.YELLOW);
         font.getData().setScale(1.0f);
-        GlyphLayout titleLayout = new GlyphLayout(font, I18N.get("shop"));
-        font.draw(game.getBatch(), titleLayout, shopAreaX + 10, shopAreaY + shopAreaHeight - 10);
+        tempGlyphLayout.setText(font, I18N.get("shop"));
+        font.draw(game.getBatch(), tempGlyphLayout, shopAreaX + 10, shopAreaY + shopAreaHeight - 10);
         game.getBatch().end();
 
         // 绘制商店中的卡牌
@@ -825,8 +828,8 @@ public class GameScreen implements Screen {
         font.setColor(Color.CYAN);
         font.getData().setScale(1.0f);
         String deckTitle = I18N.format("deck", playerDeck.getTotalCardCount());
-        GlyphLayout titleLayout = new GlyphLayout(font, deckTitle);
-        font.draw(game.getBatch(), titleLayout, deckAreaX + 10, deckAreaY + deckAreaHeight - 10);
+        tempGlyphLayout.setText(font, deckTitle);
+        font.draw(game.getBatch(), tempGlyphLayout, deckAreaX + 10, deckAreaY + deckAreaHeight - 10);
         game.getBatch().end();
 
         // 绘制卡组中的卡牌
@@ -834,10 +837,10 @@ public class GameScreen implements Screen {
         if (ownedCards.isEmpty()) {
             game.getBatch().begin();
             font.setColor(Color.GRAY);
-            GlyphLayout emptyLayout = new GlyphLayout(font, I18N.get("deck_empty"));
-            float emptyX = deckAreaX + (deckAreaWidth - emptyLayout.width) / 2;
+            tempGlyphLayout.setText(font, I18N.get("deck_empty"));
+            float emptyX = deckAreaX + (deckAreaWidth - tempGlyphLayout.width) / 2;
             float emptyY = deckAreaY + deckAreaHeight / 2;
-            font.draw(game.getBatch(), emptyLayout, emptyX, emptyY);
+            font.draw(game.getBatch(), tempGlyphLayout, emptyX, emptyY);
             game.getBatch().end();
             return;
         }
