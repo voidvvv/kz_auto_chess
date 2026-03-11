@@ -171,7 +171,7 @@ public class GameScreen implements Screen {
         this.cameraController = new CameraController(worldCamera, worldWidth, worldHeight);
 
         initUI();
-        setupInput();
+//        setupInput();
 
         // 验证字体是否正确加载
         Gdx.app.log("GameScreen", "Button font loaded: " + (FontUtils.getDefaultFont() != null));
