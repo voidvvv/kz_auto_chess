@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.voidvvv.autochess.manage.RenderDataManager;
 import com.voidvvv.autochess.model.BattleCharacter;
+import com.voidvvv.autochess.utils.TiledAssetLoader;
 
 /**
  * 使用Tiled纹理渲染角色
@@ -13,12 +14,12 @@ public class TiledBattleCharacterRender {
     /**
      * 渲染角色（正常状态）
      */
-    public static void render(SpriteBatch batch, BattleCharacter character, RenderDataManager renderDataManager) {
-        if (character == null || renderDataManager == null || !renderDataManager.hasCharacterTexture(character)) {
+    public static void render(SpriteBatch batch, BattleCharacter character) {
+        if (character == null) {
             return;
         }
 
-        TextureRegion texture = renderDataManager.getCharacterTexture(character);
+        TextureRegion texture = TiledAssetLoader.getTexture(character.getCard().getTiledResourceKey());
         if (texture == null) return;
 
         float x = character.getX();
@@ -41,12 +42,12 @@ public class TiledBattleCharacterRender {
     /**
      * 渲染角色（带透明度）
      */
-    public static void renderWithAlpha(SpriteBatch batch, BattleCharacter character, float alpha, RenderDataManager renderDataManager) {
-        if (character == null || renderDataManager == null || !renderDataManager.hasCharacterTexture(character)) {
+    public static void renderWithAlpha(SpriteBatch batch, BattleCharacter character, float alpha) {
+        if (character == null) {
             return;
         }
 
-        TextureRegion texture = renderDataManager.getCharacterTexture(character);
+        TextureRegion texture = TiledAssetLoader.getTexture(character.getCard().getTiledResourceKey());
         if (texture == null) return;
 
         float x = character.getX();

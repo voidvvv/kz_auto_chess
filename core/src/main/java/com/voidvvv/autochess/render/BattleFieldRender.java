@@ -64,28 +64,28 @@ public class BattleFieldRender {
         GlyphLayout enemyLayout = new GlyphLayout(font, I18N.get("enemy_side"));
         font.draw(game.getBatch(), enemyLayout, x + 10, splitY + 15);
         game.getBatch().end();
-
-        for (BattleCharacter character : battlefield.getCharacters()) {
-            if (character.isDead()) {
-                // 渲染死亡角色为半透明，表示已死亡但会在下一轮复活
-                if (RenderConfig.USE_TILED_RENDERING && renderDataManager != null && renderDataManager.hasCharacterTexture(character)) {
-                    game.getBatch().begin();
-                    game.getBatch().setProjectionMatrix(game.getViewManagement().getWorldCamera().combined);
-                    TiledBattleCharacterRender.renderWithAlpha(game.getBatch(), character, 0.3f, renderDataManager);
-                    game.getBatch().end();
-                } else {
-                    CharacterRenderer.renderWithAlpha(shapeRenderer, character, 0.3f);
-                }
-            } else {
-                if (RenderConfig.USE_TILED_RENDERING && renderDataManager != null && renderDataManager.hasCharacterTexture(character)) {
-                    game.getBatch().begin();
-                    game.getBatch().setProjectionMatrix(game.getViewManagement().getWorldCamera().combined);
-                    TiledBattleCharacterRender.render(game.getBatch(), character, renderDataManager);
-                    game.getBatch().end();
-                } else {
-                    CharacterRenderer.render(shapeRenderer, character);
-                }
-            }
-        }
+//
+//        for (BattleCharacter character : battlefield.getCharacters()) {
+//            if (character.isDead()) {
+//                // 渲染死亡角色为半透明，表示已死亡但会在下一轮复活
+//                if (RenderConfig.USE_TILED_RENDERING && renderDataManager != null && renderDataManager.hasCharacterTexture(character)) {
+//                    game.getBatch().begin();
+//                    game.getBatch().setProjectionMatrix(game.getViewManagement().getWorldCamera().combined);
+//                    TiledBattleCharacterRender.renderWithAlpha(game.getBatch(), character, 0.3f, renderDataManager);
+//                    game.getBatch().end();
+//                } else {
+//                    CharacterRenderer.renderWithAlpha(shapeRenderer, character, 0.3f);
+//                }
+//            } else {
+//                if (RenderConfig.USE_TILED_RENDERING && renderDataManager != null && renderDataManager.hasCharacterTexture(character)) {
+//                    game.getBatch().begin();
+//                    game.getBatch().setProjectionMatrix(game.getViewManagement().getWorldCamera().combined);
+//                    TiledBattleCharacterRender.render(game.getBatch(), character, renderDataManager);
+//                    game.getBatch().end();
+//                } else {
+//                    CharacterRenderer.render(shapeRenderer, character);
+//                }
+//            }
+//        }
     }
 }
