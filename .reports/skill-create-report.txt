@@ -1,0 +1,67 @@
+# Skill Creation Report
+Generated: 2026-03-12
+
+## Analysis Summary
+
+### Git History Analyzed
+- Commits: 200
+- File changes: ~300 unique files
+
+### Patterns Detected
+
+#### Commit Patterns
+- **Convention adoption**: Recent commits use conventional format (feat:, fix:, refactor:, docs:)
+- **Legacy commits**: Chinese descriptions (更新, 完善, 更改)
+- **Common scopes**: screen, battle, ui, model, economy, tiled, card, skill, movement, projectile
+
+#### Architecture Patterns
+1. **Model/Updator/Manager/Render Separation** - Core principle
+2. **Blackboard Pattern** - `BattleUnitBlackboard` for AI context
+3. **State Machine** - Character behavior states
+4. **Event System** - `GameEventSystem` for decoupled communication
+
+#### High-Churn Files (Top 10)
+1. `GameScreen.java` - 19 commits
+2. `BattleCharacter.java` - 9 commits
+3. `BattleFieldRender.java` - 6 commits
+4. `Card.java` - 6 commits
+5. `BattleUnitBlackboard.java` - 6 commits
+6. `GameUIManager.java` - 4 commits
+7. `ProjectileRenderer.java` - 4 commits
+8. `CardPool.java` - 4 commits
+9. `Battlefield.java` - 4 commits
+10. `BattleCharacterUpdater.java` - 3 commits
+
+## Generated Skill
+
+**File**: `.claude/skills/kz-autochess-patterns.md`
+
+**Sections**:
+- Commit conventions
+- Code architecture with package structure
+- Workflows (adding cards, skills, battle loop, UI events)
+- Testing patterns (JUnit 5)
+- Important file patterns
+- Build & run instructions
+- Dependencies
+- Common gotchas
+
+## Insights
+
+1. **Phase 2 Refactoring**: Recent commits show UI refactoring with `GameUIManager` introduction
+2. **Skill System**: New skill system with mana mechanic added
+3. **GC Optimization**: GlyphLayout reuse pattern to reduce GC pressure
+4. **Testing**: Test coverage exists for critical logic but not comprehensive
+
+## Recommendations
+
+1. **Enforce Conventional Commits**: Adopt strict conventional commit format
+2. **Increase Test Coverage**: Add tests for battle system, state machine, event system
+3. **Document Phase 2 Patterns**: GameUIManager and ButtonCallback patterns need documentation
+4. **Standardize Chinese Messages**: Transition all commit messages to English with conventional format
+
+## Next Steps
+
+1. Review generated skill: `.claude/skills/kz-autochess-patterns.md`
+2. Test skill by having Claude reference it for new tasks
+3. Consider creating instincts for continuous-learning-v2 system
