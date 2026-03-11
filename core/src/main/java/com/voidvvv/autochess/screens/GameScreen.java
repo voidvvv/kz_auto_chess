@@ -58,7 +58,7 @@ import java.util.Map;
  * 游戏运行界面（重构版，使用Scene2D）
  * 包含选卡/购卡、刷新功能、战场和卡组管理
  */
-public class GameScreen implements Screen {
+public class GameScreen implements Screen, GameUIManager.ButtonCallback {
     private KzAutoChess game;
     private int level;
 
@@ -378,6 +378,21 @@ public class GameScreen implements Screen {
         this.bbList.clear();
     }
 
+    // ===== GameUIManager.ButtonCallback 接口实现 =====
+
+    @Override
+    public void onBackButtonClicked() {
+        game.setScreen(new LevelSelectScreen(game));
+    }
+
+    @Override
+    public void onStartBattleButtonClicked() {
+        if (phase != GamePhase.PLACEMENT) return;
+        startBattle();
+    }
+
+    // =============================================
+
     private void updateBattle(float delta) {
         battleTime += delta;
         for (BehaviorTree<BattleUnitBlackboard> tree : unitTrees) {
@@ -476,7 +491,7 @@ public class GameScreen implements Screen {
         gameInputHandler.setPlayerDeck(playerDeck);
 
         // 初始化 UI 管理器（Phase 2）
-        gameUIManager = new GameUIManager(game, level);
+        gameUIManager = new GameUIManager(game, level, this);
         gameUIManager.setGameData(battlefield, cardShop, playerDeck, playerEconomy, synergyManager);
         // 注册 UI 管理器作为事件监听器
         gameEventSystem.registerListener(gameUIManager);

@@ -37,11 +37,20 @@ import java.util.List;
  */
 public class GameUIManager implements GameEventListener {
 
+    /**
+     * 按钮点击回调接口
+     */
+    public interface ButtonCallback {
+        void onBackButtonClicked();
+        void onStartBattleButtonClicked();
+    }
+
     private final KzAutoChess game;
     private final Stage stage;
     private final Skin skin;
     private final ShapeRenderer shapeRenderer;
     private final ShapeRendererHelper shapeRendererHelper;
+    private final ButtonCallback buttonCallback;
 
     // UI 字体
     private BitmapFont titleFont;
@@ -77,9 +86,10 @@ public class GameUIManager implements GameEventListener {
     // 布局参数
     private int level;
 
-    public GameUIManager(KzAutoChess game, int level) {
+    public GameUIManager(KzAutoChess game, int level, ButtonCallback buttonCallback) {
         this.game = game;
         this.level = level;
+        this.buttonCallback = buttonCallback;
         this.stage = new Stage(game.getViewManagement().getUIViewport());
 
         // 加载皮肤
@@ -546,14 +556,18 @@ public class GameUIManager implements GameEventListener {
      * 处理返回按钮点击
      */
     private void onBackButtonClicked() {
-        // 由 GameScreen 处理
+        if (buttonCallback != null) {
+            buttonCallback.onBackButtonClicked();
+        }
     }
 
     /**
      * 处理开始战斗按钮点击
      */
     private void onStartBattleButtonClicked() {
-        // 由 GameScreen 处理
+        if (buttonCallback != null) {
+            buttonCallback.onStartBattleButtonClicked();
+        }
     }
 
     /**
