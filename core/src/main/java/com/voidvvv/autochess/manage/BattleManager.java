@@ -77,7 +77,7 @@ public class BattleManager implements GameRenderer, GameEventListener {
             }
 
             eventSystem.postEvent(new BattleStartEvent());
-            behaviorTreeManager.clear();
+//            behaviorTreeManager.clear();
         }
 
         public void updateBattle(float delta) {
