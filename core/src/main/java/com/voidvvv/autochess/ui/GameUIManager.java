@@ -668,6 +668,14 @@ public class GameUIManager implements GameEventListener {
     }
 
     /**
+     * 判断 UI 坐标是否在卡组区域内
+     */
+    public boolean isInDeckArea(float x, float y) {
+        return x >= deckX && x <= deckX + deckWidth &&
+               y >= deckY && y <= deckY + deckHeight;
+    }
+
+    /**
      * 释放资源
      */
     public void dispose() {

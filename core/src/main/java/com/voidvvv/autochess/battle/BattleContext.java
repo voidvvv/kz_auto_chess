@@ -1,34 +1,26 @@
 package com.voidvvv.autochess.battle;
 
-import com.voidvvv.autochess.battle.BattleUnitBlackboard;
 import com.voidvvv.autochess.logic.SynergyManager;
 import com.voidvvv.autochess.model.Battlefield;
 import com.voidvvv.autochess.model.GamePhase;
 import com.voidvvv.autochess.model.PlayerEconomy;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
- * Battle context - aggregates all battle-related objects for shared data access
- * Immutable context with mutable state managed separately
+ * Battle context - aggregates all battle-related configuration for shared data access
+ * Fully immutable context with mutable state managed separately by BattleState
  *
- * DESIGN DECISION: Use immutable context snapshot + state manager pattern
- * - BattleContext is fully immutable (created via Builder)
- * - Phase mutations happen through BattleState manager
- * - This prevents inconsistent state and makes testing easier
+ * bbList (BattleUnitBlackboard list) is NOT stored here because it is inherently mutable
+ * (characters are added/removed during battle). It is managed by BattleManager.
  */
 public final class BattleContext {
     private final Battlefield battlefield;
-    private final List<BattleUnitBlackboard> bbList;
-    private final GamePhase phase;  // Immutable phase at construction time
-    private final PlayerEconomy playerEconomy;  // Reference, not owned
-    private final SynergyManager synergyManager;  // Reference
+    private final GamePhase phase;
+    private final PlayerEconomy playerEconomy;
+    private final SynergyManager synergyManager;
     private final int roundNumber;
 
     private BattleContext(Builder builder) {
         this.battlefield = builder.battlefield;
-        this.bbList = List.copyOf(builder.bbList);
         this.phase = builder.phase;
         this.playerEconomy = builder.playerEconomy;
         this.synergyManager = builder.synergyManager;
@@ -39,12 +31,8 @@ public final class BattleContext {
         return battlefield;
     }
 
-    public List<BattleUnitBlackboard> getBbList() {
-        return bbList;
-    }
-
     public GamePhase getPhase() {
-        return phase;  // Returns immutable phase snapshot
+        return phase;
     }
 
     public PlayerEconomy getPlayerEconomy() {
@@ -59,14 +47,9 @@ public final class BattleContext {
         return roundNumber;
     }
 
-    /**
-     * Create a new context with updated phase (immutable pattern)
-     * @return New BattleContext with updated phase
-     */
     public BattleContext withPhase(GamePhase newPhase) {
         return new Builder()
                 .setBattlefield(this.battlefield)
-                .setBbList(new ArrayList<>(this.bbList))
                 .setPhase(newPhase)
                 .setPlayerEconomy(this.playerEconomy)
                 .setSynergyManager(this.synergyManager)
@@ -74,14 +57,9 @@ public final class BattleContext {
                 .build();
     }
 
-    /**
-     * Create a new context with updated round number (immutable pattern)
-     * @return New BattleContext with updated round
-     */
     public BattleContext withRoundNumber(int newRoundNumber) {
         return new Builder()
                 .setBattlefield(this.battlefield)
-                .setBbList(new ArrayList<>(this.bbList))
                 .setPhase(this.phase)
                 .setPlayerEconomy(this.playerEconomy)
                 .setSynergyManager(this.synergyManager)
@@ -89,12 +67,8 @@ public final class BattleContext {
                 .build();
     }
 
-    /**
-     * Builder for safe construction
-     */
     public static class Builder {
         private Battlefield battlefield;
-        private List<BattleUnitBlackboard> bbList = new ArrayList<>();
         private GamePhase phase;
         private PlayerEconomy playerEconomy;
         private SynergyManager synergyManager;
@@ -102,11 +76,6 @@ public final class BattleContext {
 
         public Builder setBattlefield(Battlefield battlefield) {
             this.battlefield = battlefield;
-            return this;
-        }
-
-        public Builder setBbList(List<BattleUnitBlackboard> bbList) {
-            this.bbList = new ArrayList<>(bbList);
             return this;
         }
 
@@ -131,7 +100,6 @@ public final class BattleContext {
         }
 
         public BattleContext build() {
-            // Validate required fields
             if (battlefield == null) {
                 throw new IllegalStateException("Battlefield is required");
             }

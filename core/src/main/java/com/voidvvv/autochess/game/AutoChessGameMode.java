@@ -1,144 +1,220 @@
 package com.voidvvv.autochess.game;
 
-import com.voidvvv.autochess.battle.BattleContext;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.GL20;
 import com.voidvvv.autochess.battle.BattleState;
 import com.voidvvv.autochess.event.GameEventSystem;
 import com.voidvvv.autochess.input.GameInputHandler;
 import com.voidvvv.autochess.input.InputContext;
-import com.voidvvv.autochess.render.RenderHolder;
+import com.voidvvv.autochess.manage.BattleManager;
+import com.voidvvv.autochess.manage.CardManager;
+import com.voidvvv.autochess.manage.EconomyManager;
+import com.voidvvv.autochess.model.BattleCharacter;
+import com.voidvvv.autochess.model.Card;
+import com.voidvvv.autochess.model.GamePhase;
 import com.voidvvv.autochess.render.RenderCoordinator;
+import com.voidvvv.autochess.render.RenderHolder;
 
 /**
- * AutoChess game mode implementation
- * Coordinates all battle-related managers via event system (no direct dependencies)
+ * AutoChess 游戏模式实现
+ * 作为中央协调器，管理所有 Manager 之间的协作
  *
- * DESIGN DECISION: Fully decoupled managers
- * - Managers communicate ONLY through GameEventSystem
- * - No direct method calls between managers
- * - Input handling delegated to GameInputHandler, not managers directly
+ * 设计决策:
+ * - Manager 之间通过 GameEventSystem 通信
+ * - 金币操作由 EconomyManager 处理，卡牌操作由 CardManager 处理
+ * - AutoChessGameMode 负责协调跨 Manager 的复合操作（如买卡 = 扣金币 + 拿卡）
+ * - 输入处理委托给 GameInputHandler
  */
 public class AutoChessGameMode implements GameMode {
 
-    // Placeholder managers (will be implemented in later phases)
-    // private final BattleManager battleManager;
-    // private final EconomyManager economyManager;
-    // private final CardManager cardManager;
-
     private final BattleState battleState;
+    private final BattleManager battleManager;
+    private final EconomyManager economyManager;
+    private final CardManager cardManager;
     private final RenderCoordinator renderCoordinator;
     private final GameEventSystem eventSystem;
     private final GameInputHandler inputHandler;
 
-    public AutoChessGameMode(BattleContext battleContext,
-                              RenderCoordinator renderCoordinator,
-                              GameEventSystem eventSystem,
-                              GameInputHandler inputHandler) {
-        this.battleState = new BattleState(battleContext, eventSystem);
+    private int currentLevel = 1;
+    private boolean isInitialized = false;
+
+    public AutoChessGameMode(BattleState battleState,
+                             BattleManager battleManager,
+                             EconomyManager economyManager,
+                             CardManager cardManager,
+                             RenderCoordinator renderCoordinator,
+                             GameEventSystem eventSystem,
+                             GameInputHandler inputHandler,
+                             int level) {
+        this.battleState = battleState;
+        this.battleManager = battleManager;
+        this.economyManager = economyManager;
+        this.cardManager = cardManager;
         this.renderCoordinator = renderCoordinator;
         this.eventSystem = eventSystem;
         this.inputHandler = inputHandler;
+        this.currentLevel = level;
     }
 
     @Override
     public void onEnter() {
-        // Initialize managers (placeholder for Phase 1)
-        // battleManager.onEnter();
-        // economyManager.onEnter();
-        // cardManager.onEnter();
+        battleManager.onEnter();
+        economyManager.onEnter();
+        cardManager.onEnter();
 
-        // Initialize input handler
         inputHandler.initialize(this);
+
+        renderCoordinator.addRenderer(battleManager);
+
+        isInitialized = true;
+        Gdx.app.log("AutoChessGameMode", "Game mode initialized");
     }
 
     @Override
     public void update(float delta) {
-        // Dispatch events first (event-driven architecture)
         eventSystem.dispatch();
         eventSystem.clear();
 
-        // Update all managers independently (placeholder for Phase 1)
-        // battleManager.update(delta);
-        // economyManager.update(delta);
-        // cardManager.update(delta);
-        // inputHandler.update(delta);
+        battleManager.update(delta);
+        economyManager.update(delta);
+        cardManager.update(delta);
+        inputHandler.update(delta);
     }
 
     @Override
     public void render(RenderHolder holder) {
-        // Render all managers in layer order (placeholder for Phase 1)
-        // battleManager.render(holder);
-        // cardManager.render(holder);
-        // holder.flush();
+        Gdx.gl.glClearColor(0.05f, 0.1f, 0.15f, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        // Economy manager typically doesn't render
-        // economyManager.render(holder);
-
-        // Or use RenderCoordinator
-        // renderCoordinator.renderAll();
+        renderCoordinator.renderAll();
     }
 
     @Override
     public void handleInput(InputContext context) {
-        // Delegate to input handler for proper event dispatch
         inputHandler.handleInput(context);
     }
 
     @Override
     public void pause() {
-        // Pause all managers (placeholder for Phase 1)
-        // battleManager.pause();
-        // economyManager.pause();
-        // cardManager.pause();
-        // inputHandler.pause();
+        battleManager.pause();
+        economyManager.pause();
+        cardManager.pause();
+        inputHandler.pause();
     }
 
     @Override
     public void resume() {
-        // Resume all managers (placeholder for Phase 1)
-        // battleManager.resume();
-        // economyManager.resume();
-        // cardManager.resume();
-        // inputHandler.resume();
+        battleManager.resume();
+        economyManager.resume();
+        cardManager.resume();
+        inputHandler.resume();
     }
 
     @Override
     public void onExit() {
-        // Exit all managers (placeholder for Phase 1)
-        // battleManager.onExit();
-        // economyManager.onExit();
-        // cardManager.onExit();
-        // inputHandler.onExit();
+        battleManager.onExit();
+        economyManager.onExit();
+        cardManager.onExit();
+        inputHandler.onExit();
+
+        isInitialized = false;
+        Gdx.app.log("AutoChessGameMode", "Game mode exited");
     }
 
     @Override
     public void dispose() {
-        // Unregister event listener (not needed for Phase 1)
-        // eventSystem.unregisterListener(this);
-
-        // Dispose all managers (placeholder for Phase 1)
-        // battleManager.dispose();
-        // economyManager.dispose();
-        // cardManager.dispose();
-        // inputHandler.dispose();
+        battleManager.dispose();
+        economyManager.dispose();
+        cardManager.dispose();
+        inputHandler.dispose();
     }
 
-    // Accessors for managers (used by InputHandler, to be implemented in later phases)
-    /*
-    public BattleManager getBattleManager() {
-        return battleManager;
+    // ========== 复合操作 API（协调多个 Manager）==========
+
+    public void startBattle() {
+        if (getPhase() == GamePhase.PLACEMENT) {
+            battleManager.startBattle(currentLevel);
+        }
     }
 
-    public CardManager getCardManager() {
-        return cardManager;
+    /**
+     * 买卡 = 扣金币(EconomyManager) + 卡牌入手(CardManager)
+     */
+    public boolean buyCard(Card card) {
+        if (!economyManager.canAfford(card.getCost())) return false;
+        if (cardManager.buyCard(card)) {
+            economyManager.buyCard(card.getCost());
+            return true;
+        }
+        return false;
     }
 
-    public EconomyManager getEconomyManager() {
-        return economyManager;
+    /**
+     * 刷新商店 = 扣金币(EconomyManager) + 刷新卡池(CardManager)
+     */
+    public boolean refreshShop() {
+        int cost = cardManager.getRefreshCost();
+        if (economyManager.payForRefresh(cost)) {
+            cardManager.refreshShop();
+            return true;
+        }
+        return false;
     }
-    */
 
-    // Accessor for battle state
-    public BattleState getBattleState() {
-        return battleState;
+    /**
+     * 升级卡牌 = 扣金币(EconomyManager) + 合成(CardManager)
+     */
+    public boolean upgradeCard(Card card, int upgradeCost) {
+        if (!economyManager.canAfford(upgradeCost)) return false;
+        if (cardManager.upgradeCard(card)) {
+            economyManager.payForUpgrade(upgradeCost);
+            return true;
+        }
+        return false;
     }
+
+    // ========== 委托操作 API ==========
+
+    public BattleCharacter placeCharacter(Card card, float x, float y) {
+        return battleManager.placeCharacter(card, x, y);
+    }
+
+    public boolean moveCharacter(BattleCharacter character, float x, float y) {
+        return battleManager.moveCharacter(character, x, y);
+    }
+
+    public void removeCharacter(BattleCharacter character) {
+        battleManager.removeCharacter(character);
+    }
+
+    public BattleCharacter getCharacterAt(float x, float y) {
+        return battleManager.getCharacterAt(x, y);
+    }
+
+    public boolean battlefieldContains(float x, float y) {
+        return battleManager.contains(x, y);
+    }
+
+    public boolean canAfford(int amount) {
+        return economyManager.canAfford(amount);
+    }
+
+    public int getGold() {
+        return economyManager.getGold();
+    }
+
+    // ========== Accessors ==========
+
+    public BattleManager getBattleManager() { return battleManager; }
+    public CardManager getCardManager() { return cardManager; }
+    public EconomyManager getEconomyManager() { return economyManager; }
+    public BattleState getBattleState() { return battleState; }
+
+    public GamePhase getPhase() {
+        return battleState.getContext().getPhase();
+    }
+
+    public int getCurrentLevel() { return currentLevel; }
+    public boolean isBattleActive() { return battleManager.isBattleActive(); }
+    public boolean isInitialized() { return isInitialized; }
 }
