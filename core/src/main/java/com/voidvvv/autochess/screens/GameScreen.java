@@ -49,6 +49,15 @@ import com.voidvvv.autochess.event.GameEventListener;
 import com.voidvvv.autochess.input.GameInputHandler;
 import com.voidvvv.autochess.ui.GameUIManager;
 
+// Phase 1: 新架构 imports (用于渐进式重构）
+import com.voidvvv.autochess.game.GameMode;
+import com.voidvvv.autochess.game.AutoChessGameMode;
+import com.voidvvv.autochess.input.InputContext;
+import com.voidvvv.autochess.battle.BattleContext;
+import com.voidvvv.autochess.battle.BattleState;
+import com.voidvvv.autochess.render.RenderHolder;
+import com.voidvvv.autochess.render.RenderCoordinator;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -142,6 +151,12 @@ public class GameScreen implements Screen, GameUIManager.ButtonCallback {
     // Tiled资源加载器
     private TiledMap tiledMap;
 
+    // ========== Phase 1: 新架构字段（用于渐进式重构）==========
+    private GameMode gameMode;  // 新的GameMode接口
+    private RenderHolder renderHolder;  // 新的渲染上下文
+    private RenderCoordinator renderCoordinator;  // 新的渲染协调器
+    private boolean useNewArchitecture = false;  // 特性标志：是否使用新架构
+
     public GameScreen(KzAutoChess game, int level) {
         this.game = game;
         this.level = level;
@@ -192,6 +207,59 @@ public class GameScreen implements Screen, GameUIManager.ButtonCallback {
 
         // 初始化投掷物渲染器
         projectileRenderer = new ProjectileRenderer(game, shapeRenderer, renderDataManager);
+
+        // ========== Phase 1: 初始化新架构（可选，由useNewArchitecture控制）==========
+        // 注意：这是渐进式重构，新架构代码暂时不激活
+        // 后续Phase将逐步迁移逻辑到新架构
+        if (useNewArchitecture) {
+            initNewArchitecture();
+        }
+    }
+
+    /**
+     * 初始化新架构组件（Phase 1）
+     * 由useNewArchitecture标志控制是否使用
+     */
+    private void initNewArchitecture() {
+        // 初始化事件系统
+        gameEventSystem = new GameEventSystem();
+
+        // 初始化输入处理器
+        gameInputHandler = new GameInputHandler(game, gameEventSystem);
+        gameInputHandler.setBattlefield(battlefield);
+        gameInputHandler.setPlayerDeck(playerDeck);
+
+        // 创建渲染上下文
+        renderHolder = new RenderHolder(
+                game.getBatch(),
+                shapeRenderer
+        );
+
+        // 创建渲染协调器
+        renderCoordinator = new RenderCoordinator(
+                game.getBatch(),
+                shapeRenderer
+        );
+
+        // 创建BattleContext（placeholder）
+        BattleContext battleContext = new BattleContext.Builder()
+                .setBattlefield(battlefield)
+                .setBbList(bbList)
+                .setPhase(phase)
+                .setPlayerEconomy(playerEconomy)
+                .setSynergyManager(synergyManager)
+                .setRoundNumber(1)
+                .build();
+
+        // 创建GameMode（placeholder with minimal managers）
+        gameMode = new AutoChessGameMode(
+                battleContext,
+                renderCoordinator,
+                gameEventSystem,
+                gameInputHandler
+        );
+
+        Gdx.app.log("GameScreen", "New architecture initialized");
     }
 
     private void initUI() {

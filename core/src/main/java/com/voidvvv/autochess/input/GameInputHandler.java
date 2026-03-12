@@ -17,6 +17,10 @@ import com.voidvvv.autochess.model.PlayerDeck;
 import com.voidvvv.autochess.model.GamePhase;
 import com.voidvvv.autochess.utils.RenderConfig;
 
+// Phase 1: 新架构import
+import com.voidvvv.autochess.game.GameMode;
+import com.voidvvv.autochess.input.InputContext;
+
 /**
  * 游戏输入处理器
  * 处理所有输入事件（键盘、鼠标、触摸）
@@ -37,6 +41,9 @@ public class GameInputHandler implements InputProcessor {
     private Battlefield battlefield;
     private PlayerDeck playerDeck;
 
+    // 新的GameMode引用（用于渐进式重构）
+    private GameMode gameMode;
+
     public GameInputHandler(KzAutoChess game, GameEventSystem eventSystem) {
         this.game = game;
         this.eventSystem = eventSystem;
@@ -54,6 +61,14 @@ public class GameInputHandler implements InputProcessor {
      */
     public void setPlayerDeck(PlayerDeck playerDeck) {
         this.playerDeck = playerDeck;
+    }
+
+    /**
+     * 初始化输入处理器（由GameMode在onEnter时调用）
+     * 用于渐进式重构到新架构
+     */
+    public void initialize(GameMode gameMode) {
+        this.gameMode = gameMode;
     }
 
     @Override
@@ -238,5 +253,51 @@ public class GameInputHandler implements InputProcessor {
      */
     public DragEvent.DragTarget getDragTargetType() {
         return dragTargetType;
+    }
+
+    /**
+     * 新的输入处理方法（使用InputContext）
+     * 用于渐进式重构到新架构
+     * 注意：Phase 1中这个方法是空实现，后续Phase将迁移逻辑
+     */
+    public void handleInput(InputContext context) {
+        // 暂时保持与现有代码兼容
+        // 未来Phase 6.5将完全迁移到这个方法
+    }
+
+    /**
+     * 更新方法（用于新架构）
+     */
+    public void update(float delta) {
+        // 当前在GameScreen.update()中处理
+        // 未来Phase 6.5将迁移
+    }
+
+    /**
+     * 暂停方法（用于新架构）
+     */
+    public void pause() {
+        // 当前GameScreen pause()处理
+    }
+
+    /**
+     * 恢复方法（用于新架构）
+     */
+    public void resume() {
+        // 当前GameScreen resume()处理
+    }
+
+    /**
+     * 退出方法（用于新架构）
+     */
+    public void onExit() {
+        // 当前GameScreen hide()处理
+    }
+
+    /**
+     * 资源释放方法（用于新架构）
+     */
+    public void dispose() {
+        // GameInputHandler不需要dispose特殊资源
     }
 }

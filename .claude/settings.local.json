@@ -17,7 +17,16 @@
       "Bash(cd core/src/main/java/com/voidvvv/autochess/render && sed -i '31s/ManaBarRenderer\\\\.render\\(shapeRenderer, character\\);/i/ManaBarRenderer\\\\.render\\(shapeRenderer, blackboard\\);' battleCharacterRender.java)",
       "Bash(java -version 2>&1 && ./gradlew compileJava --no-daemon 2>&1 | tail -30)",
       "Bash(./gradlew compileJava 2>&1 && echo \"Exit code: $?\")",
-      "Bash(gradle compileJava:*)"
+      "Bash(gradle compileJava:*)",
+      "Bash(find /Users/didi/IdeaProjects/kz_auto_chess/core/src/main/java -name \"*.java\" -exec wc -l {} + | sort -rn | head -20)",
+      "Bash(find /Users/didi/IdeaProjects/kz_auto_chess/core/src -name \"*Blackboard*.java\" -o -name \"GameUIManager.java\" 2>/dev/null | head -20)",
+      "Bash(find /Users/didi/IdeaProjects/kz_auto_chess/docs -type f \\\\\\( -name \"*.md\" -o -name \"*.txt\" \\\\\\) 2>/dev/null | head -20)",
+      "Bash(find .claude/skills -type f -name *.md)",
+      "Read(//Users/didi/.claude/plugins/cache/**)",
+      "mcp__context7__resolve-library-id",
+      "Bash(git diff:*)",
+      "Bash(find /Users/didi/IdeaProjects/kz_auto_chess -path \"*/test/*\" -name \"*.java\" 2>/dev/null | head -10)",
+      "mcp__context7__query-docs"
     ]
   }
 }
