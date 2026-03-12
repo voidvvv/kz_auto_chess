@@ -1802,6 +1802,8 @@ public void dispose() {
 
 ### Phase 1: Foundation Architecture
 
+[//]: # (根据plan，Phase 2 将创建BattleContext并迁移数据。但由于Phase 1已创建了BattleContext（skeleton），Phase 2可以专注于数据迁移。)
+
 **Tasks:**
 - [ ] Create `GameMode` interface with lifecycle methods
 - [ ] Create `RenderHolder` class with SpriteBatch and ShapeRenderer
