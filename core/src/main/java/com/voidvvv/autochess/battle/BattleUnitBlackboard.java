@@ -3,6 +3,8 @@ package com.voidvvv.autochess.battle;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.msg.Telegram;
 import com.badlogic.gdx.ai.msg.Telegraph;
+import com.voidvvv.autochess.battle.collision.CollisionContext;
+import com.voidvvv.autochess.battle.collision.CollisionDetector;
 import com.voidvvv.autochess.model.BattleCharacter;
 import com.voidvvv.autochess.model.Battlefield;
 import com.voidvvv.autochess.model.Card;
@@ -405,5 +407,67 @@ public class BattleUnitBlackboard implements Telegraph {
         if (mana != null) {
             mana.reset();
         }
+    }
+
+    // ==================== 碰撞检测方法（委托给 CollisionDetector）====================
+
+    /**
+     * 检测自身是否与另一个角色发生 body 碰撞
+     *
+     * @param other 另一个角色
+     * @return 如果碰撞返回 true
+     */
+    public boolean collidesWithBody(BattleCharacter other) {
+        if (other == null) return false;
+        CollisionContext selfContext = CollisionDetector.createContext(self);
+        CollisionContext otherContext = CollisionDetector.createContext(other);
+        return CollisionDetector.checkCharacterBodyCollision(selfContext, otherContext);
+    }
+
+    /**
+     * 检测自身是否与另一个角色发生 face 碰撞
+     *
+     * @param other 另一个角色
+     * @return 如果碰撞返回 true
+     */
+    public boolean collidesWithFace(BattleCharacter other) {
+        if (other == null) return false;
+        CollisionContext selfContext = CollisionDetector.createContext(self);
+        CollisionContext otherContext = CollisionDetector.createContext(other);
+        return CollisionDetector.checkCharacterFaceCollision(selfContext, otherContext);
+    }
+
+    /**
+     * 检测自身是否与另一个角色发生碰撞（face 或 body）
+     *
+     * @param other 另一个角色
+     * @return 如果碰撞返回 true
+     */
+    public boolean collidesWithCharacter(BattleCharacter other) {
+        if (other == null) return false;
+        CollisionContext selfContext = CollisionDetector.createContext(self);
+        CollisionContext otherContext = CollisionDetector.createContext(other);
+        return CollisionDetector.checkCharacterCollision(selfContext, otherContext);
+    }
+
+    /**
+     * 检测自身是否与投射物发生碰撞
+     *
+     * @param projectile 投射物
+     * @return 如果碰撞返回 true
+     */
+    public boolean collidesWithProjectile(Projectile projectile) {
+        if (projectile == null) return false;
+        CollisionContext selfContext = CollisionDetector.createContext(self);
+        return CollisionDetector.checkCharacterProjectileCollision(selfContext, projectile);
+    }
+
+    /**
+     * 获取自身的碰撞上下文
+     *
+     * @return 碰撞上下文
+     */
+    public CollisionContext getCollisionContext() {
+        return CollisionDetector.createContext(self);
     }
 }

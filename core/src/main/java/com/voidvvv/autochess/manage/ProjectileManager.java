@@ -1,5 +1,7 @@
 package com.voidvvv.autochess.manage;
 
+import com.voidvvv.autochess.battle.collision.CollisionContext;
+import com.voidvvv.autochess.battle.collision.CollisionDetector;
 import com.voidvvv.autochess.model.BattleCharacter;
 import com.voidvvv.autochess.model.Battlefield;
 import com.voidvvv.autochess.model.Projectile;
@@ -7,7 +9,6 @@ import com.voidvvv.autochess.model.battle.DamageEventHolder;
 import com.voidvvv.autochess.model.battle.Damage;
 import com.voidvvv.autochess.model.event.DamageEvent;
 import com.voidvvv.autochess.updater.ProjectileUpdater;
-import com.voidvvv.autochess.utils.CharacterCamp;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -93,9 +94,10 @@ public class ProjectileManager {
         // 排除来源自身
         potentialTargets.remove(source);
 
-        // 检查与每个目标的碰撞
+        // 检查与每个目标的碰撞（使用 CollisionDetector）
         for (BattleCharacter target : potentialTargets) {
-            if (target.collidesWith(projectile)) {
+            CollisionContext targetContext = CollisionDetector.createContext(target);
+            if (CollisionDetector.checkCharacterProjectileCollision(targetContext, projectile)) {
                 // 命中目标，创建伤害事件
                 createDamageEvent(projectile, target);
                 projectile.hit();
