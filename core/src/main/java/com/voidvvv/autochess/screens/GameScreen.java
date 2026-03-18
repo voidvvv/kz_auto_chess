@@ -301,5 +301,9 @@ public class GameScreen implements Screen, GameUIManager.ButtonCallback, GameEve
             PlayerDeathEvent deathEvent = (PlayerDeathEvent) event;
             game.setScreen(new GameOverScreen(game, deathEvent.getMaxReachedLevel()));
         }
+        // 处理战斗结束事件，重新显示开始战斗按钮
+        else if (event instanceof com.voidvvv.autochess.event.BattleEndEvent) {
+            gameUIManager.setBattleButtonVisible(true);
+        }
     }
 }

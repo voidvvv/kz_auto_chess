@@ -6,28 +6,28 @@ import com.voidvvv.autochess.battle.BattleUnitBlackboard;
 import com.voidvvv.autochess.model.BattleCharacter;
 
 /**
- * 魔法条渲染器
- * 在角色下方渲染魔法值进度条
+ * 生命值条渲染器
+ * 在角色下方渲染生命值进度条（位于魔法条上方）
  */
-public class ManaBarRenderer {
+public class HealthBarRenderer {
 
     private static final float DEFAULT_BAR_HEIGHT = 6f;
     private static final float DEFAULT_BAR_WIDTH = 40f;
-    private static final float DEFAULT_Y_OFFSET = 16f; // 放在血条下方（屏幕Y坐标越大越高，所以offset越大越靠下）
+    private static final float DEFAULT_Y_OFFSET = 8f; // 放在魔法条上方（屏幕Y坐标越大越高，所以offset越小越靠上）
 
     /**
-     * 渲染魔法条（默认样式）
+     * 渲染生命值条（默认样式）
      * @param shapeRenderer ShapeRenderer实例
      * @param blackboard BattleUnitBlackboard实例
      */
     public static void render(ShapeRenderer shapeRenderer, BattleUnitBlackboard blackboard) {
         render(shapeRenderer, blackboard,
                DEFAULT_BAR_WIDTH, DEFAULT_BAR_HEIGHT, DEFAULT_Y_OFFSET,
-               Color.BLUE, Color.DARK_GRAY, Color.WHITE);
+               Color.RED, Color.DARK_GRAY, Color.WHITE);
     }
 
     /**
-     * 渲染魔法条（可配置样式）
+     * 渲染生命值条（可配置样式）
      * @param shapeRenderer ShapeRenderer实例
      * @param blackboard BattleUnitBlackboard实例
      * @param barWidth 条宽度
@@ -43,15 +43,12 @@ public class ManaBarRenderer {
                              Color fillColor, Color bgColor, Color borderColor) {
         BattleCharacter character = blackboard.getSelf();
 
-        // 死亡角色不渲染魔法条
-        if (character.isDead()) {
-            return;
-        }
+        // 计算生命值
+        float currentHp = character.getCurrentHp();
+        float maxHp = character.getStats().getHealth();
 
-        // 没有魔法值时不渲染
-        float currentMana = blackboard.getCurrentMana();
-        float maxMana = blackboard.getMaxMana();
-        if (maxMana <= 0f) {
+        // 死亡或无生命值时不渲染
+        if (character.isDead() || maxHp <= 0f) {
             return;
         }
 
@@ -60,7 +57,7 @@ public class ManaBarRenderer {
         float y = character.getY() - character.getSize() - yOffset;
 
         // 计算进度比例
-        float ratio = Math.min(1f, currentMana / maxMana);
+        float ratio = Math.min(1f, Math.max(0f, currentHp / maxHp));
         float filledWidth = barWidth * ratio;
 
         // 渲染背景

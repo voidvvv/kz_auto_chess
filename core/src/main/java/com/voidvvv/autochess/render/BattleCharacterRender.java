@@ -7,6 +7,7 @@ import com.voidvvv.autochess.model.BattleCharacter;
 import com.voidvvv.autochess.utils.CharacterRenderer;
 import com.voidvvv.autochess.utils.RenderConfig;
 import com.voidvvv.autochess.render.ManaBarRenderer;
+import com.voidvvv.autochess.render.HealthBarRenderer;
 
 /**
  * 战斗角色渲染器
@@ -29,6 +30,9 @@ public class BattleCharacterRender {
     public static void render(ShapeRenderer shapeRenderer, BattleUnitBlackboard blackboard) {
         // 渲染角色
 //        CharacterRenderer.render(shapeRenderer, blackboard.getSelf());
+
+        // 渲染生命值条（位于魔法条上方）
+        HealthBarRenderer.render(shapeRenderer, blackboard);
 
         // 渲染魔法条
         ManaBarRenderer.render(shapeRenderer, blackboard);

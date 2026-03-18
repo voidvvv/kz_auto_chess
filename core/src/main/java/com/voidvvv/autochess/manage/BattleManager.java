@@ -2,6 +2,7 @@ package com.voidvvv.autochess.manage;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.btree.BehaviorTree;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.voidvvv.autochess.KzAutoChess;
 import com.voidvvv.autochess.battle.BattleUnitBlackboard;
@@ -362,6 +363,7 @@ public class BattleManager implements GameRenderer, GameEventListener {
 
         holder.getShapeRenderer().setAutoShapeType(true);
         holder.getShapeRenderer().begin();
+        holder.getShapeRenderer().set(ShapeRenderer.ShapeType.Filled);
         for (BattleUnitBlackboard bb : bbList) {
             BattleCharacterRender.render(holder.getShapeRenderer(), bb);
         }
