@@ -115,6 +115,10 @@ public class StartScreen implements Screen {
 
         // 处理点击
         if (Gdx.input.justTouched() && hover) {
+            // 重置血量到初始值（每次新游戏开始）
+            if (game.getPlayerLifeBlackboard() != null) {
+                game.getPlayerLifeBlackboard().reset();
+            }
             game.setScreen(new LevelSelectScreen(game));
         }
     }

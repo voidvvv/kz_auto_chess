@@ -9,6 +9,7 @@ import com.voidvvv.autochess.input.InputContext;
 import com.voidvvv.autochess.manage.BattleManager;
 import com.voidvvv.autochess.manage.CardManager;
 import com.voidvvv.autochess.manage.EconomyManager;
+import com.voidvvv.autochess.manage.PlayerLifeManager;
 import com.voidvvv.autochess.model.BattleCharacter;
 import com.voidvvv.autochess.model.Card;
 import com.voidvvv.autochess.model.GamePhase;
@@ -31,6 +32,7 @@ public class AutoChessGameMode implements GameMode {
     private final BattleManager battleManager;
     private final EconomyManager economyManager;
     private final CardManager cardManager;
+    private final PlayerLifeManager playerLifeManager;
     private final RenderCoordinator renderCoordinator;
     private final GameEventSystem eventSystem;
     private final GameInputHandler inputHandler;
@@ -42,6 +44,7 @@ public class AutoChessGameMode implements GameMode {
                              BattleManager battleManager,
                              EconomyManager economyManager,
                              CardManager cardManager,
+                             PlayerLifeManager playerLifeManager,
                              RenderCoordinator renderCoordinator,
                              GameEventSystem eventSystem,
                              GameInputHandler inputHandler,
@@ -50,6 +53,7 @@ public class AutoChessGameMode implements GameMode {
         this.battleManager = battleManager;
         this.economyManager = economyManager;
         this.cardManager = cardManager;
+        this.playerLifeManager = playerLifeManager;
         this.renderCoordinator = renderCoordinator;
         this.eventSystem = eventSystem;
         this.inputHandler = inputHandler;
@@ -61,6 +65,7 @@ public class AutoChessGameMode implements GameMode {
         battleManager.onEnter();
         economyManager.onEnter();
         cardManager.onEnter();
+        playerLifeManager.onEnter();
 
         inputHandler.initialize(this);
 
@@ -99,6 +104,7 @@ public class AutoChessGameMode implements GameMode {
         battleManager.pause();
         economyManager.pause();
         cardManager.pause();
+        playerLifeManager.pause();
         inputHandler.pause();
     }
 
@@ -107,6 +113,7 @@ public class AutoChessGameMode implements GameMode {
         battleManager.resume();
         economyManager.resume();
         cardManager.resume();
+        playerLifeManager.resume();
         inputHandler.resume();
     }
 
@@ -115,6 +122,7 @@ public class AutoChessGameMode implements GameMode {
         battleManager.onExit();
         economyManager.onExit();
         cardManager.onExit();
+        playerLifeManager.onExit();
         inputHandler.onExit();
 
         isInitialized = false;

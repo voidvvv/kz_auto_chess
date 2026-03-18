@@ -124,6 +124,9 @@ public class BattleManager implements GameRenderer, GameEventListener {
             isBattleActive = false;
             boolean playerWon = battlefield.getEnemyCharacters().isEmpty();
 
+            // 获取剩余敌人数量（用于血量系统扣血计算）
+            int remainingEnemies = battlefield.getEnemyCharacters().size();
+
             List<BattleCharacter> enemiesToRemove = new ArrayList<>();
             for (BattleCharacter c : battlefield.getCharacters()) {
                 if (c.isEnemy()) {
@@ -145,7 +148,7 @@ public class BattleManager implements GameRenderer, GameEventListener {
             characterLifecycle.clear();
 
             battleState.transitionTo(GamePhase.PLACEMENT);
-            eventSystem.postEvent(new BattleEndEvent(playerWon));
+            eventSystem.postEvent(new BattleEndEvent(playerWon, remainingEnemies));
 
             currentRound++;
         }

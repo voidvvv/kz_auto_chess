@@ -12,7 +12,11 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.voidvvv.autochess.KzAutoChess;
 import com.voidvvv.autochess.battle.BattleContext;
 import com.voidvvv.autochess.battle.BattleState;
+import com.voidvvv.autochess.battle.PlayerLifeBlackboard;
+import com.voidvvv.autochess.event.GameEvent;
+import com.voidvvv.autochess.event.GameEventListener;
 import com.voidvvv.autochess.event.GameEventSystem;
+import com.voidvvv.autochess.event.PlayerDeathEvent;
 import com.voidvvv.autochess.game.AutoChessGameMode;
 import com.voidvvv.autochess.input.GameInputHandler;
 import com.voidvvv.autochess.logic.CharacterStatsLoader;
@@ -20,6 +24,7 @@ import com.voidvvv.autochess.logic.SynergyManager;
 import com.voidvvv.autochess.manage.BattleManager;
 import com.voidvvv.autochess.manage.CardManager;
 import com.voidvvv.autochess.manage.EconomyManager;
+import com.voidvvv.autochess.manage.PlayerLifeManager;
 import com.voidvvv.autochess.model.Battlefield;
 import com.voidvvv.autochess.model.CardPool;
 import com.voidvvv.autochess.model.CardShop;
@@ -40,8 +45,9 @@ import com.voidvvv.autochess.utils.TiledAssetLoader;
  * - 委托 update/render 给 AutoChessGameMode
  * - 委托 UI 给 GameUIManager
  * - 管理 InputMultiplexer
+ * - 监听玩家死亡事件
  */
-public class GameScreen implements Screen, GameUIManager.ButtonCallback {
+public class GameScreen implements Screen, GameUIManager.ButtonCallback, GameEventListener {
 
     private final KzAutoChess game;
     private final int level;
@@ -51,6 +57,7 @@ public class GameScreen implements Screen, GameUIManager.ButtonCallback {
     private CardShop cardShop;
     private PlayerDeck playerDeck;
     private PlayerEconomy playerEconomy;
+    private PlayerLifeBlackboard playerLifeBlackboard;
     private Battlefield battlefield;
     private SynergyManager synergyManager;
     private CharacterStatsLoader characterStatsLoader;
@@ -58,6 +65,7 @@ public class GameScreen implements Screen, GameUIManager.ButtonCallback {
     // 新架构核心
     private GameEventSystem gameEventSystem;
     private AutoChessGameMode gameMode;
+    private PlayerLifeManager playerLifeManager;
     private GameUIManager gameUIManager;
     private GameInputHandler gameInputHandler;
     private RenderCoordinator renderCoordinator;
@@ -105,6 +113,9 @@ public class GameScreen implements Screen, GameUIManager.ButtonCallback {
         cardShop.setPlayerLevel(playerEconomy.getPlayerLevel());
         cardShop.refresh();
         playerDeck = new PlayerDeck();
+        // 使用全局的 PlayerLifeBlackboard（关卡间共享）
+        playerLifeBlackboard = game.getPlayerLifeBlackboard();
+        playerLifeBlackboard.setCurrentLevel(level);
         synergyManager = new SynergyManager();
 
         characterStatsLoader = new CharacterStatsLoader();
@@ -151,6 +162,9 @@ public class GameScreen implements Screen, GameUIManager.ButtonCallback {
         CardManager cardManager = new CardManager(
                 gameEventSystem, cardPool, cardShop, playerDeck);
 
+        playerLifeManager = new PlayerLifeManager(
+                playerLifeBlackboard, gameEventSystem);
+
         // 渲染协调器
         renderCoordinator = new RenderCoordinator(game.getBatch(), shapeRenderer);
 
@@ -160,12 +174,13 @@ public class GameScreen implements Screen, GameUIManager.ButtonCallback {
         // GameMode 协调器
         gameMode = new AutoChessGameMode(
                 battleState, battleManager, economyManager, cardManager,
-                renderCoordinator, gameEventSystem, gameInputHandler, level);
+                playerLifeManager, renderCoordinator, gameEventSystem, gameInputHandler, level);
 
         // UI 管理器
         gameUIManager = new GameUIManager(game, level, this);
-        gameUIManager.setGameData(battlefield, cardShop, playerDeck, playerEconomy, synergyManager);
+        gameUIManager.setGameData(battlefield, cardShop, playerDeck, playerEconomy, playerLifeBlackboard, synergyManager);
         gameEventSystem.registerListener(gameUIManager);
+        gameEventSystem.registerListener(this); // 注册 GameScreen 作为事件监听器
 
         // 将 UI 管理器注入到输入处理器
         gameInputHandler.setGameUIManager(gameUIManager);
@@ -275,5 +290,16 @@ public class GameScreen implements Screen, GameUIManager.ButtonCallback {
         if (gameMode.getPhase() != GamePhase.PLACEMENT) return;
         gameMode.startBattle();
         gameUIManager.setBattleButtonVisible(false);
+    }
+
+    // ========== GameEventListener ==========
+
+    @Override
+    public void onGameEvent(GameEvent event) {
+        // 处理玩家死亡事件，跳转到游戏结束界面
+        if (event instanceof PlayerDeathEvent) {
+            PlayerDeathEvent deathEvent = (PlayerDeathEvent) event;
+            game.setScreen(new GameOverScreen(game, deathEvent.getMaxReachedLevel()));
+        }
     }
 }

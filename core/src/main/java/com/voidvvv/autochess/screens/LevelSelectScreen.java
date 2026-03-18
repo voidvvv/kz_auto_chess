@@ -8,6 +8,8 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.voidvvv.autochess.KzAutoChess;
+import com.voidvvv.autochess.battle.PlayerLifeBlackboard;
+import com.voidvvv.autochess.render.LifeBarRenderer;
 import com.voidvvv.autochess.utils.FontUtils;
 import com.voidvvv.autochess.utils.I18N;
 
@@ -78,6 +80,18 @@ public class LevelSelectScreen implements Screen {
         float titleY = Gdx.graphics.getHeight() - 80;
         titleFont.draw(game.getBatch(), titleLayout, titleX, titleY);
         game.getBatch().end();
+
+        // 绘制血条（在关卡选择界面上方）
+        PlayerLifeBlackboard playerLife = game.getPlayerLifeBlackboard();
+        if (playerLife != null && !playerLife.getLifeModel().isDead()) {
+            float lifeBarX = 50;
+            float lifeBarY = titleY - 50;
+            float lifeBarWidth = 200;
+            float lifeBarHeight = 20;
+            LifeBarRenderer.render(shapeRenderer, game.getBatch(),
+                    playerLife.getLifeModel(),
+                    lifeBarX, lifeBarY, lifeBarWidth, lifeBarHeight, titleFont);
+        }
 
         // 绘制关卡按钮
         for (int i = 0; i < LEVEL_COUNT; i++) {

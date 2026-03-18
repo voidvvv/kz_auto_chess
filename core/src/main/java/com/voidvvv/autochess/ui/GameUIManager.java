@@ -13,6 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.voidvvv.autochess.KzAutoChess;
+import com.voidvvv.autochess.battle.PlayerLifeBlackboard;
 import com.voidvvv.autochess.event.GameEvent;
 import com.voidvvv.autochess.event.GameEventListener;
 import com.voidvvv.autochess.event.drag.DragEvent;
@@ -24,6 +25,7 @@ import com.voidvvv.autochess.model.CardShop;
 import com.voidvvv.autochess.model.PlayerDeck;
 import com.voidvvv.autochess.model.PlayerEconomy;
 import com.voidvvv.autochess.logic.SynergyManager;
+import com.voidvvv.autochess.render.LifeBarRenderer;
 import com.voidvvv.autochess.utils.FontUtils;
 import com.voidvvv.autochess.utils.I18N;
 import com.voidvvv.autochess.logic.CardUpgradeLogic;
@@ -76,6 +78,7 @@ public class GameUIManager implements GameEventListener {
     private CardShop cardShop;
     private PlayerDeck playerDeck;
     private PlayerEconomy playerEconomy;
+    private com.voidvvv.autochess.battle.PlayerLifeBlackboard playerLifeBlackboard;
     private SynergyManager synergyManager;
 
     // 拖拽状态（用于渲染预览）
@@ -263,11 +266,13 @@ public class GameUIManager implements GameEventListener {
             CardShop cardShop,
             PlayerDeck playerDeck,
             PlayerEconomy playerEconomy,
+            PlayerLifeBlackboard playerLifeBlackboard,
             SynergyManager synergyManager) {
         this.battlefield = battlefield;
         this.cardShop = cardShop;
         this.playerDeck = playerDeck;
         this.playerEconomy = playerEconomy;
+        this.playerLifeBlackboard = playerLifeBlackboard;
         this.synergyManager = synergyManager;
     }
 
@@ -407,6 +412,19 @@ public class GameUIManager implements GameEventListener {
         tempGlyphLayout.setText(titleFont, titleText);
         float uiHeight = game.getViewManagement().getUIViewport().getWorldHeight();
         titleFont.draw(game.getBatch(), tempGlyphLayout, 50, uiHeight - 30);
+
+        // 渲染血条
+        if (playerLifeBlackboard != null) {
+            game.getBatch().end();
+            float lifeBarX = 200;
+            float lifeBarY = uiHeight - 35;
+            float lifeBarWidth = 200;
+            float lifeBarHeight = 20;
+            LifeBarRenderer.render(shapeRenderer, game.getBatch(),
+                    playerLifeBlackboard.getLifeModel(),
+                    lifeBarX, lifeBarY, lifeBarWidth, lifeBarHeight, titleFont);
+            game.getBatch().begin();
+        }
 
         if (playerEconomy != null) {
             String infoText = playerEconomy.getEconomyInfoString();
