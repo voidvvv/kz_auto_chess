@@ -12,11 +12,11 @@ public final class LevelEnemyConfig {
 
     /** 每关敌人 cardId 列表，索引 0 对应关卡 1 */
     private static final List<int[]> LEVEL_ENEMIES = Arrays.asList(
-        new int[] { 1, 2, 3 },           // 关卡 1：战士、法师、射手
-        new int[] { 1, 2, 3, 4 },        // 关卡 2
-        new int[] { 2, 3, 4, 5 },        // 关卡 3
-        new int[] { 6, 7, 8, 4, 5 },     // 关卡 4：精英 + 刺客坦克
-        new int[] { 6, 7, 8, 9, 10 }     // 关卡 5
+        new int[] { 140, 141, 142 },           // 关卡 1：战士、法师、射手
+        new int[] { 140, 141, 142, 143 },        // 关卡 2
+        new int[] { 141, 142, 143, 144 },        // 关卡 3
+        new int[] { 145, 146, 147, 143, 144 },     // 关卡 4：精英 + 刺客坦克
+        new int[] { 145, 146, 147, 148, 149 }     // 关卡 5
     );
 
     private LevelEnemyConfig() {}

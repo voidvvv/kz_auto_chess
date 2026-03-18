@@ -18,7 +18,10 @@ public class TiledAssetLoader {
 
     public static Map<String, TextureRegion> textureRegionMap = new HashMap<>();
 
-    public static void loadBaseCollision (TiledMapTileSet tiledSet) {
+    public static Map<Integer, TextureRegion> idToTextureRegionMap = new HashMap<>();
+    public static Map<Integer, BaseCollision> idToCollisionMap = new HashMap<>();
+
+    public static void loadBaseCollision(TiledMapTileSet tiledSet) {
         String prefix = tiledSet.getName();
         for (TiledMapTile tiledMapTile : tiledSet) {
             int id = tiledMapTile.getId();
@@ -27,6 +30,9 @@ public class TiledAssetLoader {
             BaseCollision bc = extractCollision(tiledMapTile);
 
             if (bc != null) {
+                idToTextureRegionMap.put(id, tiledMapTile.getTextureRegion());
+                idToCollisionMap.put(id, bc);
+
                 collisionMapping.put(key, bc);
                 textureRegionMap.put(key, tiledMapTile.getTextureRegion());
             }
@@ -46,18 +52,19 @@ public class TiledAssetLoader {
         if (face instanceof RectangleMapObject rmo) {
             bc.face.set(rmo.getRectangle());
         } else {
-            bc.face.set(2,2,10,10);
+            bc.face.set(2, 2, 10, 10);
         }
         if (bottom instanceof RectangleMapObject rmo) {
             bc.bottom.set(rmo.getRectangle());
         } else {
-            bc.bottom.set(2,2,10,10);
+            bc.bottom.set(2, 2, 10, 10);
         }
         return bc;
     }
 
     /**
      * 根据key获取碰撞框
+     *
      * @param key 资源key (格式: "tilesetId+tileId")
      * @return 碰撞框，如果不存在则返回null
      */
@@ -67,6 +74,7 @@ public class TiledAssetLoader {
 
     /**
      * 根据key获取纹理区域
+     *
      * @param key 资源key (格式: "tilesetId+tileId")
      * @return 纹理区域，如果不存在则返回null
      */
@@ -75,7 +83,28 @@ public class TiledAssetLoader {
     }
 
     /**
+     * 根据id获取碰撞框
+     *
+     * @param id 资源id
+     * @return 碰撞框，如果不存在则返回null
+     */
+    public static BaseCollision getCollision(int id) {
+        return idToCollisionMap.get(id);
+    }
+
+    /**
+     * 根据id获取纹理区域
+     *
+     * @param id 资源id
+     * @return 纹理区域，如果不存在则返回null
+     */
+    public static TextureRegion getTexture(int id) {
+        return idToTextureRegionMap.get(id);
+    }
+
+    /**
      * 检查是否存在指定的资源
+     *
      * @param key 资源key (格式: "tilesetId+tileId")
      * @return 如果碰撞框和纹理都存在则返回true
      */

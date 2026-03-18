@@ -9,6 +9,8 @@ import java.util.Map;
  * 表示战场上的一个角色单位，支持生命、攻击、目标与行为树所需状态
  */
 public class BattleCharacter {
+
+    private int id;
     public float time = 0f;
     public float currentTime = 0f;
     public float lastStateTime = 0f;
@@ -50,6 +52,7 @@ public class BattleCharacter {
     private boolean moveWhileAttacking = false;
 
     public BattleCharacter(Card card, CharacterStats stats, float x, float y, boolean isEnemy) {
+        this.id = card.getId();
         this.card = card;
         this.stats = stats;
         this.name = card.getName();
@@ -374,6 +377,14 @@ public class BattleCharacter {
             }
         }
         return sb.toString();
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 }
 
