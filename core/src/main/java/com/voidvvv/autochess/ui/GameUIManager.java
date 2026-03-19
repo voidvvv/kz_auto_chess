@@ -24,6 +24,7 @@ import com.voidvvv.autochess.model.Battlefield;
 import com.voidvvv.autochess.model.CardShop;
 import com.voidvvv.autochess.model.PlayerDeck;
 import com.voidvvv.autochess.model.PlayerEconomy;
+import com.voidvvv.autochess.model.SharedCardPool;
 import com.voidvvv.autochess.logic.SynergyManager;
 import com.voidvvv.autochess.render.LifeBarRenderer;
 import com.voidvvv.autochess.utils.FontUtils;
@@ -80,6 +81,7 @@ public class GameUIManager implements GameEventListener {
     private PlayerEconomy playerEconomy;
     private com.voidvvv.autochess.battle.PlayerLifeBlackboard playerLifeBlackboard;
     private SynergyManager synergyManager;
+    private SharedCardPool sharedCardPool;
 
     // 拖拽状态（用于渲染预览）
     private Object draggingObject;
@@ -267,13 +269,15 @@ public class GameUIManager implements GameEventListener {
             PlayerDeck playerDeck,
             PlayerEconomy playerEconomy,
             PlayerLifeBlackboard playerLifeBlackboard,
-            SynergyManager synergyManager) {
+            SynergyManager synergyManager,
+            SharedCardPool sharedCardPool) {
         this.battlefield = battlefield;
         this.cardShop = cardShop;
         this.playerDeck = playerDeck;
         this.playerEconomy = playerEconomy;
         this.playerLifeBlackboard = playerLifeBlackboard;
         this.synergyManager = synergyManager;
+        this.sharedCardPool = sharedCardPool;
     }
 
     /**
@@ -496,7 +500,16 @@ public class GameUIManager implements GameEventListener {
             float cardY = cardStartY;
             boolean hover = uiCoords.x >= cardX && uiCoords.x <= cardX + cardWidth &&
                            uiCoords.y >= cardY && uiCoords.y <= cardY + cardHeight;
-            CardRenderer.render(shapeRenderer, game.getBatch(), card, cardX, cardY, cardWidth, cardHeight, hover, false, 0, false);
+
+            // 获取池数量
+            int poolRemaining = -1;
+            int poolMax = -1;
+            if (sharedCardPool != null) {
+                poolRemaining = sharedCardPool.getRemainingCopies(card.getId());
+                poolMax = sharedCardPool.getMaxCopies(card.getId());
+            }
+
+            CardRenderer.render(shapeRenderer, game.getBatch(), card, cardX, cardY, cardWidth, cardHeight, hover, false, 0, false, poolRemaining, poolMax);
         }
     }
 

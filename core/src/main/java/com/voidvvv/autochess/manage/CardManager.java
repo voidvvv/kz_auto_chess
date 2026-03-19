@@ -11,6 +11,7 @@ import com.voidvvv.autochess.model.Card;
 import com.voidvvv.autochess.model.CardPool;
 import com.voidvvv.autochess.model.CardShop;
 import com.voidvvv.autochess.model.PlayerDeck;
+import com.voidvvv.autochess.model.SharedCardPool;
 import com.voidvvv.autochess.render.GameRenderer;
 import com.voidvvv.autochess.render.RenderHolder;
 
@@ -63,12 +64,14 @@ public class CardManager implements GameRenderer, GameEventListener {
         private final PlayerDeck playerDeck;
         private final CardShop cardShop;
         private final GameEventSystem eventSystem;
+        private final SharedCardPool sharedCardPool;
 
         public CardTransactionManager(PlayerDeck playerDeck, CardShop cardShop,
-                                      GameEventSystem eventSystem) {
+                                      GameEventSystem eventSystem, SharedCardPool sharedCardPool) {
             this.playerDeck = playerDeck;
             this.cardShop = cardShop;
             this.eventSystem = eventSystem;
+            this.sharedCardPool = sharedCardPool;
         }
 
         /**
@@ -76,6 +79,10 @@ public class CardManager implements GameRenderer, GameEventListener {
          */
         public boolean buyCard(Card card) {
             if (cardShop.buyCard(card)) {
+                // 从共享池中减少可用数量
+                if (sharedCardPool != null) {
+                    sharedCardPool.decrementCopies(card.getId());
+                }
                 playerDeck.addCard(card);
                 eventSystem.postEvent(new CardBuyEvent(card, card.getCost()));
                 return true;
@@ -86,6 +93,10 @@ public class CardManager implements GameRenderer, GameEventListener {
         public boolean sellCard(Card card, int goldReceived) {
             if (playerDeck.getCardCount(card) > 0) {
                 playerDeck.removeCard(card);
+                // 将卡牌返还到共享池
+                if (sharedCardPool != null) {
+                    sharedCardPool.incrementCopies(card.getId());
+                }
                 eventSystem.postEvent(new CardSellEvent(card, goldReceived));
                 return true;
             }
@@ -133,6 +144,7 @@ public class CardManager implements GameRenderer, GameEventListener {
     private final CardPool cardPool;
     private final CardShop cardShop;
     private final PlayerDeck playerDeck;
+    private final SharedCardPool sharedCardPool;
 
     private final CardPoolManager cardPoolManager;
     private final CardTransactionManager cardTransactionManager;
@@ -140,14 +152,16 @@ public class CardManager implements GameRenderer, GameEventListener {
     public CardManager(GameEventSystem eventSystem,
                        CardPool cardPool,
                        CardShop cardShop,
-                       PlayerDeck playerDeck) {
+                       PlayerDeck playerDeck,
+                       SharedCardPool sharedCardPool) {
         this.eventSystem = eventSystem;
         this.cardPool = cardPool;
         this.cardShop = cardShop;
         this.playerDeck = playerDeck;
+        this.sharedCardPool = sharedCardPool;
 
         this.cardPoolManager = new CardPoolManager(cardPool, cardShop);
-        this.cardTransactionManager = new CardTransactionManager(playerDeck, cardShop, eventSystem);
+        this.cardTransactionManager = new CardTransactionManager(playerDeck, cardShop, eventSystem, sharedCardPool);
     }
 
     // ========== Lifecycle ==========

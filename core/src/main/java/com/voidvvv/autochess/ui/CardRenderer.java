@@ -36,12 +36,24 @@ public class CardRenderer {
     public static void render(ShapeRenderer shapeRenderer, SpriteBatch batch,
                              Card card, float x, float y, float width, float height,
                              boolean hover, boolean showCount, int count) {
-        render(shapeRenderer, batch, card, x, y, width, height, hover, showCount, count, false);
+        render(shapeRenderer, batch, card, x, y, width, height, hover, showCount, count, false, -1, -1);
     }
 
     public static void render(ShapeRenderer shapeRenderer, SpriteBatch batch,
                              Card card, float x, float y, float width, float height,
                              boolean hover, boolean showCount, int count, boolean upgradable) {
+        render(shapeRenderer, batch, card, x, y, width, height, hover, showCount, count, upgradable, -1, -1);
+    }
+
+    /**
+     * 渲染卡牌（完整版本，包含池数量显示）
+     * @param poolRemaining 池中剩余数量，-1表示不显示
+     * @param poolMax 池中最大数量，-1表示不显示
+     */
+    public static void render(ShapeRenderer shapeRenderer, SpriteBatch batch,
+                             Card card, float x, float y, float width, float height,
+                             boolean hover, boolean showCount, int count, boolean upgradable,
+                             int poolRemaining, int poolMax) {
         // 绘制卡牌背景
         Color cardColor = getCardColorByTier(card.getTier());
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
@@ -125,6 +137,11 @@ public class CardRenderer {
         if (showCount && count > 0) {
             renderCountBadge(shapeRenderer, batch, x, y, width, height, count);
         }
+
+        // 如果显示池数量，绘制池数量标识
+        if (poolRemaining >= 0 && poolMax > 0) {
+            renderPoolCountBadge(shapeRenderer, batch, x, y, width, height, poolRemaining, poolMax);
+        }
     }
 
     /**
@@ -154,6 +171,46 @@ public class CardRenderer {
         float countX = badgeX - countLayout.width/2;
         float countY = badgeY + countLayout.height/2;
         cardFont.draw(batch, countLayout, countX, countY);
+        batch.end();
+    }
+
+    /**
+     * 渲染池数量标识（格式：remaining/max）
+     */
+    private static void renderPoolCountBadge(ShapeRenderer shapeRenderer, SpriteBatch batch,
+                                            float cardX, float cardY, float cardWidth, float cardHeight,
+                                            int poolRemaining, int poolMax) {
+        // 池数量显示在卡片底部中央
+        float badgeWidth = 50;
+        float badgeHeight = 16;
+        float badgeX = cardX + (cardWidth - badgeWidth) / 2;
+        float badgeY = cardY + 3;
+
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        // 根据剩余数量设置颜色
+        if (poolRemaining == 0) {
+            shapeRenderer.setColor(0.6f, 0.2f, 0.2f, 0.9f); // 红色 - 已耗尽
+        } else if (poolRemaining <= poolMax / 3) {
+            shapeRenderer.setColor(0.8f, 0.5f, 0.2f, 0.9f); // 橙色 - 稀缺
+        } else {
+            shapeRenderer.setColor(0.2f, 0.5f, 0.2f, 0.9f); // 绿色 - 充足
+        }
+        shapeRenderer.rect(badgeX, badgeY, badgeWidth, badgeHeight);
+        shapeRenderer.end();
+
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.setColor(Color.WHITE);
+        shapeRenderer.rect(badgeX, badgeY, badgeWidth, badgeHeight);
+        shapeRenderer.end();
+
+        batch.begin();
+        cardFont.setColor(Color.WHITE);
+        cardFont.getData().setScale(0.65f);
+        String poolText = poolRemaining + "/" + poolMax;
+        GlyphLayout poolLayout = new GlyphLayout(cardFont, poolText);
+        float textX = badgeX + (badgeWidth - poolLayout.width) / 2;
+        float textY = badgeY + (badgeHeight + poolLayout.height) / 2;
+        cardFont.draw(batch, poolLayout, textX, textY);
         batch.end();
     }
 

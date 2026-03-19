@@ -12,11 +12,26 @@ import java.util.Random;
 public class CardPool {
     private List<Card> allCards;
     private Random random;
+    private SharedCardPool sharedCardPool;
 
     public CardPool() {
         this.allCards = new ArrayList<>();
         this.random = new Random();
         initCards();
+    }
+
+    /**
+     * 设置共享卡池引用
+     */
+    public void setSharedCardPool(SharedCardPool sharedCardPool) {
+        this.sharedCardPool = sharedCardPool;
+    }
+
+    /**
+     * 获取共享卡池引用
+     */
+    public SharedCardPool getSharedCardPool() {
+        return sharedCardPool;
     }
 
     /**
@@ -73,6 +88,22 @@ public class CardPool {
     }
 
     /**
+     * 根据等级获取可用卡牌列表（考虑共享池中的可用数量）
+     */
+    public List<Card> getAvailableCardsByTier(int tier) {
+        List<Card> result = new ArrayList<>();
+        for (Card card : allCards) {
+            if (card.getTier() == tier) {
+                // 如果没有共享池，所有卡都可用
+                if (sharedCardPool == null || sharedCardPool.isCardAvailable(card.getId())) {
+                    result.add(card);
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
      * 随机获取指定数量的卡牌（用于商店刷新）
      */
     public List<Card> getRandomCards(int count) {
@@ -87,23 +118,52 @@ public class CardPool {
     /**
      * 根据等级概率随机获取卡牌
      * 等级越高，高等级卡牌出现概率越高
+     * 会过滤掉共享池中已耗尽的卡牌
      */
     public List<Card> getRandomCardsByLevel(int count, int playerLevel) {
         List<Card> result = new ArrayList<>();
         for (int i = 0; i < count; i++) {
             // 根据玩家等级计算各等级卡牌的出现概率
             int tier = calculateTierByLevel(playerLevel);
-            List<Card> tierCards = getCardsByTier(tier);
+            List<Card> tierCards = getAvailableCardsByTier(tier);
             if (!tierCards.isEmpty()) {
                 int index = random.nextInt(tierCards.size());
                 result.add(tierCards.get(index));
             } else {
-                // 如果没有对应等级的卡，随机选择
-                int index = random.nextInt(allCards.size());
-                result.add(allCards.get(index));
+                // 如果当前等级没有可用卡牌，尝试从其他等级获取
+                Card fallbackCard = getFallbackCard(tier);
+                if (fallbackCard != null) {
+                    result.add(fallbackCard);
+                }
             }
         }
         return result;
+    }
+
+    /**
+     * 当指定等级没有可用卡牌时，从其他等级获取替代卡牌
+     */
+    private Card getFallbackCard(int excludedTier) {
+        // 优先从相邻等级获取
+        for (int tierOffset = 1; tierOffset <= 4; tierOffset++) {
+            // 先检查更低的等级
+            int lowerTier = excludedTier - tierOffset;
+            if (lowerTier >= 1) {
+                List<Card> lowerCards = getAvailableCardsByTier(lowerTier);
+                if (!lowerCards.isEmpty()) {
+                    return lowerCards.get(random.nextInt(lowerCards.size()));
+                }
+            }
+            // 再检查更高的等级
+            int higherTier = excludedTier + tierOffset;
+            if (higherTier <= 5) {
+                List<Card> higherCards = getAvailableCardsByTier(higherTier);
+                if (!higherCards.isEmpty()) {
+                    return higherCards.get(random.nextInt(higherCards.size()));
+                }
+            }
+        }
+        return null;
     }
 
     /**
