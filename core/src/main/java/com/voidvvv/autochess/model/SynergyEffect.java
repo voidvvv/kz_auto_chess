@@ -111,6 +111,21 @@ public class SynergyEffect {
         return baseHp * (1 + hpBonus);
     }
 
+    // Setters (for BUFF/DEBUFF skill support)
+    public void setSynergyName(String synergyName) { this.synergyName = synergyName; }
+    public void setAttackBonus(float attackBonus) { this.attackBonus = attackBonus; }
+    public void setDefenseBonus(float defenseBonus) { this.defenseBonus = defenseBonus; }
+    public void setMagicBonus(float magicBonus) { this.magicBonus = magicBonus; }
+    public void setManaRegenBonus(float manaRegenBonus) { this.manaRegenBonus = manaRegenBonus; }
+    public void setAttackSpeedBonus(float attackSpeedBonus) { this.attackSpeedBonus = attackSpeedBonus; }
+    public void setCritBonus(float critBonus) { this.critBonus = critBonus; }
+    public void setCritDamageBonus(float critDamageBonus) { this.critDamageBonus = critDamageBonus; }
+    public void setDodgeBonus(float dodgeBonus) { this.dodgeBonus = dodgeBonus; }
+    public void setHpBonus(float hpBonus) { this.hpBonus = hpBonus; }
+    public void setDamageReductionBonus(float damageReductionBonus) { this.damageReductionBonus = damageReductionBonus; }
+    public void setLifeStealBonus(float lifeStealBonus) { this.lifeStealBonus = lifeStealBonus; }
+    public void setExpBonus(float expBonus) { this.expBonus = expBonus; }
+
     // 检查是否有任何加成
     public boolean hasAnyBonus() {
         return attackBonus != 0 || defenseBonus != 0 || magicBonus != 0 ||

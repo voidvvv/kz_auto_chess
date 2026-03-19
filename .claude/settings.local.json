@@ -28,7 +28,9 @@
       "Bash(find /Users/didi/IdeaProjects/kz_auto_chess -path \"*/test/*\" -name \"*.java\" 2>/dev/null | head -10)",
       "mcp__context7__query-docs",
       "Bash(git log:*)",
-      "Bash(gradlew.bat compileJava:*)"
+      "Bash(gradlew.bat compileJava:*)",
+      "Bash(gradle build:*)",
+      "Bash(./gradlew.bat classes:*)"
     ]
   }
 }
