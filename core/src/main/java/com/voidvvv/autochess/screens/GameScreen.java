@@ -68,6 +68,7 @@ public class GameScreen implements Screen, GameUIManager.ButtonCallback, GameEve
     private GameEventSystem gameEventSystem;
     private AutoChessGameMode gameMode;
     private PlayerLifeManager playerLifeManager;
+    private SynergyPanelManager synergyPanelManager;  // 单独持有，用于最后渲染
     private GameUIManager gameUIManager;
     private GameInputHandler gameInputHandler;
     private RenderCoordinator renderCoordinator;
@@ -173,8 +174,8 @@ public class GameScreen implements Screen, GameUIManager.ButtonCallback, GameEve
         playerLifeManager = new PlayerLifeManager(
                 playerLifeBlackboard, gameEventSystem);
 
-        // 羁绊面板管理器
-        SynergyPanelManager synergyPanelManager = new SynergyPanelManager(
+        // 羁绊面板管理器（保存引用，用于最后渲染）
+        synergyPanelManager = new SynergyPanelManager(
                 gameEventSystem, synergyManager, game.getViewManagement(), game);
 
         // 渲染协调器
@@ -187,7 +188,7 @@ public class GameScreen implements Screen, GameUIManager.ButtonCallback, GameEve
         gameMode = new AutoChessGameMode(
                 battleState, battleManager, economyManager, cardManager,
                 playerLifeManager, synergyPanelManager, renderCoordinator,
-                gameEventSystem, gameInputHandler, level);
+                gameEventSystem, gameInputHandler, game.getViewManagement(), level);
 
         // UI 管理器
         gameUIManager = new GameUIManager(game, level, this);
@@ -258,6 +259,9 @@ public class GameScreen implements Screen, GameUIManager.ButtonCallback, GameEve
         gameUIManager.renderCustomUI();
         gameUIManager.renderDragPreview();
         gameUIManager.draw();
+
+        // 3. 羁绊面板渲染（在商店面板之后，确保不被遮挡）
+        synergyPanelManager.render(renderCoordinator.getHolder());
     }
 
     @Override

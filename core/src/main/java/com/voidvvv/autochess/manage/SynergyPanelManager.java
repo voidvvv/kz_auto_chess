@@ -144,6 +144,11 @@ public class SynergyPanelManager implements GameEventListener, GameRenderer {
             rebuildDisplayCache();
             cacheValid = true;
         }
+        game.getViewManagement().getUIViewport().apply();
+
+        // 设置 UI 投影矩阵（确保羁绊面板使用 UI 坐标系渲染）
+        holder.getSpriteBatch().setProjectionMatrix(viewManagement.getUICamera().combined);
+        holder.getShapeRenderer().setProjectionMatrix(viewManagement.getUICamera().combined);
 
         // 获取鼠标位置（使用 InputContext 工厂方法）
         InputContext context = InputContext.fromInput(viewManagement.getUICamera());
