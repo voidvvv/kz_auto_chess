@@ -40,6 +40,7 @@ public class AutoChessGameMode implements GameMode {
     private final RenderCoordinator renderCoordinator;
     private final GameEventSystem eventSystem;
     private final GameInputHandler inputHandler;
+    private final com.voidvvv.autochess.utils.ViewManagement viewManagement;
 
     private int currentLevel = 1;
     private boolean isInitialized = false;
@@ -53,6 +54,7 @@ public class AutoChessGameMode implements GameMode {
                              RenderCoordinator renderCoordinator,
                              GameEventSystem eventSystem,
                              GameInputHandler inputHandler,
+                             com.voidvvv.autochess.utils.ViewManagement viewManagement,
                              int level) {
         this.battleState = battleState;
         this.battleManager = battleManager;
@@ -63,10 +65,11 @@ public class AutoChessGameMode implements GameMode {
         this.renderCoordinator = renderCoordinator;
         this.eventSystem = eventSystem;
         this.inputHandler = inputHandler;
+        this.viewManagement = viewManagement;
         this.currentLevel = level;
 
         // 初始化技能效果管理器
-        this.skillEffectManager = new SkillEffectManager(eventSystem);
+        this.skillEffectManager = new SkillEffectManager(eventSystem, viewManagement);
     }
 
     @Override
@@ -81,7 +84,8 @@ public class AutoChessGameMode implements GameMode {
         inputHandler.initialize(this);
 
         renderCoordinator.addRenderer(battleManager);
-        renderCoordinator.addRenderer(synergyPanelManager);
+        // 羁绊面板移到 GameScreen 中单独渲染，确保在商店面板之上
+        // renderCoordinator.addRenderer(synergyPanelManager);
         renderCoordinator.addRenderer(skillEffectManager);
 
         isInitialized = true;

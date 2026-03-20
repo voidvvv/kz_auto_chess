@@ -12,6 +12,7 @@ import com.voidvvv.autochess.render.GameRenderer;
 import com.voidvvv.autochess.render.RenderHolder;
 import com.voidvvv.autochess.render.effect.SkillEffectRenderer;
 import com.voidvvv.autochess.render.effect.SkillEffectRendererFactory;
+import com.voidvvv.autochess.utils.ViewManagement;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -34,6 +35,7 @@ public class SkillEffectManager implements GameEventListener, GameRenderer {
     private final com.voidvvv.autochess.event.GameEventSystem eventSystem;
     private final ModelHolder<SkillEffectModel> effectHolder;
     private final Map<SkillEffectType, SkillEffectRenderer> renderers;
+    private final ViewManagement viewManagement;
 
     /**
      * 效果 ID 生成器
@@ -45,8 +47,10 @@ public class SkillEffectManager implements GameEventListener, GameRenderer {
      */
     private static final float DEFAULT_DURATION = 1.0f;
 
-    public SkillEffectManager(com.voidvvv.autochess.event.GameEventSystem eventSystem) {
+    public SkillEffectManager(com.voidvvv.autochess.event.GameEventSystem eventSystem,
+                               ViewManagement viewManagement) {
         this.eventSystem = eventSystem;
+        this.viewManagement = viewManagement;
         this.effectHolder = new ModelHolder<>();
         this.renderers = new EnumMap<>(SkillEffectType.class);
 
@@ -194,6 +198,13 @@ public class SkillEffectManager implements GameEventListener, GameRenderer {
 
     @Override
     public void render(RenderHolder holder) {
+        // 应用世界 viewport
+        viewManagement.getGameViewport().apply();
+
+        // 设置世界投影矩阵（确保技能效果使用世界坐标系渲染）
+        holder.getSpriteBatch().setProjectionMatrix(viewManagement.getWorldCamera().combined);
+        holder.getShapeRenderer().setProjectionMatrix(viewManagement.getWorldCamera().combined);
+
         for (SkillEffectModel model : effectHolder.getModels()) {
             SkillEffectRenderer renderer = renderers.get(model.getType());
             if (renderer != null) {
