@@ -5,6 +5,8 @@ import com.badlogic.gdx.ai.msg.Telegram;
 import com.badlogic.gdx.ai.msg.Telegraph;
 import com.voidvvv.autochess.battle.collision.CollisionContext;
 import com.voidvvv.autochess.battle.collision.CollisionDetector;
+import com.voidvvv.autochess.event.GameEventSystem;
+import com.voidvvv.autochess.event.skill.SkillCastEvent;
 import com.voidvvv.autochess.model.BattleCharacter;
 import com.voidvvv.autochess.model.Battlefield;
 import com.voidvvv.autochess.model.Card;
@@ -249,8 +251,21 @@ public class BattleUnitBlackboard implements Telegraph {
             return false;
         }
 
+        // 检查角色是否死亡（提前检查，避免技能内部抛出异常）
+        if (self == null || self.isDead()) {
+            return false;
+        }
+
         try {
+            // 获取技能上下文
+            SkillContext skillContext = getSkillContext();
+
+            // 发布技能释放事件（用于渲染系统）
+            publishSkillCastEvent(skillContext);
+
+            // 执行技能
             skill.cast(this);
+
             // 释放成功后清零魔法值
             mana.reset();
             return true;
@@ -258,6 +273,48 @@ public class BattleUnitBlackboard implements Telegraph {
             Gdx.app.error("SkillSystem", "技能释放失败: " + e.getMessage(), e);
             return false;
         }
+    }
+
+    /**
+     * 获取技能上下文
+     */
+    private SkillContext getSkillContext() {
+        // 从卡牌配置获取技能参数
+        Card card = self.getCard();
+        if (card != null) {
+            return SkillContext.of(
+                card.getSkillValue(),
+                card.getSkillRange(),
+                card.getSkillDuration()
+            );
+        }
+        return SkillContext.DEFAULT;
+    }
+
+    /**
+     * 发布技能释放事件
+     */
+    private void publishSkillCastEvent(SkillContext skillContext) {
+        GameEventSystem eventSystem = battlefield.getEventSystem();
+        if (eventSystem == null) {
+            Gdx.app.debug("SkillSystem", "EventSystem not available, skipping event publish");
+            return;
+        }
+
+        SkillType skillType = self.getCard() != null ?
+            self.getCard().getSkillType() : SkillType.BASIC;
+
+        SkillCastEvent event = new SkillCastEvent(
+            self,                    // caster
+            target,                  // target
+            skill,                   // skill
+            skillType,               // skillType
+            skillContext,            // context
+            self.getX(),             // worldX
+            self.getY()              // worldY
+        );
+
+        eventSystem.postEvent(event);
     }
 
     /**

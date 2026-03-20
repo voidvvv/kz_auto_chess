@@ -25,6 +25,7 @@ import com.voidvvv.autochess.manage.BattleManager;
 import com.voidvvv.autochess.manage.CardManager;
 import com.voidvvv.autochess.manage.EconomyManager;
 import com.voidvvv.autochess.manage.PlayerLifeManager;
+import com.voidvvv.autochess.manage.SynergyPanelManager;
 import com.voidvvv.autochess.model.Battlefield;
 import com.voidvvv.autochess.model.CardPool;
 import com.voidvvv.autochess.model.CardShop;
@@ -172,6 +173,10 @@ public class GameScreen implements Screen, GameUIManager.ButtonCallback, GameEve
         playerLifeManager = new PlayerLifeManager(
                 playerLifeBlackboard, gameEventSystem);
 
+        // 羁绊面板管理器
+        SynergyPanelManager synergyPanelManager = new SynergyPanelManager(
+                gameEventSystem, synergyManager, game.getViewManagement(), game);
+
         // 渲染协调器
         renderCoordinator = new RenderCoordinator(game.getBatch(), shapeRenderer);
 
@@ -181,7 +186,8 @@ public class GameScreen implements Screen, GameUIManager.ButtonCallback, GameEve
         // GameMode 协调器
         gameMode = new AutoChessGameMode(
                 battleState, battleManager, economyManager, cardManager,
-                playerLifeManager, renderCoordinator, gameEventSystem, gameInputHandler, level);
+                playerLifeManager, synergyPanelManager, renderCoordinator,
+                gameEventSystem, gameInputHandler, level);
 
         // UI 管理器
         gameUIManager = new GameUIManager(game, level, this);

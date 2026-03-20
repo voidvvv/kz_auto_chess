@@ -75,9 +75,16 @@ public enum SynergyType {
 
     /**
      * 检查是否激活了指定等级的羁绊
+     * @param count 相同羁绊类型的角色数量
+     * @param targetLevel 目标等级（1-based）
+     * @return 如果达到指定等级的阈值返回 true，否则返回 false
      */
     public boolean isActivated(int count, int targetLevel) {
-        return targetLevel > 0 && count >= activationThresholds.get(targetLevel - 1);
+        // 边界检查：targetLevel 必须在有效范围内
+        if (targetLevel <= 0 || targetLevel > activationThresholds.size()) {
+            return false;
+        }
+        return count >= activationThresholds.get(targetLevel - 1);
     }
 
     /**

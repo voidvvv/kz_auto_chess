@@ -277,6 +277,9 @@ public class BattleManager implements GameRenderer, GameEventListener {
         this.synergyManager = synergyManager;
         this.characterStatsLoader = characterStatsLoader;
 
+        // 设置 Battlefield 的 eventSystem 引用，用于技能效果事件发布
+        this.battlefield.setEventSystem(eventSystem);
+
         this.battlePhaseManager = new BattlePhaseManager();
         this.characterLifecycle = new CharacterLifecycleManager();
         this.behaviorTreeManager = new BehaviorTreeManager();

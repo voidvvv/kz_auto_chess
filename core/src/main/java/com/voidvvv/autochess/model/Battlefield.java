@@ -1,5 +1,6 @@
 package com.voidvvv.autochess.model;
 
+import com.voidvvv.autochess.event.GameEventSystem;
 import com.voidvvv.autochess.model.battle.DamageEventHolder;
 import com.voidvvv.autochess.model.battle.DamageEventListenerHolder;
 import com.voidvvv.autochess.manage.ProjectileManager;
@@ -18,6 +19,7 @@ public class Battlefield {
     private DamageEventHolder damageEventHolder;
     private DamageEventListenerHolder damageEventListenerHolder;
     private ProjectileManager projectileManager;
+    private GameEventSystem eventSystem;
     /** 玩家区域占战场高度的比例（靠己方一侧） */
     public static final float PLAYER_ZONE_RATIO = 0.5f;
 
@@ -200,6 +202,11 @@ public class Battlefield {
     public ProjectileManager getProjectileManager() { return projectileManager; }
     public void setProjectileManager(ProjectileManager projectileManager) {
         this.projectileManager = projectileManager;
+    }
+
+    public GameEventSystem getEventSystem() { return eventSystem; }
+    public void setEventSystem(GameEventSystem eventSystem) {
+        this.eventSystem = eventSystem;
     }
 }
 

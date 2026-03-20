@@ -67,9 +67,24 @@ focus: 增强游戏可玩性
 - `SynergyType.getActivationThresholds()` and `getSynergyLevel()` methods exist
 - No UI component found that displays synergy status during battle
 
-**Confidence:** 90%
+**Deep Analysis (2026-03-20):**
+- **现有实现**: `GameUIManager.java:441-452` 仅显示最多3行简单文本
+- **完整后端**: `SynergyManager` 完整实现8种羁绊计算（WARRIOR/MAGE/ARCHER/ASSASSIN/TANK/DRAGON/BEAST/HUMAN）
+- **可用数据**:
+  - `getActiveSynergies()` - 激活的羁绊列表
+  - `getAllSynergyCounts()` - 所有羁绊计数
+  - `SynergyType.getActivationThresholds()` - 阈值数组
+  - `SynergyType.getNextThreshold(level)` - 下一级阈值
+- **效果数据**: `SynergyEffect` 有12种加成（攻击/防御/魔法/法力回复/攻速/暴击/暴击伤害/闪避/生命/伤害减免/生命偷取/经验）
+- **改进方向**:
+  1. 羁绊图标面板 - 左侧显示图标+等级
+  2. 进度条 - 当前数量/下一级阈值
+  3. 激活状态视觉 - 亮色=激活，灰色=未激活
+  4. 悬停详情 - 显示具体加成数值
+
+**Confidence:** 95%
 **Complexity:** Low
-**Status:** Unexplored
+**Status:** Explored (2026-03-20)
 
 ---
 
@@ -149,3 +164,5 @@ focus: 增强游戏可玩性
 ## Session Log
 - 2026-03-19: Initial ideation - 40 candidates generated across 5 ideation frames (pain/friction, missing capability, inversion/automation, leverage/compounding, assumption-breaking), 5 survived adversarial filtering
 - 2026-03-19: Brainstorm for idea #1 (Skill System Completion) selected
+- 2026-03-20: Deep analysis for idea #2 (Synergy Visual Feedback) - discovered existing implementation in GameUIManager (3-line text only), identified improvement directions (icons, progress bars, hover details)
+- 2026-03-20: Brainstorm for idea #2 (Synergy Visual Feedback) completed - requirements doc created at docs/brainstorms/2026-03-20-synergy-visual-feedback-requirements.md

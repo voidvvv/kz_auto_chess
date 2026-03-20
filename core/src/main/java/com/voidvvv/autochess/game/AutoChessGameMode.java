@@ -10,6 +10,8 @@ import com.voidvvv.autochess.manage.BattleManager;
 import com.voidvvv.autochess.manage.CardManager;
 import com.voidvvv.autochess.manage.EconomyManager;
 import com.voidvvv.autochess.manage.PlayerLifeManager;
+import com.voidvvv.autochess.manage.SkillEffectManager;
+import com.voidvvv.autochess.manage.SynergyPanelManager;
 import com.voidvvv.autochess.model.BattleCharacter;
 import com.voidvvv.autochess.model.Card;
 import com.voidvvv.autochess.model.GamePhase;
@@ -33,6 +35,8 @@ public class AutoChessGameMode implements GameMode {
     private final EconomyManager economyManager;
     private final CardManager cardManager;
     private final PlayerLifeManager playerLifeManager;
+    private final SkillEffectManager skillEffectManager;
+    private final SynergyPanelManager synergyPanelManager;
     private final RenderCoordinator renderCoordinator;
     private final GameEventSystem eventSystem;
     private final GameInputHandler inputHandler;
@@ -45,6 +49,7 @@ public class AutoChessGameMode implements GameMode {
                              EconomyManager economyManager,
                              CardManager cardManager,
                              PlayerLifeManager playerLifeManager,
+                             SynergyPanelManager synergyPanelManager,
                              RenderCoordinator renderCoordinator,
                              GameEventSystem eventSystem,
                              GameInputHandler inputHandler,
@@ -54,10 +59,14 @@ public class AutoChessGameMode implements GameMode {
         this.economyManager = economyManager;
         this.cardManager = cardManager;
         this.playerLifeManager = playerLifeManager;
+        this.synergyPanelManager = synergyPanelManager;
         this.renderCoordinator = renderCoordinator;
         this.eventSystem = eventSystem;
         this.inputHandler = inputHandler;
         this.currentLevel = level;
+
+        // 初始化技能效果管理器
+        this.skillEffectManager = new SkillEffectManager(eventSystem);
     }
 
     @Override
@@ -66,10 +75,14 @@ public class AutoChessGameMode implements GameMode {
         economyManager.onEnter();
         cardManager.onEnter();
         playerLifeManager.onEnter();
+        synergyPanelManager.onEnter();
+        skillEffectManager.onEnter();
 
         inputHandler.initialize(this);
 
         renderCoordinator.addRenderer(battleManager);
+        renderCoordinator.addRenderer(synergyPanelManager);
+        renderCoordinator.addRenderer(skillEffectManager);
 
         isInitialized = true;
         Gdx.app.log("AutoChessGameMode", "Game mode initialized");
@@ -83,6 +96,8 @@ public class AutoChessGameMode implements GameMode {
         battleManager.update(delta);
         economyManager.update(delta);
         cardManager.update(delta);
+        synergyPanelManager.update(delta);
+        skillEffectManager.update(delta, battleManager.getBattleTime());
         inputHandler.update(delta);
     }
 
@@ -105,6 +120,7 @@ public class AutoChessGameMode implements GameMode {
         economyManager.pause();
         cardManager.pause();
         playerLifeManager.pause();
+        synergyPanelManager.pause();
         inputHandler.pause();
     }
 
@@ -114,6 +130,7 @@ public class AutoChessGameMode implements GameMode {
         economyManager.resume();
         cardManager.resume();
         playerLifeManager.resume();
+        synergyPanelManager.resume();
         inputHandler.resume();
     }
 
@@ -123,6 +140,8 @@ public class AutoChessGameMode implements GameMode {
         economyManager.onExit();
         cardManager.onExit();
         playerLifeManager.onExit();
+        synergyPanelManager.onExit();
+        skillEffectManager.onExit();
         inputHandler.onExit();
 
         isInitialized = false;
