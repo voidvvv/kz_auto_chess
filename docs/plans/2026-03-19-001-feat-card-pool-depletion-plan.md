@@ -1,7 +1,7 @@
 ---
 title: Card Pool Depletion with Shared Pool
 type: feat
-status: active
+status: completed
 date: 2026-03-19
 origin: docs/brainstorms/2026-03-19-card-pool-depletion-requirements.md
 ---
@@ -103,24 +103,24 @@ Player clicks shop card
 
 ### Functional Requirements
 
-- [ ] **R1.1** Shared pool singleton exists in `KzAutoChess`
-- [ ] **R1.2** Tier-based copy limits implemented (T1=15, T2=12, T3=9, T4=6, T5=3)
-- [ ] **R1.3** Pool tracks available copies per card ID
-- [ ] **R2.1** Buying a card decrements pool count
-- [ ] **R2.2** Cards with 0 copies don't appear in shop refresh
-- [ ] **R2.3** Shop refresh only shows cards with 1+ copies remaining
-- [ ] **R3.1** Selling a card increments pool count
-- [ ] **R3.2** Sold cards immediately available for refresh
-- [ ] **R4.1** Shop UI displays remaining count (e.g., "3/9")
-- [ ] **R4.2** Depleted cards (0 remaining) don't appear in shop
+- [x] **R1.1** Shared pool singleton exists in `KzAutoChess`
+- [x] **R1.2** Tier-based copy limits implemented (T1=15, T2=12, T3=9, T4=6, T5=3)
+- [x] **R1.3** Pool tracks available copies per card ID
+- [x] **R2.1** Buying a card decrements pool count
+- [x] **R2.2** Cards with 0 copies don't appear in shop refresh
+- [x] **R2.3** Shop refresh only shows cards with 1+ copies remaining
+- [x] **R3.1** Selling a card increments pool count
+- [x] **R3.2** Sold cards immediately available for refresh
+- [x] **R4.1** Shop UI displays remaining count (e.g., "3/9")
+- [x] **R4.2** Depleted cards (0 remaining) don't appear in shop
 
 ### Quality Gates
 
-- [ ] Unit tests for buy/sell pool operations
-- [ ] Unit tests for depletion scenarios
-- [ ] Manual verification of UI count display
-- [ ] No negative pool counts possible
-- [ ] No pool counts exceeding tier limits
+- [x] Unit tests for buy/sell pool operations
+- [x] Unit tests for depletion scenarios
+- [x] Manual verification of UI count display
+- [x] No negative pool counts possible
+- [x] No pool counts exceeding tier limits
 
 ## Implementation Phases
 
