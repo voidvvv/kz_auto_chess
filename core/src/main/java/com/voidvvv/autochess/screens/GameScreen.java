@@ -31,6 +31,7 @@ import com.voidvvv.autochess.model.CardShop;
 import com.voidvvv.autochess.model.GamePhase;
 import com.voidvvv.autochess.model.PlayerDeck;
 import com.voidvvv.autochess.model.PlayerEconomy;
+import com.voidvvv.autochess.model.SharedCardPool;
 import com.voidvvv.autochess.render.RenderCoordinator;
 import com.voidvvv.autochess.ui.GameUIManager;
 import com.voidvvv.autochess.utils.CameraController;
@@ -111,6 +112,12 @@ public class GameScreen implements Screen, GameUIManager.ButtonCallback, GameEve
         cardShop = new CardShop(cardPool);
         playerEconomy = new PlayerEconomy();
         cardShop.setPlayerLevel(playerEconomy.getPlayerLevel());
+
+        // 初始化共享卡池
+        SharedCardPool sharedCardPool = game.getSharedCardPool();
+        sharedCardPool.initialize(cardPool);
+        cardPool.setSharedCardPool(sharedCardPool);
+
         cardShop.refresh();
         playerDeck = new PlayerDeck();
         // 使用全局的 PlayerLifeBlackboard（关卡间共享）
@@ -160,7 +167,7 @@ public class GameScreen implements Screen, GameUIManager.ButtonCallback, GameEve
                 gameEventSystem, playerEconomy, cardShop);
 
         CardManager cardManager = new CardManager(
-                gameEventSystem, cardPool, cardShop, playerDeck);
+                gameEventSystem, cardPool, cardShop, playerDeck, game.getSharedCardPool());
 
         playerLifeManager = new PlayerLifeManager(
                 playerLifeBlackboard, gameEventSystem);
@@ -178,7 +185,7 @@ public class GameScreen implements Screen, GameUIManager.ButtonCallback, GameEve
 
         // UI 管理器
         gameUIManager = new GameUIManager(game, level, this);
-        gameUIManager.setGameData(battlefield, cardShop, playerDeck, playerEconomy, playerLifeBlackboard, synergyManager);
+        gameUIManager.setGameData(battlefield, cardShop, playerDeck, playerEconomy, playerLifeBlackboard, synergyManager, game.getSharedCardPool());
         gameEventSystem.registerListener(gameUIManager);
         gameEventSystem.registerListener(this); // 注册 GameScreen 作为事件监听器
 
