@@ -5,6 +5,8 @@ import com.badlogic.gdx.ai.msg.Telegram;
 import com.badlogic.gdx.ai.msg.Telegraph;
 import com.voidvvv.autochess.battle.collision.CollisionContext;
 import com.voidvvv.autochess.battle.collision.CollisionDetector;
+import com.voidvvv.autochess.event.GameEventSystem;
+import com.voidvvv.autochess.event.skill.SkillCastEvent;
 import com.voidvvv.autochess.model.BattleCharacter;
 import com.voidvvv.autochess.model.Battlefield;
 import com.voidvvv.autochess.model.Card;
@@ -21,6 +23,11 @@ import com.voidvvv.autochess.sm.machine.StateMachine;
 import com.voidvvv.autochess.sm.state.common.AttackState;
 import com.voidvvv.autochess.sm.state.common.States;
 import com.voidvvv.autochess.model.skill.BasicSkill;
+import com.voidvvv.autochess.model.skill.AoeSkill;
+import com.voidvvv.autochess.model.skill.HealSkill;
+import com.voidvvv.autochess.model.skill.BuffSkill;
+import com.voidvvv.autochess.model.skill.DebuffSkill;
+import com.voidvvv.autochess.model.skill.SkillContext;
 import com.voidvvv.autochess.model.Card.CardType;
 
 /**
@@ -120,24 +127,45 @@ public class BattleUnitBlackboard implements Telegraph {
 
     /**
      * 根据卡牌类型创建技能实例
+     * Factory method that creates appropriate skill implementations based on card configuration.
+     *
+     * @param card the card containing skill configuration
+     * @return the created skill instance
      */
     private Skill<BattleUnitBlackboard> createSkillForCard(Card card) {
         if (card == null) {
             return new BasicSkill(); // 默认基础技能
         }
+
         SkillType skillType = card.getSkillType();
         if (skillType == null) {
             return new BasicSkill(); // 默认基础技能
         }
+
+        // Create skill context from card parameters
+        SkillContext context = SkillContext.of(
+                card.getSkillValue(),
+                card.getSkillRange(),
+                card.getSkillDuration(),
+                card.getSkillDamageType()
+        );
+
         switch (skillType) {
             case BASIC:
                 return new BasicSkill();
-            // 未来扩展
             case HEAL:
+                return new HealSkill(context);
             case AOE:
+                return new AoeSkill(context);
             case BUFF:
+                return new BuffSkill(context);
             case DEBUFF:
+                return new DebuffSkill(context);
             default:
+                if (Gdx.app != null) {
+                    Gdx.app.error("BattleUnitBlackboard",
+                            "Unknown skill type: " + skillType + ", using BasicSkill");
+                }
                 return new BasicSkill();
         }
     }
@@ -223,8 +251,21 @@ public class BattleUnitBlackboard implements Telegraph {
             return false;
         }
 
+        // 检查角色是否死亡（提前检查，避免技能内部抛出异常）
+        if (self == null || self.isDead()) {
+            return false;
+        }
+
         try {
+            // 获取技能上下文
+            SkillContext skillContext = getSkillContext();
+
+            // 发布技能释放事件（用于渲染系统）
+            publishSkillCastEvent(skillContext);
+
+            // 执行技能
             skill.cast(this);
+
             // 释放成功后清零魔法值
             mana.reset();
             return true;
@@ -232,6 +273,48 @@ public class BattleUnitBlackboard implements Telegraph {
             Gdx.app.error("SkillSystem", "技能释放失败: " + e.getMessage(), e);
             return false;
         }
+    }
+
+    /**
+     * 获取技能上下文
+     */
+    private SkillContext getSkillContext() {
+        // 从卡牌配置获取技能参数
+        Card card = self.getCard();
+        if (card != null) {
+            return SkillContext.of(
+                card.getSkillValue(),
+                card.getSkillRange(),
+                card.getSkillDuration()
+            );
+        }
+        return SkillContext.DEFAULT;
+    }
+
+    /**
+     * 发布技能释放事件
+     */
+    private void publishSkillCastEvent(SkillContext skillContext) {
+        GameEventSystem eventSystem = battlefield.getEventSystem();
+        if (eventSystem == null) {
+            Gdx.app.debug("SkillSystem", "EventSystem not available, skipping event publish");
+            return;
+        }
+
+        SkillType skillType = self.getCard() != null ?
+            self.getCard().getSkillType() : SkillType.BASIC;
+
+        SkillCastEvent event = new SkillCastEvent(
+            self,                    // caster
+            target,                  // target
+            skill,                   // skill
+            skillType,               // skillType
+            skillContext,            // context
+            self.getX(),             // worldX
+            self.getY()              // worldY
+        );
+
+        eventSystem.postEvent(event);
     }
 
     /**
@@ -394,6 +477,9 @@ public class BattleUnitBlackboard implements Telegraph {
     public void update(float delta) {
         // 更新魔法值
         updateMana(delta);
+
+        // 更新临时效果（检查过期)
+        this.self.updateTemporaryEffects(this.self.currentTime);
 
         this.stateMachine.update(delta);
         this.self.attackCooldown -= delta;
