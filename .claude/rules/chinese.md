@@ -1,1 +1,1 @@
-Always respond in Chinese-simplified
+Always response in Chinese.

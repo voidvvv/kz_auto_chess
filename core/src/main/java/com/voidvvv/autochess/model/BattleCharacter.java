@@ -1,6 +1,7 @@
 package com.voidvvv.autochess.model;
 
 import com.voidvvv.autochess.utils.CharacterCamp;
+import com.badlogic.gdx.utils.ObjectMap;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,6 +38,9 @@ public class BattleCharacter {
 
     // 羁绊效果系统
     private Map<String, SynergyEffect> activeSynergyEffects = new HashMap<>();
+
+    // 临时效果系统（用于技能BUFF/DEBUFF）
+    private ObjectMap<SynergyEffect, Float> effectExpirations = new ObjectMap<>();
 
     public BaseCollision baseCollision = new BaseCollision();
 
@@ -78,6 +82,9 @@ public class BattleCharacter {
 
         // 新增：清除移动效果列表
         moveComponent.movementEffects.clear();
+
+        // 清除临时效果（技能BUFF/DEBUFF）
+        clearTemporaryEffects();
 
         // 重置计时器和攻击进度
         this.time = 0f;
@@ -312,6 +319,16 @@ public class BattleCharacter {
     }
 
     /**
+     * 获取激活的羁绊效果映射（用于技能效果添加）
+     * 返回可变映射，允许添加临时技能效果
+     *
+     * @return 可变的羁绊效果映射
+     */
+    public Map<String, SynergyEffect> getActiveSynergyEffects() {
+        return activeSynergyEffects;
+    }
+
+    /**
      * 检查是否有激活的羁绊效果
      */
     public boolean hasActiveSynergyEffects() {
@@ -377,6 +394,64 @@ public class BattleCharacter {
             }
         }
         return sb.toString();
+    }
+
+    // ===================== 临时效果系统（技能BUFF/DEBUFF） =====================
+
+    /**
+     * 添加临时效果
+     * @param effect 效果对象
+     * @param duration 持续时间（秒）
+     * @param currentTime 当前时间（用于计算过期时间）
+     */
+    public void addTemporaryEffect(SynergyEffect effect, float duration, float currentTime) {
+        float expirationTime = currentTime + duration;
+        effectExpirations.put(effect, expirationTime);
+        // 同时添加到活跃效果中，以便属性计算
+        activeSynergyEffects.put(effect.getSynergyName(), effect);
+    }
+
+    /**
+     * 更新临时效果（移除已过期的效果）
+     * @param currentTime 当前时间
+     */
+    public void updateTemporaryEffects(float currentTime) {
+        // 使用迭代器安全移除过期效果
+        ObjectMap.Entries<SynergyEffect, Float> iterator = effectExpirations.iterator();
+        while (iterator.hasNext()) {
+            ObjectMap.Entry<SynergyEffect, Float> entry = iterator.next();
+            if (currentTime >= entry.value) {
+                // 从活跃效果中移除
+                activeSynergyEffects.remove(entry.key.getSynergyName());
+                // 从过期列表中移除
+                iterator.remove();
+            }
+        }
+    }
+
+    /**
+     * 清除所有临时效果
+     */
+    public void clearTemporaryEffects() {
+        // 从活跃效果中移除所有临时效果
+        for (ObjectMap.Entry<SynergyEffect, Float> entry : effectExpirations) {
+            activeSynergyEffects.remove(entry.key.getSynergyName());
+        }
+        effectExpirations.clear();
+    }
+
+    /**
+     * 检查是否有临时效果
+     */
+    public boolean hasTemporaryEffects() {
+        return !effectExpirations.isEmpty();
+    }
+
+    /**
+     * 获取临时效果数量
+     */
+    public int getTemporaryEffectCount() {
+        return effectExpirations.size;
     }
 
     public int getId() {

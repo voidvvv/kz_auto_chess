@@ -21,6 +21,11 @@ import com.voidvvv.autochess.sm.machine.StateMachine;
 import com.voidvvv.autochess.sm.state.common.AttackState;
 import com.voidvvv.autochess.sm.state.common.States;
 import com.voidvvv.autochess.model.skill.BasicSkill;
+import com.voidvvv.autochess.model.skill.AoeSkill;
+import com.voidvvv.autochess.model.skill.HealSkill;
+import com.voidvvv.autochess.model.skill.BuffSkill;
+import com.voidvvv.autochess.model.skill.DebuffSkill;
+import com.voidvvv.autochess.model.skill.SkillContext;
 import com.voidvvv.autochess.model.Card.CardType;
 
 /**
@@ -120,24 +125,45 @@ public class BattleUnitBlackboard implements Telegraph {
 
     /**
      * 根据卡牌类型创建技能实例
+     * Factory method that creates appropriate skill implementations based on card configuration.
+     *
+     * @param card the card containing skill configuration
+     * @return the created skill instance
      */
     private Skill<BattleUnitBlackboard> createSkillForCard(Card card) {
         if (card == null) {
             return new BasicSkill(); // 默认基础技能
         }
+
         SkillType skillType = card.getSkillType();
         if (skillType == null) {
             return new BasicSkill(); // 默认基础技能
         }
+
+        // Create skill context from card parameters
+        SkillContext context = SkillContext.of(
+                card.getSkillValue(),
+                card.getSkillRange(),
+                card.getSkillDuration(),
+                card.getSkillDamageType()
+        );
+
         switch (skillType) {
             case BASIC:
                 return new BasicSkill();
-            // 未来扩展
             case HEAL:
+                return new HealSkill(context);
             case AOE:
+                return new AoeSkill(context);
             case BUFF:
+                return new BuffSkill(context);
             case DEBUFF:
+                return new DebuffSkill(context);
             default:
+                if (Gdx.app != null) {
+                    Gdx.app.error("BattleUnitBlackboard",
+                            "Unknown skill type: " + skillType + ", using BasicSkill");
+                }
                 return new BasicSkill();
         }
     }
@@ -394,6 +420,9 @@ public class BattleUnitBlackboard implements Telegraph {
     public void update(float delta) {
         // 更新魔法值
         updateMana(delta);
+
+        // 更新临时效果（检查过期)
+        this.self.updateTemporaryEffects(this.self.currentTime);
 
         this.stateMachine.update(delta);
         this.self.attackCooldown -= delta;
