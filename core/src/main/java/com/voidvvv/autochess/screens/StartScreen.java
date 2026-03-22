@@ -11,6 +11,9 @@ import com.voidvvv.autochess.KzAutoChess;
 import com.voidvvv.autochess.utils.FontUtils;
 import com.voidvvv.autochess.utils.I18N;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * 游戏开始界面
  */
@@ -20,6 +23,7 @@ public class StartScreen implements Screen {
     private BitmapFont buttonFont;
     private ShapeRenderer shapeRenderer;
     private float buttonX, buttonY, buttonWidth, buttonHeight;
+    private float roguelikeButtonX, roguelikeButtonY, roguelikeButtonWidth, roguelikeButtonHeight;
 
     public StartScreen(KzAutoChess game) {
         this.game = game;
@@ -28,11 +32,17 @@ public class StartScreen implements Screen {
         this.buttonFont = FontUtils.getDefaultFont();
         this.shapeRenderer = new ShapeRenderer();
 
-        // 计算按钮位置（居中）
+        // 计算按钮位置（居中，两个按钮垂直排列）
         buttonWidth = 200;
         buttonHeight = 60;
         buttonX = (Gdx.graphics.getWidth() - buttonWidth) / 2;
-        buttonY = Gdx.graphics.getHeight() / 2 - buttonHeight / 2;
+        buttonY = Gdx.graphics.getHeight() / 2 - buttonHeight / 2 + 50;
+
+        // 闯关模式按钮（在开始游戏按钮下方）
+        roguelikeButtonWidth = 200;
+        roguelikeButtonHeight = 60;
+        roguelikeButtonX = (Gdx.graphics.getWidth() - roguelikeButtonWidth) / 2;
+        roguelikeButtonY = Gdx.graphics.getHeight() / 2 - roguelikeButtonHeight / 2 - 70;
     }
 
     @Override
@@ -48,23 +58,35 @@ public class StartScreen implements Screen {
         int mouseY = Gdx.graphics.getHeight() - Gdx.input.getY();
 
         // 检查鼠标是否在按钮上
-        boolean hover = mouseX >= buttonX && mouseX <= buttonX + buttonWidth &&
+        boolean startHover = mouseX >= buttonX && mouseX <= buttonX + buttonWidth &&
                        mouseY >= buttonY && mouseY <= buttonY + buttonHeight;
+        boolean roguelikeHover = mouseX >= roguelikeButtonX && mouseX <= roguelikeButtonX + roguelikeButtonWidth &&
+                       mouseY >= roguelikeButtonY && mouseY <= roguelikeButtonY + roguelikeButtonHeight;
 
         // 先绘制所有ShapeRenderer内容
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        if (hover) {
+        // 开始游戏按钮
+        if (startHover) {
             shapeRenderer.setColor(0.3f, 0.5f, 0.8f, 1);
         } else {
             shapeRenderer.setColor(0.2f, 0.4f, 0.7f, 1);
         }
         shapeRenderer.rect(buttonX, buttonY, buttonWidth, buttonHeight);
+
+        // 闯关模式按钮
+        if (roguelikeHover) {
+            shapeRenderer.setColor(0.5f, 0.3f, 0.7f, 1);
+        } else {
+            shapeRenderer.setColor(0.4f, 0.2f, 0.6f, 1);
+        }
+        shapeRenderer.rect(roguelikeButtonX, roguelikeButtonY, roguelikeButtonWidth, roguelikeButtonHeight);
         shapeRenderer.end();
 
         // 绘制按钮边框
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         shapeRenderer.setColor(Color.WHITE);
         shapeRenderer.rect(buttonX, buttonY, buttonWidth, buttonHeight);
+        shapeRenderer.rect(roguelikeButtonX, roguelikeButtonY, roguelikeButtonWidth, roguelikeButtonHeight);
         shapeRenderer.end();
 
         // 确保ShapeRenderer完全结束后再开始SpriteBatch
@@ -98,6 +120,8 @@ public class StartScreen implements Screen {
         // 绘制按钮文字
         buttonFont.setColor(Color.WHITE);
         buttonFont.getData().setScale(1.0f);
+
+        // 开始游戏按钮
         String buttonText = I18N.get("start_game");
         GlyphLayout buttonLayout = new GlyphLayout(buttonFont, buttonText);
         float textX = buttonX + (buttonWidth - buttonLayout.width) / 2;
@@ -111,22 +135,43 @@ public class StartScreen implements Screen {
         }
         buttonFont.draw(game.getBatch(), buttonLayout, textX, textY);
 
+        // 闯关模式按钮
+        String roguelikeButtonText = I18N.get("roguelike_mode");
+        GlyphLayout roguelikeButtonLayout = new GlyphLayout(buttonFont, roguelikeButtonText);
+        float roguelikeTextX = roguelikeButtonX + (roguelikeButtonWidth - roguelikeButtonLayout.width) / 2;
+        float roguelikeTextY = roguelikeButtonY + (roguelikeButtonHeight + roguelikeButtonLayout.height) / 2;
+
+        // 如果布局宽度为0，使用英文
+        if (roguelikeButtonLayout.width < 1) {
+            roguelikeButtonText = "Roguelike Mode";
+            roguelikeButtonLayout = new GlyphLayout(buttonFont, roguelikeButtonText);
+            roguelikeTextX = roguelikeButtonX + (roguelikeButtonWidth - roguelikeButtonLayout.width) / 2;
+        }
+        buttonFont.draw(game.getBatch(), roguelikeButtonLayout, roguelikeTextX, roguelikeTextY);
+
         game.getBatch().end();
 
         // 处理点击
-        if (Gdx.input.justTouched() && hover) {
-            // 重置血量到初始值（每次新游戏开始）
-            if (game.getPlayerLifeBlackboard() != null) {
-                game.getPlayerLifeBlackboard().reset();
+        if (Gdx.input.justTouched()) {
+            if (startHover) {
+                // 重置血量到初始值（每次新游戏开始）
+                if (game.getPlayerLifeBlackboard() != null) {
+                    game.getPlayerLifeBlackboard().reset();
+                }
+                game.setScreen(new LevelSelectScreen(game));
+            } else if (roguelikeHover) {
+                // 进入 Roguelike 模式
+                game.setScreen(new RoguelikeScreen(game));
             }
-            game.setScreen(new LevelSelectScreen(game));
         }
     }
 
     @Override
     public void resize(int width, int height) {
         buttonX = (width - buttonWidth) / 2;
-        buttonY = height / 2 - buttonHeight / 2;
+        buttonY = height / 2 - buttonHeight / 2 + 50;
+        roguelikeButtonX = (width - roguelikeButtonWidth) / 2;
+        roguelikeButtonY = height / 2 - roguelikeButtonHeight / 2 - 70;
     }
 
     @Override

@@ -81,6 +81,100 @@ public class BattleManager implements GameRenderer, GameEventListener {
 //            behaviorTreeManager.clear();
         }
 
+        /**
+         * 使用自定义敌人列表和属性缩放开始战斗
+         * @param enemyIds 敌人 cardId 列表
+         * @param stage 关卡数（用于属性缩放）
+         * @param statScaling 属性缩放系数
+         */
+        public void startBattleWithEnemies(List<Integer> enemyIds, int stage, float statScaling) {
+            battleTime = 0;
+            isBattleActive = true;
+
+            battleState.transitionTo(GamePhase.BATTLE);
+
+            // 清除战场上的旧敌人（如果有残留）
+            clearOldEnemies();
+
+            spawnEnemiesWithScaling(battlefield, enemyIds, cardPool, characterStatsLoader, stage, statScaling);
+
+            for (BattleCharacter c : battlefield.getCharacters()) {
+                if (!c.isDead()) {
+                    c.enterBattle();
+                    characterLifecycle.loadCharacter(c);
+                }
+            }
+
+            eventSystem.postEvent(new BattleStartEvent());
+        }
+
+        /**
+         * 清除战场上的旧敌人
+         */
+        private void clearOldEnemies() {
+            List<BattleCharacter> enemiesToRemove = new ArrayList<>();
+            for (BattleCharacter c : battlefield.getCharacters()) {
+                if (c.isEnemy()) {
+                    enemiesToRemove.add(c);
+                }
+            }
+            for (BattleCharacter c : enemiesToRemove) {
+                characterLifecycle.unloadCharacter(c);
+                battlefield.removeCharacter(c);
+            }
+            if (!enemiesToRemove.isEmpty()) {
+                Gdx.app.log("BattlePhaseManager", "Cleared " + enemiesToRemove.size() + " old enemies");
+            }
+        }
+
+        /**
+         * 生成敌人并应用属性缩放
+         */
+        private void spawnEnemiesWithScaling(Battlefield battlefield, List<Integer> cardIds,
+                                              CardPool cardPool, CharacterStatsLoader statsLoader,
+                                              int stage, float statScaling) {
+            if (cardIds == null || cardIds.isEmpty()) return;
+
+            float bw = battlefield.getWidth();
+            float bh = battlefield.getHeight();
+            float zoneHeight = bh * (1f - Battlefield.PLAYER_ZONE_RATIO);
+            float zoneBottom = battlefield.getEnemyZoneBottom();
+            float left = battlefield.getX();
+            int count = cardIds.size();
+            int cols = Math.min(count, 4);
+            int rows = (count + cols - 1) / cols;
+            float cellW = cols > 1 ? (bw - 60) / (cols - 1) : bw / 2;
+            float cellH = rows > 1 ? (zoneHeight - 40) / (rows - 1) : zoneHeight / 2;
+            float startX = left + 30;
+            float startY = zoneBottom + 20;
+
+            for (int i = 0; i < count; i++) {
+                int id = cardIds.get(i);
+                Card card = cardPool.getCardById(id);
+                CharacterStats baseStats = statsLoader.getStats(id);
+                if (card == null || baseStats == null) continue;
+
+                // 应用属性缩放
+                float multiplier = 1 + (stage - 1) * statScaling;
+                CharacterStats scaledStats = new CharacterStats(
+                        baseStats.getCardId(),
+                        baseStats.getHealth() * multiplier,
+                        baseStats.getMana(),
+                        baseStats.getAttack() * multiplier,
+                        baseStats.getDefense() * multiplier,
+                        baseStats.getMagicPower() * multiplier,
+                        baseStats.getMagicResist() * multiplier,
+                        baseStats.getAgility()
+                );
+
+                int c = i % cols;
+                int r = i / cols;
+                float px = startX + c * cellW;
+                float py = startY + r * cellH;
+                battlefield.placeEnemyCharacter(card, scaledStats, px, py);
+            }
+        }
+
         public void updateBattle(float delta) {
             if (!isBattleActive) return;
 
@@ -122,8 +216,11 @@ public class BattleManager implements GameRenderer, GameEventListener {
         }
 
         public void endBattle() {
+            Gdx.app.log("BattlePhaseManager", "endBattle() called");
             isBattleActive = false;
             boolean playerWon = battlefield.getEnemyCharacters().isEmpty();
+
+            Gdx.app.log("BattlePhaseManager", "Player won: " + playerWon);
 
             // 获取剩余敌人数量（用于血量系统扣血计算）
             int remainingEnemies = battlefield.getEnemyCharacters().size();

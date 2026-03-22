@@ -249,4 +249,22 @@ public class CardManager implements GameRenderer, GameEventListener {
     public PlayerDeck getPlayerDeck() {
         return playerDeck;
     }
+
+    public CardPoolManager getCardPoolManager() {
+        return cardPoolManager;
+    }
+
+    public CardTransactionManager getCardTransactionManager() {
+        return cardTransactionManager;
+    }
+
+    /**
+     * 设置卡池（用于 Roguelike 模式）
+     */
+    public void setCardPool(CardPool cardPool) {
+        // 注意：这里需要更新内部引用
+        // 由于 CardPoolManager 和 CardTransactionManager 是在构造函数中创建的
+        // 这个方法主要用于在初始化时设置卡池
+        // 实际使用中可能需要重新设计 CardManager 的构造方式
+    }
 }

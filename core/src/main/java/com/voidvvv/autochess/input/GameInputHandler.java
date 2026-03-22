@@ -13,6 +13,7 @@ import com.voidvvv.autochess.event.drag.DragCancelledEvent;
 import com.voidvvv.autochess.event.drag.DroppedEvent;
 import com.voidvvv.autochess.game.AutoChessGameMode;
 import com.voidvvv.autochess.game.GameMode;
+import com.voidvvv.autochess.game.RoguelikeGameMode;
 import com.voidvvv.autochess.model.BattleCharacter;
 import com.voidvvv.autochess.model.Card;
 import com.voidvvv.autochess.model.GamePhase;
@@ -22,14 +23,15 @@ import com.voidvvv.autochess.utils.RenderConfig;
 /**
  * 游戏输入处理器
  * 处理所有输入事件：商店点击、卡组拖拽、战场角色拖拽
- * 将输入转换为高层操作（通过 AutoChessGameMode 协调）
+ * 将输入转换为高层操作（通过 GameMode 协调）
  */
 public class GameInputHandler implements InputProcessor {
 
     private final KzAutoChess game;
     private final GameEventSystem eventSystem;
 
-    private AutoChessGameMode gameMode;
+    private AutoChessGameMode autoChessGameMode;
+    private RoguelikeGameMode roguelikeGameMode;
     private GameUIManager gameUIManager;
 
     // 拖拽状态
@@ -44,8 +46,88 @@ public class GameInputHandler implements InputProcessor {
 
     public void initialize(GameMode gameMode) {
         if (gameMode instanceof AutoChessGameMode) {
-            this.gameMode = (AutoChessGameMode) gameMode;
+            this.autoChessGameMode = (AutoChessGameMode) gameMode;
+            this.roguelikeGameMode = null;
+        } else if (gameMode instanceof RoguelikeGameMode) {
+            this.roguelikeGameMode = (RoguelikeGameMode) gameMode;
+            this.autoChessGameMode = null;
         }
+    }
+
+    /**
+     * 检查是否有有效的游戏模式
+     */
+    private boolean hasValidGameMode() {
+        return autoChessGameMode != null || roguelikeGameMode != null;
+    }
+
+    /**
+     * 获取当前游戏阶段
+     */
+    private GamePhase getPhase() {
+        if (autoChessGameMode != null) return autoChessGameMode.getPhase();
+        if (roguelikeGameMode != null) return roguelikeGameMode.getPhase();
+        return GamePhase.PLACEMENT;
+    }
+
+    /**
+     * 检查战场是否包含某个点
+     */
+    private boolean battlefieldContains(float x, float y) {
+        if (autoChessGameMode != null) return autoChessGameMode.battlefieldContains(x, y);
+        if (roguelikeGameMode != null) return roguelikeGameMode.getBattleManager().contains(x, y);
+        return false;
+    }
+
+    /**
+     * 获取指定位置的角色
+     */
+    private BattleCharacter getCharacterAt(float x, float y) {
+        if (autoChessGameMode != null) return autoChessGameMode.getCharacterAt(x, y);
+        if (roguelikeGameMode != null) return roguelikeGameMode.getBattleManager().getCharacterAt(x, y);
+        return null;
+    }
+
+    /**
+     * 移动角色
+     */
+    private void moveCharacter(BattleCharacter character, float x, float y) {
+        if (autoChessGameMode != null) autoChessGameMode.moveCharacter(character, x, y);
+        if (roguelikeGameMode != null) {
+            // Roguelike模式通过BattleManager移动
+            roguelikeGameMode.getBattleManager().moveCharacter(character, x, y);
+        }
+    }
+
+    /**
+     * 放置角色
+     */
+    private BattleCharacter placeCharacter(Card card, float x, float y) {
+        if (autoChessGameMode != null) return autoChessGameMode.placeCharacter(card, x, y);
+        if (roguelikeGameMode != null) {
+            // Roguelike模式通过BattleManager放置
+            return roguelikeGameMode.getBattleManager().placeCharacter(card, x, y);
+        }
+        return null;
+    }
+
+    /**
+     * 移除角色
+     */
+    private void removeCharacter(BattleCharacter character) {
+        if (autoChessGameMode != null) autoChessGameMode.removeCharacter(character);
+        if (roguelikeGameMode != null) {
+            roguelikeGameMode.getBattleManager().removeCharacter(character);
+        }
+    }
+
+    /**
+     * 获取卡牌管理器
+     */
+    private com.voidvvv.autochess.manage.CardManager getCardManager() {
+        if (autoChessGameMode != null) return autoChessGameMode.getCardManager();
+        if (roguelikeGameMode != null) return roguelikeGameMode.getCardManager();
+        return null;
     }
 
     public void setGameUIManager(GameUIManager gameUIManager) {
@@ -55,7 +137,7 @@ public class GameInputHandler implements InputProcessor {
     // ========== 每帧调用 ==========
 
     public void update(float delta) {
-        if (gameMode == null) return;
+        if (!hasValidGameMode()) return;
 
         int screenX = Gdx.input.getX();
         int screenY = Gdx.input.getY();
@@ -86,8 +168,8 @@ public class GameInputHandler implements InputProcessor {
     // ========== 点击处理 ==========
 
     private void handleMouseClick(float uiX, float uiY, float worldX, float worldY) {
-        if (gameMode == null) return;
-        if (gameMode.getPhase() == GamePhase.BATTLE) return;
+        if (!hasValidGameMode()) return;
+        if (getPhase() == GamePhase.BATTLE) return;
 
         // 1. 正在拖拽角色 → 处理放置
         if (draggingCharacter != null) {
@@ -102,7 +184,7 @@ public class GameInputHandler implements InputProcessor {
         }
 
         // 3. 检查点击战场角色
-        BattleCharacter character = gameMode.getCharacterAt(worldX, worldY);
+        BattleCharacter character = getCharacterAt(worldX, worldY);
         if (character != null && !character.isEnemy() && !character.isDead()) {
             draggingCharacter = character;
             eventSystem.postEvent(new DragStartedEvent(character, worldX, worldY));
@@ -111,37 +193,46 @@ public class GameInputHandler implements InputProcessor {
 
         // 4. 检查点击卡组卡牌
         if (gameUIManager != null) {
-            Card deckCard = gameUIManager.getCardAtDeckPosition(uiX, uiY);
-            if (deckCard != null && gameMode.getCardManager().getCardCount(deckCard) > 0) {
-                draggingCard = deckCard;
-                eventSystem.postEvent(new DragStartedEvent(deckCard, uiX, uiY));
-                return;
-            }
+            com.voidvvv.autochess.manage.CardManager cardManager = getCardManager();
+            if (cardManager != null) {
+                Card deckCard = gameUIManager.getCardAtDeckPosition(uiX, uiY);
+                if (deckCard != null && cardManager.getCardCount(deckCard) > 0) {
+                    draggingCard = deckCard;
+                    eventSystem.postEvent(new DragStartedEvent(deckCard, uiX, uiY));
+                    return;
+                }
 
-            // 5. 检查点击商店卡牌 → 买卡
-            Card shopCard = gameUIManager.getCardAtShopPosition(uiX, uiY);
-            if (shopCard != null) {
-                gameMode.buyCard(shopCard);
+                // 5. 检查点击商店卡牌 → 通过 GameUIManager 回调处理
+                Card shopCard = gameUIManager.getCardAtShopPosition(uiX, uiY);
+                if (shopCard != null) {
+                    gameUIManager.onShopCardClickedFromInput(shopCard);
+                }
             }
         }
     }
 
     private void handleCharacterDrop(float uiX, float uiY, float worldX, float worldY) {
-        if (gameMode.battlefieldContains(worldX, worldY)) {
-            gameMode.moveCharacter(draggingCharacter, worldX, worldY);
+        if (battlefieldContains(worldX, worldY)) {
+            moveCharacter(draggingCharacter, worldX, worldY);
         } else if (gameUIManager != null && gameUIManager.isInDeckArea(uiX, uiY)) {
             Card card = draggingCharacter.getCard();
-            gameMode.getCardManager().getPlayerDeck().addCard(card);
-            gameMode.removeCharacter(draggingCharacter);
+            com.voidvvv.autochess.manage.CardManager cardManager = getCardManager();
+            if (cardManager != null) {
+                cardManager.getPlayerDeck().addCard(card);
+            }
+            removeCharacter(draggingCharacter);
         }
         clearDragState();
     }
 
     private void handleCardDrop(float worldX, float worldY) {
-        if (gameMode.battlefieldContains(worldX, worldY)) {
-            BattleCharacter placed = gameMode.placeCharacter(draggingCard, worldX, worldY);
+        if (battlefieldContains(worldX, worldY)) {
+            BattleCharacter placed = placeCharacter(draggingCard, worldX, worldY);
             if (placed != null) {
-                gameMode.getCardManager().getPlayerDeck().removeCard(draggingCard);
+                com.voidvvv.autochess.manage.CardManager cardManager = getCardManager();
+                if (cardManager != null) {
+                    cardManager.getPlayerDeck().removeCard(draggingCard);
+                }
             }
         }
         clearDragState();

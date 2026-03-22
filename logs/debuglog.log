@@ -1,0 +1,254 @@
+17:25:42: Executing 'run -Dfile.encoding=UTF-8'…
+
+[FontUtils] Checking font file: C:/Windows/Fonts/msyh.ttc, exists: true
+[FontUtils] Successfully loaded font from: C:/Windows/Fonts/msyh.ttc
+[FontUtils] Generated character set length: 1493
+[FontUtils] Generated default font (24px)
+[FontUtils] Generated large font (36px)
+[FontUtils] Generated small font (18px)
+[FontUtils] Test Chinese text width: 0.0
+[FontUtils] All fonts generated successfully from: C:/Windows/Fonts/msyh.ttc
+[I18N] I18N initialized with locale: zh_CN, bundle size: zh_CN
+[LifeConfigLoader] Loaded config: initialHealth=50, damagePerEnemy=1
+[I18N] Bundle file not found: i18n/i18n
+[LifeConfigLoader] Loaded config: initialHealth=50, damagePerEnemy=1
+[CharacterStatsLoader] Loaded 25 character stats
+[RoguelikeScreen] Tiled resources loaded
+[RoguelikeConfig] Config loaded from roguelike_config.json
+[RoguelikeEnemyPool] Loaded 5 tier configs
+[GameUIManager] Skin loaded successfully
+[GameEventSystem] Registered listener: GameUIManager
+[GameEventSystem] Posting event: GoldEarnEvent
+[GameEventSystem] Registered listener: BattleManager
+[GameEventSystem] Registered listener: EconomyManager
+[GameEventSystem] Registered listener: CardManager
+[GameEventSystem] Registered listener: SynergyPanelManager
+[SynergyPanelManager] onEnter: registered listener
+[GameEventSystem] Registered listener: RoguelikeGameMode
+[RoguelikeGameMode] Game mode initialized - Stage 1
+[RoguelikeScreen] Screen shown
+[GameEventDispatcher] Dispatching 1 events to 6 listeners
+[GameEventDispatcher] Dispatching event: GoldEarnEvent
+[RoguelikeGameMode] Received event: GoldEarnEvent
+[GameEventSystem] Posting event: CardBuyEvent
+[GameEventSystem] Posting event: GoldSpendEvent
+[GameEventDispatcher] Dispatching 2 events to 6 listeners
+[GameEventDispatcher] Dispatching event: CardBuyEvent
+[RoguelikeGameMode] Received event: CardBuyEvent
+[GameEventDispatcher] Dispatching event: GoldSpendEvent
+[RoguelikeGameMode] Received event: GoldSpendEvent
+[GameEventSystem] Posting event: CardBuyEvent
+[GameEventSystem] Posting event: GoldSpendEvent
+[GameEventDispatcher] Dispatching 2 events to 6 listeners
+[GameEventDispatcher] Dispatching event: CardBuyEvent
+[RoguelikeGameMode] Received event: CardBuyEvent
+[GameEventDispatcher] Dispatching event: GoldSpendEvent
+[RoguelikeGameMode] Received event: GoldSpendEvent
+[GameEventSystem] Posting event: CardBuyEvent
+[GameEventSystem] Posting event: GoldSpendEvent
+[GameEventDispatcher] Dispatching 2 events to 6 listeners
+[GameEventDispatcher] Dispatching event: CardBuyEvent
+[RoguelikeGameMode] Received event: CardBuyEvent
+[GameEventDispatcher] Dispatching event: GoldSpendEvent
+[RoguelikeGameMode] Received event: GoldSpendEvent
+[GameEventSystem] Posting event: CardBuyEvent
+[GameEventSystem] Posting event: GoldSpendEvent
+[GameEventDispatcher] Dispatching 2 events to 6 listeners
+[GameEventDispatcher] Dispatching event: CardBuyEvent
+[RoguelikeGameMode] Received event: CardBuyEvent
+[GameEventDispatcher] Dispatching event: GoldSpendEvent
+[RoguelikeGameMode] Received event: GoldSpendEvent
+[GameEventSystem] Posting event: CardBuyEvent
+[GameEventSystem] Posting event: GoldSpendEvent
+[GameEventDispatcher] Dispatching 2 events to 6 listeners
+[GameEventDispatcher] Dispatching event: CardBuyEvent
+[RoguelikeGameMode] Received event: CardBuyEvent
+[GameEventDispatcher] Dispatching event: GoldSpendEvent
+[RoguelikeGameMode] Received event: GoldSpendEvent
+[GameEventSystem] Posting event: DragStartedEvent
+[GameEventDispatcher] Dispatching 1 events to 6 listeners
+[GameEventDispatcher] Dispatching event: DragStartedEvent
+[RoguelikeGameMode] Received event: DragStartedEvent
+[GameEventSystem] Posting event: DragCancelledEvent
+[GameEventDispatcher] Dispatching 1 events to 6 listeners
+[GameEventDispatcher] Dispatching event: DragCancelledEvent
+[RoguelikeGameMode] Received event: DragCancelledEvent
+[GameEventSystem] Posting event: DragStartedEvent
+[GameEventDispatcher] Dispatching 1 events to 6 listeners
+[GameEventDispatcher] Dispatching event: DragStartedEvent
+[RoguelikeGameMode] Received event: DragStartedEvent
+[GameEventSystem] Posting event: DragCancelledEvent
+[GameEventDispatcher] Dispatching 1 events to 6 listeners
+[GameEventDispatcher] Dispatching event: DragCancelledEvent
+[RoguelikeGameMode] Received event: DragCancelledEvent
+[GameEventSystem] Posting event: DragStartedEvent
+[GameEventDispatcher] Dispatching 1 events to 6 listeners
+[GameEventDispatcher] Dispatching event: DragStartedEvent
+[RoguelikeGameMode] Received event: DragStartedEvent
+[GameEventSystem] Posting event: DragCancelledEvent
+[GameEventDispatcher] Dispatching 1 events to 6 listeners
+[GameEventDispatcher] Dispatching event: DragCancelledEvent
+[RoguelikeGameMode] Received event: DragCancelledEvent
+[GameEventSystem] Posting event: DragStartedEvent
+[GameEventDispatcher] Dispatching 1 events to 6 listeners
+[GameEventDispatcher] Dispatching event: DragStartedEvent
+[RoguelikeGameMode] Received event: DragStartedEvent
+[GameEventSystem] Posting event: DragCancelledEvent
+[GameEventDispatcher] Dispatching 1 events to 6 listeners
+[GameEventDispatcher] Dispatching event: DragCancelledEvent
+[RoguelikeGameMode] Received event: DragCancelledEvent
+[GameEventSystem] Posting event: DragStartedEvent
+[GameEventDispatcher] Dispatching 1 events to 6 listeners
+[GameEventDispatcher] Dispatching event: DragStartedEvent
+[RoguelikeGameMode] Received event: DragStartedEvent
+[GameEventSystem] Posting event: DragCancelledEvent
+[GameEventDispatcher] Dispatching 1 events to 6 listeners
+[GameEventDispatcher] Dispatching event: DragCancelledEvent
+[RoguelikeGameMode] Received event: DragCancelledEvent
+[RoguelikeGameMode] Starting battle at stage 1, type: NORMAL
+[RoguelikeGameMode] Generated 3 enemies: [141, 140, 143]
+[GameEventSystem] Posting event: PhaseTransitionEvent
+[GameEventSystem] Posting event: BattleStartEvent
+[GameEventDispatcher] Dispatching 2 events to 6 listeners
+[GameEventDispatcher] Dispatching event: PhaseTransitionEvent
+[RoguelikeGameMode] Received event: PhaseTransitionEvent
+[GameEventDispatcher] Dispatching event: BattleStartEvent
+[RoguelikeGameMode] Received event: BattleStartEvent
+[GameEventSystem] Posting event: SkillCastEvent
+[DebuffSkill] Applied debuff to 新手法师: -20.0% attack for 4.0 seconds
+[DebuffSkill] [新手射手] cast 减益 on 新手法师, duration: 4.0, value: 20.0
+[GameEventSystem] Posting event: SkillCastEvent
+[DebuffSkill] Applied debuff to 新手刺客: -20.0% attack for 4.0 seconds
+[DebuffSkill] [新手射手] cast 减益 on 新手刺客, duration: 4.0, value: 20.0
+[GameEventDispatcher] Dispatching 2 events to 6 listeners
+[GameEventDispatcher] Dispatching event: SkillCastEvent
+[RoguelikeGameMode] Received event: SkillCastEvent
+[GameEventDispatcher] Dispatching event: SkillCastEvent
+[RoguelikeGameMode] Received event: SkillCastEvent
+[GameEventSystem] Posting event: SkillCastEvent
+[BuffSkill] Applied buff to 新手法师: +30.0% attack for 5.0 seconds
+[BuffSkill] Applied buff to 新手战士: +30.0% attack for 5.0 seconds
+[BuffSkill] Applied buff to 新手刺客: +30.0% attack for 5.0 seconds
+[BuffSkill] [新手战士] cast 增益 on 3 allies, duration: 5.0, value: 30.0
+[GameEventDispatcher] Dispatching 1 events to 6 listeners
+[GameEventDispatcher] Dispatching event: SkillCastEvent
+[RoguelikeGameMode] Received event: SkillCastEvent
+[GameEventSystem] Posting event: SkillCastEvent
+[HealSkill] [新手坦克] cast 治疗术 on self, healed: 22.5 (requested: 50.0)
+[GameEventDispatcher] Dispatching 1 events to 6 listeners
+[GameEventDispatcher] Dispatching event: SkillCastEvent
+[RoguelikeGameMode] Received event: SkillCastEvent
+[GameEventSystem] Posting event: SkillCastEvent
+[DebuffSkill] Applied debuff to 新手射手: -25.0% attack for 5.0 seconds
+[DebuffSkill] [新手刺客] cast 减益 on 新手射手, duration: 5.0, value: 25.0
+[GameEventDispatcher] Dispatching 1 events to 6 listeners
+[GameEventDispatcher] Dispatching event: SkillCastEvent
+[RoguelikeGameMode] Received event: SkillCastEvent
+[GameEventSystem] Posting event: SkillCastEvent
+[AoeSkill] [新手法师] cast AOE伤害 on 2 targets, range: 80.0, damage: 40.0
+[GameEventDispatcher] Dispatching 1 events to 6 listeners
+[GameEventDispatcher] Dispatching event: SkillCastEvent
+[RoguelikeGameMode] Received event: SkillCastEvent
+[GameEventSystem] Posting event: SkillCastEvent
+[HealSkill] [新手坦克] cast 治疗术 on self, healed: 30.0 (requested: 50.0)
+[GameEventDispatcher] Dispatching 1 events to 6 listeners
+[GameEventDispatcher] Dispatching event: SkillCastEvent
+[RoguelikeGameMode] Received event: SkillCastEvent
+[GameEventSystem] Posting event: SkillCastEvent
+[BuffSkill] Applied buff to 新手法师: +30.0% attack for 5.0 seconds
+[BuffSkill] Applied buff to 新手战士: +30.0% attack for 5.0 seconds
+[BuffSkill] Applied buff to 新手刺客: +30.0% attack for 5.0 seconds
+[BuffSkill] [新手战士] cast 增益 on 3 allies, duration: 5.0, value: 30.0
+[GameEventDispatcher] Dispatching 1 events to 6 listeners
+[GameEventDispatcher] Dispatching event: SkillCastEvent
+[RoguelikeGameMode] Received event: SkillCastEvent
+[GameEventSystem] Posting event: SkillCastEvent
+[DebuffSkill] Applied debuff to 新手法师: -20.0% attack for 4.0 seconds
+[DebuffSkill] [新手射手] cast 减益 on 新手法师, duration: 4.0, value: 20.0
+[GameEventSystem] Posting event: SkillCastEvent
+[DebuffSkill] Applied debuff to 新手刺客: -20.0% attack for 4.0 seconds
+[DebuffSkill] [新手射手] cast 减益 on 新手刺客, duration: 4.0, value: 20.0
+[GameEventDispatcher] Dispatching 2 events to 6 listeners
+[GameEventDispatcher] Dispatching event: SkillCastEvent
+[RoguelikeGameMode] Received event: SkillCastEvent
+[GameEventDispatcher] Dispatching event: SkillCastEvent
+[RoguelikeGameMode] Received event: SkillCastEvent
+[GameEventSystem] Posting event: SkillCastEvent
+[DebuffSkill] Applied debuff to 新手射手: -25.0% attack for 5.0 seconds
+[DebuffSkill] [新手刺客] cast 减益 on 新手射手, duration: 5.0, value: 25.0
+[GameEventDispatcher] Dispatching 1 events to 6 listeners
+[GameEventDispatcher] Dispatching event: SkillCastEvent
+[RoguelikeGameMode] Received event: SkillCastEvent
+[GameEventSystem] Posting event: SkillCastEvent
+[HealSkill] [新手坦克] cast 治疗术 on self, healed: 0.0 (requested: 50.0)
+[GameEventSystem] Posting event: SkillCastEvent
+[BuffSkill] Applied buff to 新手坦克: +40.0% attack for 7.0 seconds
+[BuffSkill] Applied buff to 新手坦克: +40.0% attack for 7.0 seconds
+[BuffSkill] Applied buff to 高级战士: +40.0% attack for 7.0 seconds
+[BuffSkill] Applied buff to 新手射手: +40.0% attack for 7.0 seconds
+[BuffSkill] Applied buff to 新手射手: +40.0% attack for 7.0 seconds
+[BuffSkill] [高级战士] cast 增益 on 5 allies, duration: 7.0, value: 40.0
+[GameEventDispatcher] Dispatching 2 events to 6 listeners
+[GameEventDispatcher] Dispatching event: SkillCastEvent
+[RoguelikeGameMode] Received event: SkillCastEvent
+[GameEventDispatcher] Dispatching event: SkillCastEvent
+[RoguelikeGameMode] Received event: SkillCastEvent
+[GameEventSystem] Posting event: SkillCastEvent
+[HealSkill] [新手坦克] cast 治疗术 on self, healed: 15.0 (requested: 50.0)
+[GameEventDispatcher] Dispatching 1 events to 6 listeners
+[GameEventDispatcher] Dispatching event: SkillCastEvent
+[RoguelikeGameMode] Received event: SkillCastEvent
+[GameEventSystem] Posting event: SkillCastEvent
+[BuffSkill] Applied buff to 新手战士: +30.0% attack for 5.0 seconds
+[BuffSkill] Applied buff to 新手刺客: +30.0% attack for 5.0 seconds
+[BuffSkill] [新手战士] cast 增益 on 2 allies, duration: 5.0, value: 30.0
+[GameEventDispatcher] Dispatching 1 events to 6 listeners
+[GameEventDispatcher] Dispatching event: SkillCastEvent
+[RoguelikeGameMode] Received event: SkillCastEvent
+[GameEventSystem] Posting event: SkillCastEvent
+[DebuffSkill] Applied debuff to 新手战士: -20.0% attack for 4.0 seconds
+[DebuffSkill] [新手射手] cast 减益 on 新手战士, duration: 4.0, value: 20.0
+[GameEventSystem] Posting event: SkillCastEvent
+[DebuffSkill] Applied debuff to 新手刺客: -20.0% attack for 4.0 seconds
+[DebuffSkill] [新手射手] cast 减益 on 新手刺客, duration: 4.0, value: 20.0
+[GameEventDispatcher] Dispatching 2 events to 6 listeners
+[GameEventDispatcher] Dispatching event: SkillCastEvent
+[RoguelikeGameMode] Received event: SkillCastEvent
+[GameEventDispatcher] Dispatching event: SkillCastEvent
+[RoguelikeGameMode] Received event: SkillCastEvent
+[GameEventSystem] Posting event: SkillCastEvent
+[HealSkill] [新手坦克] cast 治疗术 on self, healed: 0.0 (requested: 50.0)
+[GameEventDispatcher] Dispatching 1 events to 6 listeners
+[GameEventDispatcher] Dispatching event: SkillCastEvent
+[RoguelikeGameMode] Received event: SkillCastEvent
+[GameEventSystem] Posting event: SkillCastEvent
+[DebuffSkill] Applied debuff to 新手射手: -25.0% attack for 5.0 seconds
+[DebuffSkill] [新手刺客] cast 减益 on 新手射手, duration: 5.0, value: 25.0
+[GameEventDispatcher] Dispatching 1 events to 6 listeners
+[GameEventDispatcher] Dispatching event: SkillCastEvent
+[RoguelikeGameMode] Received event: SkillCastEvent
+[BattlePhaseManager] endBattle() called
+[BattlePhaseManager] Player won: true
+[GameEventSystem] Posting event: PhaseTransitionEvent
+[GameEventSystem] Posting event: BattleEndEvent
+[GameEventDispatcher] Dispatching 2 events to 6 listeners
+[GameEventDispatcher] Dispatching event: PhaseTransitionEvent
+[RoguelikeGameMode] Received event: PhaseTransitionEvent
+[GameEventDispatcher] Dispatching event: BattleEndEvent
+[GameEventSystem] Posting event: GoldEarnEvent
+[GameEventSystem] Posting event: GoldEarnEvent
+[RoguelikeGameMode] Received event: BattleEndEvent
+[GameEventSystem] Posting event: GoldEarnEvent
+[StageManager] Stage advanced from 1 to 2
+[RoguelikeGameMode] Stage 1 completed, reward: 5 gold, now at stage 2
+[RoguelikeGameMode] Starting battle at stage 2, type: NORMAL
+[RoguelikeGameMode] Generated 4 enemies: [142, 140, 140, 140]
+[GameEventSystem] Posting event: PhaseTransitionEvent
+[GameEventSystem] Posting event: BattleStartEvent
+[GameEventDispatcher] Dispatching 2 events to 6 listeners
+[GameEventDispatcher] Dispatching event: PhaseTransitionEvent
+[RoguelikeGameMode] Received event: PhaseTransitionEvent
+[GameEventDispatcher] Dispatching event: BattleStartEvent
+[RoguelikeGameMode] Received event: BattleStartEvent
+[SynergyPanelManager] pause
+17:26:09: Execution finished 'run -Dfile.encoding=UTF-8'.

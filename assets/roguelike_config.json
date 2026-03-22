@@ -1,0 +1,9 @@
+{
+  "maxStages": 30,
+  "initialGold": 5,
+  "normalStageReward": 5,
+  "bossStageReward": 10,
+  "eventStages": [3, 8, 13, 18, 23, 28],
+  "bossStages": [5, 10, 15, 20, 25, 30],
+  "statScaling": 0.05
+}

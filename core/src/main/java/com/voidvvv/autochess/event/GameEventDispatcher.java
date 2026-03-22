@@ -29,7 +29,13 @@ public class GameEventDispatcher {
             return;
         }
 
-        for (GameEvent event : eventHolder.getModels()) {
+        List<GameEvent> events = eventHolder.getModels();
+        if (!events.isEmpty()) {
+            LOGGER.info("Dispatching " + events.size() + " events to " + listeners.size() + " listeners");
+        }
+
+        for (GameEvent event : events) {
+            LOGGER.info("Dispatching event: " + event.getClass().getSimpleName());
             for (GameEventListener listener : listeners) {
                 try {
                     listener.onGameEvent(event);

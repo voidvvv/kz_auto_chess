@@ -48,6 +48,14 @@ public class GameUIManager implements GameEventListener {
         void onStartBattleButtonClicked();
     }
 
+    /**
+     * Roguelike 专用按钮回调接口（扩展版本）
+     */
+    public interface RoguelikeButtonCallback extends ButtonCallback {
+        void onRefreshButtonClicked();
+        void onShopCardClicked(Card card);
+    }
+
     private final KzAutoChess game;
     private final Stage stage;
     private final Skin skin;
@@ -223,6 +231,17 @@ public class GameUIManager implements GameEventListener {
             }
         });
         parentTable.add(backButton).left();
+
+        // 刷新按钮
+        refreshButton = new TextButton("刷新", buttonStyle);
+        refreshButton.setSize(100, 40);
+        refreshButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y) {
+                onRefreshButtonClicked();
+            }
+        });
+        parentTable.add(refreshButton);
 
         // 开始战斗按钮
         startBattleButton = new TextButton(I18N.get("start_battle"), buttonStyle);
@@ -611,6 +630,31 @@ public class GameUIManager implements GameEventListener {
         if (buttonCallback != null) {
             buttonCallback.onBackButtonClicked();
         }
+    }
+
+    /**
+     * 处理刷新按钮点击
+     */
+    private void onRefreshButtonClicked() {
+        if (buttonCallback != null && buttonCallback instanceof RoguelikeButtonCallback) {
+            ((RoguelikeButtonCallback) buttonCallback).onRefreshButtonClicked();
+        }
+    }
+
+    /**
+     * 处理商店卡牌点击
+     */
+    private void onShopCardClicked(Card card) {
+        if (buttonCallback != null && buttonCallback instanceof RoguelikeButtonCallback) {
+            ((RoguelikeButtonCallback) buttonCallback).onShopCardClicked(card);
+        }
+    }
+
+    /**
+     * 从输入处理器调用的商店卡牌点击处理（公共方法）
+     */
+    public void onShopCardClickedFromInput(Card card) {
+        onShopCardClicked(card);
     }
 
     /**

@@ -1,0 +1,120 @@
+{
+  "events": [
+    {
+      "id": "merchant_gift",
+      "type": "ECONOMY",
+      "title": "富商的馈赠",
+      "description": "一位富商路过，决定赞助你的旅程。",
+      "choices": [
+        {
+          "text": "接受 10 金币",
+          "effect": {
+            "type": "GOLD",
+            "value": 10
+          }
+        },
+        {
+          "text": "接受 15 金币",
+          "effect": {
+            "type": "GOLD",
+            "value": 15
+          }
+        },
+        {
+          "text": "接受 20 金币",
+          "effect": {
+            "type": "GOLD",
+            "value": 20
+          }
+        }
+      ]
+    },
+    {
+      "id": "training_bonus",
+      "type": "COMBAT",
+      "title": "训练有素",
+      "description": "你的部队经过额外训练，战斗力提升。",
+      "choices": [
+        {
+          "text": "攻击力 +10%",
+          "effect": {
+            "type": "ATTACK_BOOST",
+            "value": 0.1
+          }
+        },
+        {
+          "text": "生命值 +10%",
+          "effect": {
+            "type": "HEALTH_BOOST",
+            "value": 0.1
+          }
+        },
+        {
+          "text": "防御力 +10%",
+          "effect": {
+            "type": "DEFENSE_BOOST",
+            "value": 0.1
+          }
+        }
+      ]
+    },
+    {
+      "id": "blacksmith_help",
+      "type": "COMBAT",
+      "title": "铁匠帮助",
+      "description": "一位老铁匠愿意帮你强化装备。",
+      "choices": [
+        {
+          "text": "攻击力 +15%",
+          "effect": {
+            "type": "ATTACK_BOOST",
+            "value": 0.15
+          }
+        },
+        {
+          "text": "生命值 +15%",
+          "effect": {
+            "type": "HEALTH_BOOST",
+            "value": 0.15
+          }
+        },
+        {
+          "text": "防御力 +15%",
+          "effect": {
+            "type": "DEFENSE_BOOST",
+            "value": 0.15
+          }
+        }
+      ]
+    },
+    {
+      "id": "treasure_hunt",
+      "type": "MISC",
+      "title": "寻宝",
+      "description": "你发现了一个宝箱，里面有各种奖励。",
+      "choices": [
+        {
+          "text": "25 金币",
+          "effect": {
+            "type": "GOLD",
+            "value": 25
+          }
+        },
+        {
+          "text": "攻击力 +5%",
+          "effect": {
+            "type": "ATTACK_BOOST",
+            "value": 0.05
+          }
+        },
+        {
+          "text": "生命值 +5%",
+          "effect": {
+            "type": "HEALTH_BOOST",
+            "value": 0.05
+          }
+        }
+      ]
+    }
+  ]
+}

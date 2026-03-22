@@ -33,7 +33,7 @@ public class FontUtils {
         sb.append("自走棋开始游戏选择关卡金币等级商店刷新购买返回等级");
         sb.append("战士法师射手刺客坦克张");
         sb.append("新手精英高级传奇神话");
-        sb.append("基础强化单位");
+        sb.append("基础强化单位闯关模式");
         sb.append("费用场战斗战场我的卡组()暂无卡牌\n在商店购买卡牌/激活羁绊");
         // 经济系统相关字
         sb.append("连胜连败利息经验升级星级");

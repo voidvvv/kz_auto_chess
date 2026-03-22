@@ -1,17 +1,15 @@
 package com.voidvvv.autochess.event;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Logger;
 import com.voidvvv.autochess.model.ModelHolder;
-import com.voidvvv.autochess.event.GameEvent;
-import com.voidvvv.autochess.event.GameEventListener;
-import com.voidvvv.autochess.event.GameEventDispatcher;
 
 /**
  * 游戏事件系统
  * 集中管理事件分发，与现有 ModelHolder 模式保持一致
  */
 public class GameEventSystem {
+
+    private static final Logger LOGGER = new Logger("GameEventSystem", Logger.INFO);
 
     private final GameEventHolder eventHolder;
     private final GameEventListenerHolder listenerHolder;
@@ -27,6 +25,7 @@ public class GameEventSystem {
      * 注册事件监听器
      */
     public void registerListener(GameEventListener listener) {
+        LOGGER.info("Registered listener: " + listener.getClass().getSimpleName());
         listenerHolder.addModel(listener);
     }
 
@@ -41,6 +40,7 @@ public class GameEventSystem {
      * 发布事件
      */
     public void postEvent(GameEvent event) {
+        LOGGER.info("Posting event: " + event.getClass().getSimpleName());
         eventHolder.addModel(event);
     }
 
