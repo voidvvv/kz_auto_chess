@@ -105,8 +105,7 @@ public class RoguelikeGameMode implements GameMode {
 
         // 4. 初始化输入处理
         initInputHandler();
-        uiRender = new StageRender(this.uiStage);
-        this.renderCoordinator.addRenderer(uiRender);
+
 
         initiated = true;
         Gdx.app.log("RoguelikeGameMode", "onEnter - 初始化完成");
@@ -251,6 +250,9 @@ public class RoguelikeGameMode implements GameMode {
 
         // 创建 UI 布局
         createLayout();
+        // 加入到渲染编排中
+        uiRender = new StageRender(this.uiStage);
+        this.renderCoordinator.addRenderer(uiRender);
     }
 
     /**
