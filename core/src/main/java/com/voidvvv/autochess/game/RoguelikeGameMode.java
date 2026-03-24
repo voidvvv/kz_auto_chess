@@ -18,12 +18,14 @@ import com.voidvvv.autochess.input.v2.InputHandlerV2;
 import com.voidvvv.autochess.input.v2.event.InputEvent;
 import com.voidvvv.autochess.input.v2.listener.InputListener;
 import com.voidvvv.autochess.manage.CardManager;
+import com.voidvvv.autochess.model.Card;
 import com.voidvvv.autochess.model.CardPool;
 import com.voidvvv.autochess.model.CardShop;
 import com.voidvvv.autochess.render.GameRenderer;
 import com.voidvvv.autochess.render.RenderCoordinator;
 import com.voidvvv.autochess.render.RenderHolder;
 import com.voidvvv.autochess.render.roguelike.StageRender;
+import com.voidvvv.autochess.render.scene2d.CardShopRenderer;
 import com.voidvvv.autochess.utils.FontUtils;
 import com.voidvvv.autochess.utils.I18N;
 
@@ -293,6 +295,20 @@ public class RoguelikeGameMode implements GameMode {
         // 添加到 Stage
         uiStage.addActor(rootTable);
 
+        CardShopRenderer cardShopRenderer = new CardShopRenderer(cardShop, null, null, new CardShopRenderer.ShopCallback() {
+            @Override
+            public boolean onBuyCard(Card card) {
+                return false;
+            }
+
+            @Override
+            public void onRefreshShop() {
+
+            }
+        });
+
+        cardShopRenderer.setBounds(20,20,200,200);
+        uiStage.addActor(cardShopRenderer);
         Gdx.app.log("RoguelikeGameMode", "UI layout created");
     }
 
