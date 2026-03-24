@@ -19,6 +19,7 @@ import com.voidvvv.autochess.input.v2.event.InputEvent;
 import com.voidvvv.autochess.input.v2.listener.InputListener;
 import com.voidvvv.autochess.manage.CardManager;
 import com.voidvvv.autochess.model.CardPool;
+import com.voidvvv.autochess.model.CardShop;
 import com.voidvvv.autochess.render.GameRenderer;
 import com.voidvvv.autochess.render.RenderCoordinator;
 import com.voidvvv.autochess.render.RenderHolder;
@@ -69,6 +70,7 @@ public class RoguelikeGameMode implements GameMode {
     // ========== 数据模型 ==========
     private CardPool cardPool;
     private boolean initiated = false;
+    private CardShop cardShop;
 
     // ========== 游戏状态 ==========
     private RoguelikePhase currentPhase = RoguelikePhase.PREPARATION;
@@ -113,8 +115,15 @@ public class RoguelikeGameMode implements GameMode {
         initInputHandler();
 
 
+
+
         initiated = true;
         Gdx.app.log("RoguelikeGameMode", "onEnter - 初始化完成");
+    }
+
+    private void initCardShop() {
+        cardShop = new CardShop(cardPool);
+        cardShop.refresh();
     }
 
     @Override
@@ -232,6 +241,7 @@ public class RoguelikeGameMode implements GameMode {
     private void initDataModels() {
         // 初始化卡池
         initCardPool();
+        initCardShop();
     }
 
     private void initCardPool() {
