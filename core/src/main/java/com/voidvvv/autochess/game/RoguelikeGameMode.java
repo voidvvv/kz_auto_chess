@@ -1,6 +1,7 @@
 package com.voidvvv.autochess.game;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -435,6 +436,16 @@ public class RoguelikeGameMode implements GameMode {
 
         // TODO: 注册 InputListener 实现具体输入逻辑
         // 将在 Phase 4 中实现
-
+        inputHandler.registerListener(new InputListener() {
+            @Override
+            public boolean handle(InputEvent event) {
+                if (event.getInputType().equals(InputEvent.InputType.KEYBOARD) && event.getKeyCode() == Input.Keys.R
+                    && event.getInputState() == InputEvent.InputState.RELEASED) {
+                    // 刷新商店
+                    Gdx.app.log("Shop","商店刷新");
+                }
+                return false;
+            }
+        });
     }
 }
