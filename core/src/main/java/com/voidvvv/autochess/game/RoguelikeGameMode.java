@@ -11,8 +11,11 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.voidvvv.autochess.KzAutoChess;
+import com.voidvvv.autochess.event.GameEventSystem;
 import com.voidvvv.autochess.input.InputContext;
 import com.voidvvv.autochess.input.v2.InputHandlerV2;
+import com.voidvvv.autochess.input.v2.event.InputEvent;
+import com.voidvvv.autochess.input.v2.listener.InputListener;
 import com.voidvvv.autochess.manage.CardManager;
 import com.voidvvv.autochess.model.CardPool;
 import com.voidvvv.autochess.render.GameRenderer;
@@ -34,6 +37,7 @@ import com.voidvvv.autochess.utils.I18N;
 public class RoguelikeGameMode implements GameMode {
     // ========== 依赖注入 ==========
     private final KzAutoChess game;
+    private GameEventSystem gameEventSystem;
 
     // ========== 渲染组件 ==========
     private RenderCoordinator renderCoordinator;
@@ -83,9 +87,10 @@ public class RoguelikeGameMode implements GameMode {
      * 构造函数
      * @param game 游戏主类实例
      */
-    public RoguelikeGameMode(KzAutoChess game, RenderCoordinator renderCoordinator) {
+    public RoguelikeGameMode(KzAutoChess game, RenderCoordinator renderCoordinator, GameEventSystem gameEventSystem) {
         this.game = game;
         this.renderCoordinator = renderCoordinator;
+        this.gameEventSystem = gameEventSystem;
     }
 
     // ========== GameMode 接口实现 ==========
@@ -430,5 +435,6 @@ public class RoguelikeGameMode implements GameMode {
 
         // TODO: 注册 InputListener 实现具体输入逻辑
         // 将在 Phase 4 中实现
+
     }
 }

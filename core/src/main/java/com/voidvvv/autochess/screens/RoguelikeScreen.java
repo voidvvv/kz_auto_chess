@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.InputMultiplexer;
 import com.voidvvv.autochess.KzAutoChess;
+import com.voidvvv.autochess.event.GameEventSystem;
 import com.voidvvv.autochess.game.RoguelikeGameMode;
 import com.voidvvv.autochess.render.RenderCoordinator;
 import com.voidvvv.autochess.render.RenderHolder;
@@ -28,17 +29,17 @@ public class RoguelikeScreen implements Screen {
     private final RoguelikeGameMode roguelikeGameMode;
     private InputMultiplexer inputMultiplexer;
     RenderCoordinator renderCoordinator;
+    private GameEventSystem gameEventSystem;
 
     public RoguelikeScreen(KzAutoChess game) {
         this.game = game;
-
+        this.gameEventSystem = new GameEventSystem();
 
         // 1. 创建 RenderHolder（复用 game 的 SpriteBatch）
         this.renderHolder = new RenderHolder(game.getBatch(), new ShapeRenderer());
         this.renderCoordinator = new RenderCoordinator(this.renderHolder.getSpriteBatch(),this.renderHolder.getShapeRenderer());
 
-
-        this.roguelikeGameMode = new RoguelikeGameMode(game, this.renderCoordinator);
+        this.roguelikeGameMode = new RoguelikeGameMode(game, this.renderCoordinator, this.gameEventSystem);
     }
 
     @Override
@@ -91,6 +92,7 @@ public class RoguelikeScreen implements Screen {
         // 1. 清空屏幕
         Gdx.gl.glClearColor(0.05f, 0.1f, 0.15f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        this.gameEventSystem.dispatch();
 
         // 2. 更新 GameMode（包含所有 Manager 的 update）
         roguelikeGameMode.update(delta);
