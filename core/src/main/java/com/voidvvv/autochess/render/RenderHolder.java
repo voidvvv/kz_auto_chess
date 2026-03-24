@@ -47,4 +47,9 @@ public class RenderHolder {
     public boolean isActive() {
         return spriteBatch.isDrawing() || shapeRenderer.isDrawing();
     }
+
+    public void dispose() {
+        this.spriteBatch.dispose();
+        this.getShapeRenderer().dispose();
+    }
 }

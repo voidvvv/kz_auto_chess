@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.voidvvv.autochess.KzAutoChess;
 import com.voidvvv.autochess.battle.PlayerLifeBlackboard;
 import com.voidvvv.autochess.render.LifeBarRenderer;
+import com.voidvvv.autochess.render.RenderCoordinator;
 import com.voidvvv.autochess.utils.FontUtils;
 import com.voidvvv.autochess.utils.I18N;
 
@@ -28,6 +29,9 @@ public class LevelSelectScreen implements Screen {
     private float levelButtonWidth = 120;
     private float levelButtonHeight = 60;
     private float backButtonX, backButtonY, backButtonWidth = 150, backButtonHeight = 50;
+
+    // 无尽模式按钮
+    private float roguelikeButtonX, roguelikeButtonY, roguelikeButtonWidth = 200, roguelikeButtonHeight = 60;
 
     public LevelSelectScreen(KzAutoChess game) {
         this.game = game;
@@ -50,6 +54,10 @@ public class LevelSelectScreen implements Screen {
             levelButtonX[i] = startX + i * (levelButtonWidth + 20);
             levelButtonY[i] = y;
         }
+
+        // 无尽模式按钮 - 在关卡按钮下方居中
+        roguelikeButtonX = (Gdx.graphics.getWidth() - roguelikeButtonWidth) / 2;
+        roguelikeButtonY = y - levelButtonHeight - 40;
 
         backButtonX = 50;
         backButtonY = Gdx.graphics.getHeight() - 70;
@@ -126,6 +134,38 @@ public class LevelSelectScreen implements Screen {
                 game.setScreen(new GameScreen(game, i + 1));
                 return;
             }
+        }
+
+        // 绘制无尽模式按钮
+        boolean roguelikeHover = mouseX >= roguelikeButtonX && mouseX <= roguelikeButtonX + roguelikeButtonWidth &&
+                                 mouseY >= roguelikeButtonY && mouseY <= roguelikeButtonY + roguelikeButtonHeight;
+
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        if (roguelikeHover) {
+            shapeRenderer.setColor(0.6f, 0.4f, 0.8f, 1);  // 紫色高亮
+        } else {
+            shapeRenderer.setColor(0.5f, 0.3f, 0.7f, 1);  // 紫色
+        }
+        shapeRenderer.rect(roguelikeButtonX, roguelikeButtonY, roguelikeButtonWidth, roguelikeButtonHeight);
+        shapeRenderer.end();
+
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.setColor(Color.WHITE);
+        shapeRenderer.rect(roguelikeButtonX, roguelikeButtonY, roguelikeButtonWidth, roguelikeButtonHeight);
+        shapeRenderer.end();
+
+        game.getBatch().begin();
+        buttonFont.setColor(Color.WHITE);
+        buttonFont.getData().setScale(1.0f);
+        String roguelikeText = I18N.get("roguelike.title", "无尽模式");
+        GlyphLayout roguelikeLayout = new GlyphLayout(buttonFont, roguelikeText);
+        float roguelikeTextX = roguelikeButtonX + (roguelikeButtonWidth - roguelikeLayout.width) / 2;
+        float roguelikeTextY = roguelikeButtonY + (roguelikeButtonHeight + roguelikeLayout.height) / 2;
+        buttonFont.draw(game.getBatch(), roguelikeLayout, roguelikeTextX, roguelikeTextY);
+        game.getBatch().end();
+
+        if (Gdx.input.justTouched() && roguelikeHover) {
+            game.setScreen(new RoguelikeScreen(game));
         }
 
         // 绘制返回按钮
