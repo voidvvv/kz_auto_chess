@@ -1,0 +1,35 @@
+{
+  "skill_name": "safe-code-refactor",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "我需要把代码中所有的 Gdx.app.log 调用替换为一个新的 logInfo 方法。我创建了一个 logInfo 方法，现在想用 Edit 工具的 replace_all=true 来批量替换所有 Gdx.app.log。这样可以吗？",
+      "expected_output": "阻止用户使用 replace_all=true，建议使用更安全的替代方案，如 IDE 重构或逐个替换。解释无限递归的风险。",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "帮我重构这段代码：把所有的 logger.debug 替换成 log.debug",
+      "expected_output": "警告用户全局替换的危险性，建议使用 IDE 重构功能或更精确的匹配模式。",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "我遇到了 StackOverflowError，怀疑是刚才做了代码替换导致的。怎么检查和修复？",
+      "expected_output": "指导用户检查方法定义内部是否有自调用，提供修复无限递归的具体步骤。",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "想重命名一个方法，应该用什么方式最安全？",
+      "expected_output": "推荐使用 IDE 的 Rename 功能（Shift+F6 或 F2），说明其优点和安全性。",
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "这段代码有问题，private static void log(String tag, String message) 方法内部调用了自己 log(tag, message)，导致无限递归。怎么修复？",
+      "expected_output": "识别出这是典型的全局替换导致的无限递归，提供具体的修复代码（恢复原始调用或使用全限定名）。",
+      "files": []
+    }
+  ]
+}
