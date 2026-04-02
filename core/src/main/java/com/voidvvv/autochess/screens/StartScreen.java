@@ -121,6 +121,11 @@ public class StartScreen implements Screen {
             }
             game.setScreen(new LevelSelectScreen(game));
         }
+
+        // 按 T 键切换到商店测试界面
+        if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.T)) {
+            game.setScreen(new CardShopTestScreen(game));
+        }
     }
 
     @Override
