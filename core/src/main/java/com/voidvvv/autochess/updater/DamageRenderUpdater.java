@@ -16,7 +16,7 @@ public class DamageRenderUpdater {
     public void update (float delta) {
         List<DamageShowModel> models = damageShowModelModelHolder.getModels();
         for (var model : models) {
-            if (model.time == 1f) {
+            if (model.time > 0f && !model.logged) {
                 Damage damage = model.damage;
                 System.out.printf("[%s] %s 攻击了 [%s] %s, 造成了 %s 伤害, 类型 : %s, 暴击： %s%n",
                     model.from.getCamp(),
@@ -26,6 +26,7 @@ public class DamageRenderUpdater {
                     model.damage.val,
                     damage.type,
                     damage.critical);
+                model.logged = true;
             }
             model.time -= delta;
             if (model.time <= 0f) {

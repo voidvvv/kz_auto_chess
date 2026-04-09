@@ -23,19 +23,22 @@ public class BattleUpdater {
     public void update (float delta) {
         List<DamageEventListener> listeners = damageEventListenerHolder.getModels();
         for (DamageEvent de : damageEventHolder.getModels()) {
-            for (DamageEventListener listener: listeners) {
+            // Notify all listeners of the damage event (pre-settlement)
+            for (DamageEventListener listener : listeners) {
                 listener.onDamageEvent(de);
-                // settlement damage
-                BattleCharacter from = de.getFrom();
-                BattleCharacter defender = de.getTo();
-                Damage damage = de.getDamage();
-                float damageVal = damageSettlement(damage, from, defender, de.getExtra());
-                float newHp = Math.max(0f, defender.getCurrentHp() - damageVal);
-                defender.setCurrentHp(newHp);
-                // maybe send hp change event
+            }
 
+            // Settle damage exactly once, regardless of listener count
+            BattleCharacter from = de.getFrom();
+            BattleCharacter defender = de.getTo();
+            Damage damage = de.getDamage();
+            float damageVal = damageSettlement(damage, from, defender, de.getExtra());
+            float newHp = Math.max(0f, defender.getCurrentHp() - damageVal);
+            defender.setCurrentHp(newHp);
+
+            // Notify all listeners that damage has been settled (post-settlement)
+            for (DamageEventListener listener : listeners) {
                 listener.postDamageEvent(de);
-
             }
         }
         damageEventHolder.clear();

@@ -9,4 +9,5 @@ public class DamageShowModel {
     public BattleCharacter to;
     public Vector3 pos = new Vector3();
     public float time;
+    public boolean logged = false;
 }

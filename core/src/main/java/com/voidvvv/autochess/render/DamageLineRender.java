@@ -27,6 +27,14 @@ public class DamageLineRender {
             shapeRenderer.rectLine(from.getX(), from.getY(), to.getX(), to.getY(), 3f);
         }
         shapeRenderer.end();
+
+        // 在 ShapeRenderer 和 SpriteBatch 之间刷新 OpenGL 状态
+        // 注意：此方法接收两个独立的渲染器，没有 holder 参数
+        // 需要调用 shapeRenderer.flush() 来确保状态正确性
+        if (shapeRenderer.isDrawing()) {
+            shapeRenderer.flush();
+        }
+
         BitmapFont defaultFont = FontUtils.getDefaultFont();
         spriteBatch.begin();
         for (DamageShowModel model : damageShowModelModelHolder.getModels()) {

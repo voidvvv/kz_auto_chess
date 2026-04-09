@@ -473,6 +473,12 @@ public class GameUIManager implements GameEventListener {
         shapeRenderer.setColor(Color.WHITE);
         shapeRenderer.rect(shopX, shopY, shopWidth, shopHeight);
         shapeRenderer.end();
+
+        // 在 ShapeRenderer 和 SpriteBatch 之间刷新 OpenGL 状态
+        if (shapeRenderer.isDrawing()) {
+            shapeRenderer.flush();
+        }
+
         // 渲染商店标题
         game.getBatch().begin();
         BitmapFont font = FontUtils.getSmallFont();
@@ -532,6 +538,12 @@ public class GameUIManager implements GameEventListener {
         shapeRenderer.setColor(Color.WHITE);
         shapeRenderer.rect(deckX, deckY, deckWidth, deckHeight);
         shapeRenderer.end();
+
+        // 在 ShapeRenderer 和 SpriteBatch 之间刷新 OpenGL 状态
+        if (shapeRenderer.isDrawing()) {
+            shapeRenderer.flush();
+        }
+
         // 渲染标题
         game.getBatch().begin();
         BitmapFont font = FontUtils.getSmallFont();

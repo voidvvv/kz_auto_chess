@@ -147,6 +147,9 @@ public class CharacterRenderer {
         float y = character.getY();
         float size = character.getSize();
 
+        // 注意：批处理已经在 BattleManager.render() 中开始，这里不调用 begin()/end()
+        // 使用 set() 改变形状类型
+
         // 根据卡牌类型选择不同的渲染方式
         switch (card.getType()) {
             case WARRIOR:
@@ -172,15 +175,12 @@ public class CharacterRenderer {
      */
     private static void renderWarrior(ShapeRenderer shapeRenderer, float x, float y, float size, Card card) {
         Color color = getColorByTier(card.getTier());
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setColor(color);
         shapeRenderer.rect(x - size/2, y - size/2, size, size);
-        shapeRenderer.end();
 
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.set(ShapeRenderer.ShapeType.Line);
         shapeRenderer.setColor(Color.WHITE);
         shapeRenderer.rect(x - size/2, y - size/2, size, size);
-        shapeRenderer.end();
     }
 
     /**
@@ -188,15 +188,12 @@ public class CharacterRenderer {
      */
     private static void renderMage(ShapeRenderer shapeRenderer, float x, float y, float size, Card card) {
         Color color = getColorByTier(card.getTier());
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setColor(color);
         shapeRenderer.circle(x, y, size/2);
-        shapeRenderer.end();
 
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.set(ShapeRenderer.ShapeType.Line);
         shapeRenderer.setColor(Color.WHITE);
         shapeRenderer.circle(x, y, size/2);
-        shapeRenderer.end();
     }
 
     /**
@@ -204,15 +201,12 @@ public class CharacterRenderer {
      */
     private static void renderArcher(ShapeRenderer shapeRenderer, float x, float y, float size, Card card) {
         Color color = getColorByTier(card.getTier());
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setColor(color);
         renderPentagonFilled(shapeRenderer, x, y, size/2);
-        shapeRenderer.end();
 
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.set(ShapeRenderer.ShapeType.Line);
         shapeRenderer.setColor(Color.WHITE);
         renderPentagonLine(shapeRenderer, x, y, size/2);
-        shapeRenderer.end();
     }
 
     /**
@@ -220,18 +214,15 @@ public class CharacterRenderer {
      */
     private static void renderAssassin(ShapeRenderer shapeRenderer, float x, float y, float size, Card card) {
         Color color = getColorByTier(card.getTier());
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setColor(color);
         float halfSize = size / 2;
         shapeRenderer.triangle(x, y + halfSize, x - halfSize, y, x + halfSize, y);
         shapeRenderer.triangle(x, y - halfSize, x - halfSize, y, x + halfSize, y);
-        shapeRenderer.end();
 
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.set(ShapeRenderer.ShapeType.Line);
         shapeRenderer.setColor(Color.WHITE);
         shapeRenderer.triangle(x, y + halfSize, x - halfSize, y, x + halfSize, y);
         shapeRenderer.triangle(x, y - halfSize, x - halfSize, y, x + halfSize, y);
-        shapeRenderer.end();
     }
 
     /**
@@ -239,15 +230,12 @@ public class CharacterRenderer {
      */
     private static void renderTank(ShapeRenderer shapeRenderer, float x, float y, float size, Card card) {
         Color color = getColorByTier(card.getTier());
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setColor(color);
         renderHexagonFilled(shapeRenderer, x, y, size/2);
-        shapeRenderer.end();
 
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.set(ShapeRenderer.ShapeType.Line);
         shapeRenderer.setColor(Color.WHITE);
         renderHexagonLine(shapeRenderer, x, y, size/2);
-        shapeRenderer.end();
     }
 
     /**

@@ -79,6 +79,11 @@ public class CardRenderer {
         shapeRenderer.rect(x, y, width, height);
         shapeRenderer.end();
 
+        // 在 ShapeRenderer 和 SpriteBatch 之间刷新 OpenGL 状态
+        if (shapeRenderer.isDrawing()) {
+            shapeRenderer.flush();
+        }
+
         // 绘制卡牌信息
         batch.begin();
         float scale = showCount ? 0.85f : 1.0f;
@@ -163,6 +168,11 @@ public class CardRenderer {
         shapeRenderer.circle(badgeX, badgeY, countBadgeSize/2);
         shapeRenderer.end();
 
+        // 在 ShapeRenderer 和 SpriteBatch 之间刷新 OpenGL 状态
+        if (shapeRenderer.isDrawing()) {
+            shapeRenderer.flush();
+        }
+
         batch.begin();
         cardFont.setColor(Color.BLACK);
         cardFont.getData().setScale(0.75f);
@@ -202,6 +212,11 @@ public class CardRenderer {
         shapeRenderer.setColor(Color.WHITE);
         shapeRenderer.rect(badgeX, badgeY, badgeWidth, badgeHeight);
         shapeRenderer.end();
+
+        // 在 ShapeRenderer 和 SpriteBatch 之间刷新 OpenGL 状态
+        if (shapeRenderer.isDrawing()) {
+            shapeRenderer.flush();
+        }
 
         batch.begin();
         cardFont.setColor(Color.WHITE);

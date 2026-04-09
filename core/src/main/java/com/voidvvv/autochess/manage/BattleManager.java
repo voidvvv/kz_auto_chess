@@ -298,7 +298,7 @@ public class BattleManager implements GameRenderer, GameEventListener {
         this.damageRenderUpdater = new DamageRenderUpdater(damageShowModelHolder);
 
         this.movementEffectManager = new MovementEffectManager();
-        this.characterEffectManager = new CharacterEffectManager(eventSystem);
+        this.characterEffectManager = characterEffectManager;
         battlefield.getDamageEventListenerHolder().addModel(characterEffectManager);
 
         this.particleSpawner = new ParticleSpawner(null);
@@ -308,6 +308,7 @@ public class BattleManager implements GameRenderer, GameEventListener {
 
     public void onEnter() {
         eventSystem.registerListener(this);
+        characterEffectManager.onEnter();
     }
 
     public void pause() {}
@@ -315,6 +316,7 @@ public class BattleManager implements GameRenderer, GameEventListener {
 
     public void onExit() {
         eventSystem.unregisterListener(this);
+        characterEffectManager.onExit();
         characterLifecycle.clear();
         behaviorTreeManager.clear();
         bbList.clear();
@@ -334,6 +336,8 @@ public class BattleManager implements GameRenderer, GameEventListener {
         if (battleState.getContext().getPhase() == GamePhase.BATTLE) {
             battlePhaseManager.updateBattle(delta);
         }
+
+        characterEffectManager.update(delta);
     }
 
     // ========== Render ==========
@@ -445,6 +449,10 @@ public class BattleManager implements GameRenderer, GameEventListener {
 
     public List<BattleUnitBlackboard> getBbList() {
         return bbList;
+    }
+
+    public CharacterEffectManager getCharacterEffectManager() {
+        return characterEffectManager;
     }
 
     public boolean isBattleActive() {

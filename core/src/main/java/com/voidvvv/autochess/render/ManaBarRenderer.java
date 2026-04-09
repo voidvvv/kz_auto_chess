@@ -38,9 +38,9 @@ public class ManaBarRenderer {
      * @param borderColor 边框颜色
      */
     public static void render(ShapeRenderer shapeRenderer,
-                             BattleUnitBlackboard blackboard,
-                             float barWidth, float barHeight, float yOffset,
-                             Color fillColor, Color bgColor, Color borderColor) {
+                              BattleUnitBlackboard blackboard,
+                              float barWidth, float barHeight, float yOffset,
+                              Color fillColor, Color bgColor, Color borderColor) {
         BattleCharacter character = blackboard.getSelf();
 
         // 死亡角色不渲染魔法条
