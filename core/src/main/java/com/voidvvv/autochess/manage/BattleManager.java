@@ -233,6 +233,7 @@ public class BattleManager implements GameRenderer, GameEventListener {
     private final BattleState battleState;
     private final GameEventSystem eventSystem;
     private final CameraController cameraController;
+    private com.voidvvv.autochess.manage.CharacterEffectManager characterEffectManager;
 
     private final Battlefield battlefield;
     private final CardPool cardPool;
@@ -261,13 +262,14 @@ public class BattleManager implements GameRenderer, GameEventListener {
     private int currentLevel = 1;
 
     public BattleManager(KzAutoChess game,
-                         BattleState battleState,
-                         GameEventSystem eventSystem,
-                         CameraController cameraController,
-                         Battlefield battlefield,
-                         CardPool cardPool,
-                         SynergyManager synergyManager,
-                         CharacterStatsLoader characterStatsLoader) {
+                          BattleState battleState,
+                          GameEventSystem eventSystem,
+                          CameraController cameraController,
+                          Battlefield battlefield,
+                          CardPool cardPool,
+                          SynergyManager synergyManager,
+                          CharacterStatsLoader characterStatsLoader,
+                          com.voidvvv.autochess.manage.CharacterEffectManager characterEffectManager) {
         this.game = game;
         this.battleState = battleState;
         this.eventSystem = eventSystem;
@@ -277,7 +279,6 @@ public class BattleManager implements GameRenderer, GameEventListener {
         this.synergyManager = synergyManager;
         this.characterStatsLoader = characterStatsLoader;
 
-        // 设置 Battlefield 的 eventSystem 引用，用于技能效果事件发布
         this.battlefield.setEventSystem(eventSystem);
 
         this.battlePhaseManager = new BattlePhaseManager();
@@ -285,17 +286,21 @@ public class BattleManager implements GameRenderer, GameEventListener {
         this.behaviorTreeManager = new BehaviorTreeManager();
 
         this.battleUpdater = new BattleUpdater(
-            battlefield.getDamageEventHolder(),
-            battlefield.getDamageEventListenerHolder()
+                battlefield.getDamageEventHolder(),
+                battlefield.getDamageEventListenerHolder()
         );
         this.battleCharacterUpdater = new BattleCharacterUpdater();
 
         this.damageShowModelHolder = new ModelHolder<>();
         DamageRenderListener damageRenderListener = new DamageRenderListener(damageShowModelHolder);
         battlefield.getDamageEventListenerHolder().addModel(damageRenderListener);
+
         this.damageRenderUpdater = new DamageRenderUpdater(damageShowModelHolder);
 
         this.movementEffectManager = new MovementEffectManager();
+        this.characterEffectManager = new CharacterEffectManager(eventSystem);
+        battlefield.getDamageEventListenerHolder().addModel(characterEffectManager);
+
         this.particleSpawner = new ParticleSpawner(null);
     }
 
@@ -360,7 +365,7 @@ public class BattleManager implements GameRenderer, GameEventListener {
 
         holder.getSpriteBatch().begin();
         for (BattleUnitBlackboard bb : bbList) {
-            BattleCharacterRender.render(holder.getSpriteBatch(), bb.getSelf());
+            BattleCharacterRender.render(holder.getSpriteBatch(), bb.getSelf(), characterEffectManager);
         }
         holder.getSpriteBatch().end();
 

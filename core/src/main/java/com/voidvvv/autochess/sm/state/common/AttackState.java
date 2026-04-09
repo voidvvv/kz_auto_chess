@@ -2,6 +2,8 @@ package com.voidvvv.autochess.sm.state.common;
 
 import com.badlogic.gdx.ai.msg.MessageManager;
 import com.voidvvv.autochess.battle.BattleUnitBlackboard;
+import com.voidvvv.autochess.event.GameEventSystem;
+import com.voidvvv.autochess.event.combat.AttackEvent;
 import com.voidvvv.autochess.msg.MessageConstants;
 import com.voidvvv.autochess.sm.state.AbstractState;
 import com.voidvvv.autochess.sm.state.BaseState;
@@ -25,6 +27,12 @@ public class AttackState extends AbstractState {
     @Override
     protected void onEnter(BattleUnitBlackboard entity) {
         entity.couldDamage = true;
+
+        // 分发攻击事件以触发视觉动画
+        GameEventSystem eventSystem = entity.getBattlefield().getEventSystem();
+        if (eventSystem != null) {
+            eventSystem.postEvent(new AttackEvent(entity.getSelf(), entity.getTarget()));
+        }
     }
 
     @Override

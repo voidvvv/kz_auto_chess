@@ -8,6 +8,7 @@ import com.voidvvv.autochess.input.GameInputHandler;
 import com.voidvvv.autochess.input.InputContext;
 import com.voidvvv.autochess.manage.BattleManager;
 import com.voidvvv.autochess.manage.CardManager;
+import com.voidvvv.autochess.manage.CharacterEffectManager;
 import com.voidvvv.autochess.manage.EconomyManager;
 import com.voidvvv.autochess.manage.PlayerLifeManager;
 import com.voidvvv.autochess.manage.SkillEffectManager;
@@ -36,6 +37,7 @@ public class AutoChessGameMode implements GameMode {
     private final CardManager cardManager;
     private final PlayerLifeManager playerLifeManager;
     private final SkillEffectManager skillEffectManager;
+    private final CharacterEffectManager characterEffectManager;
     private final SynergyPanelManager synergyPanelManager;
     private final RenderCoordinator renderCoordinator;
     private final GameEventSystem eventSystem;
@@ -70,6 +72,9 @@ public class AutoChessGameMode implements GameMode {
 
         // 初始化技能效果管理器
         this.skillEffectManager = new SkillEffectManager(eventSystem, viewManagement);
+
+        // 初始化角色视觉效果管理器
+        this.characterEffectManager = new CharacterEffectManager(eventSystem);
     }
 
     @Override
@@ -80,6 +85,7 @@ public class AutoChessGameMode implements GameMode {
         playerLifeManager.onEnter();
         synergyPanelManager.onEnter();
         skillEffectManager.onEnter();
+        characterEffectManager.onEnter();
 
         inputHandler.initialize(this);
 
@@ -102,6 +108,7 @@ public class AutoChessGameMode implements GameMode {
         cardManager.update(delta);
         synergyPanelManager.update(delta);
         skillEffectManager.update(delta, battleManager.getBattleTime());
+        characterEffectManager.update(delta);
         inputHandler.update(delta);
     }
 
@@ -125,6 +132,7 @@ public class AutoChessGameMode implements GameMode {
         cardManager.pause();
         playerLifeManager.pause();
         synergyPanelManager.pause();
+        characterEffectManager.pause();
         inputHandler.pause();
     }
 
@@ -135,6 +143,7 @@ public class AutoChessGameMode implements GameMode {
         cardManager.resume();
         playerLifeManager.resume();
         synergyPanelManager.resume();
+        characterEffectManager.resume();
         inputHandler.resume();
     }
 
@@ -146,6 +155,7 @@ public class AutoChessGameMode implements GameMode {
         playerLifeManager.onExit();
         synergyPanelManager.onExit();
         skillEffectManager.onExit();
+        characterEffectManager.onExit();
         inputHandler.onExit();
 
         isInitialized = false;
@@ -240,6 +250,7 @@ public class AutoChessGameMode implements GameMode {
     public CardManager getCardManager() { return cardManager; }
     public EconomyManager getEconomyManager() { return economyManager; }
     public BattleState getBattleState() { return battleState; }
+    public CharacterEffectManager getCharacterEffectManager() { return characterEffectManager; }
 
     public GamePhase getPhase() {
         return battleState.getContext().getPhase();

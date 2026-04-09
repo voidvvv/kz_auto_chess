@@ -23,6 +23,7 @@ import com.voidvvv.autochess.logic.CharacterStatsLoader;
 import com.voidvvv.autochess.logic.SynergyManager;
 import com.voidvvv.autochess.manage.BattleManager;
 import com.voidvvv.autochess.manage.CardManager;
+import com.voidvvv.autochess.manage.CharacterEffectManager;
 import com.voidvvv.autochess.manage.EconomyManager;
 import com.voidvvv.autochess.manage.PlayerLifeManager;
 import com.voidvvv.autochess.manage.SynergyPanelManager;
@@ -161,9 +162,10 @@ public class GameScreen implements Screen, GameUIManager.ButtonCallback, GameEve
         BattleState battleState = new BattleState(battleContext, gameEventSystem);
 
         // 各 Manager
+        CharacterEffectManager characterEffectManager = new CharacterEffectManager(gameEventSystem);
         BattleManager battleManager = new BattleManager(
                 game, battleState, gameEventSystem, cameraController,
-                battlefield, cardPool, synergyManager, characterStatsLoader);
+                battlefield, cardPool, synergyManager, characterStatsLoader, characterEffectManager);
 
         EconomyManager economyManager = new EconomyManager(
                 gameEventSystem, playerEconomy, cardShop);

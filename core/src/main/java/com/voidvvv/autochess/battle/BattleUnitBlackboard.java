@@ -36,7 +36,7 @@ import com.voidvvv.autochess.model.Card.CardType;
 public class BattleUnitBlackboard implements Telegraph {
     private final BattleCharacter self;
     private final Battlefield battlefield;
-    private BattleCharacter target;
+    public BattleCharacter target;
     public StateMachine<BattleUnitBlackboard> stateMachine;
 
     /**
